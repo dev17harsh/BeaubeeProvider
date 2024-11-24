@@ -23,6 +23,28 @@ import BookingDetailScreen from '../screens/BookingDetailScreen';
 import CloseShopEarly from '../screens/CloseShopEarly';
 import BusinessProfile from '../screens/BusinessProfile';
 import EditProfileBusiness from '../screens/EditProfileBusiness';
+import ServiceScreen from '../screens/ServiceScreen';
+import AddUpdateServiceScreen from '../screens/AddUpdateServiceScreen';
+import AddEditSubServices from '../screens/AddEditSubServices';
+import AddTimingLocation from '../screens/AddTimingLocation';
+import ChangePasswordScreen from '../screens/ChangePassword';
+import StaffProfile from '../screens/StaffProfile';
+import StaffDetails from '../screens/StaffDetails';
+import Promotions from '../screens/Promotions';
+import NewPromotions from '../screens/NewPromotions';
+import AddPrepaidPack from '../screens/AddPrepaidPack';
+import BdayGiftCard from '../screens/BdayGiftCard';
+import FootprintScreen from '../screens/FootprintScreen';
+import SensGiftCard from '../screens/SensGiftCard';
+import AddProfesssional from '../screens/AddProfesssional';
+import BlockClients from '../screens/BlockClients';
+import Support from '../screens/Support';
+import SettingScreen from '../screens/SettingScreen';
+import Notification from '../screens/Notification';
+import Analytics from '../screens/Analytics';
+import RosterScreen from '../screens/RosterScreen';
+import RosteringHours from '../screens/RosteringHours';
+import Availability from '../screens/Availability';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -134,6 +156,119 @@ const Routes = () => {
                 <Stack.Screen
                     name="EditProfileBusiness"
                     component={EditProfileBusiness}
+                    headerShown={false}
+                />
+                <Stack.Screen
+                    name="ServiceScreen"
+                    component={ServiceScreen}
+                    headerShown={false}
+                />
+                <Stack.Screen
+                    name="AddUpdateServiceScreen"
+                    component={AddUpdateServiceScreen}
+                    headerShown={false}
+                />
+                <Stack.Screen
+                    name="AddEditSubServices"
+                    component={AddEditSubServices}
+                    headerShown={false}
+                />
+                <Stack.Screen
+                    name="AddTimingLocation"
+                    component={AddTimingLocation}
+                    headerShown={false}
+                />
+                <Stack.Screen
+                    name="ChangePassword"
+                    component={ChangePasswordScreen}
+                    headerShown={false}
+                />
+                <Stack.Screen
+                    name="StaffProfile"
+                    component={StaffProfile}
+                    headerShown={false}
+                />
+                <Stack.Screen
+                    name="StaffDetails"
+                    component={StaffDetails}
+                    headerShown={false}
+                />
+                <Stack.Screen
+                    name="Promotions"
+                    component={Promotions}
+                    headerShown={false}
+                />
+                <Stack.Screen
+                    name="NewPromotions"
+                    component={NewPromotions}
+                    headerShown={false}
+                />
+                <Stack.Screen
+                    name="AddPrepaidPack"
+                    component={AddPrepaidPack}
+                    headerShown={false}
+                />
+                <Stack.Screen
+                    name="BdayGiftCard"
+                    component={BdayGiftCard}
+                    headerShown={false}
+                />
+                <Stack.Screen
+                    name="FootprintScreen"
+                    component={FootprintScreen}
+                    headerShown={false}
+                />
+                <Stack.Screen
+                    name="SensGiftCard"
+                    component={SensGiftCard}
+                    headerShown={false}
+                />
+                <Stack.Screen
+                    name="AddProfesssional"
+                    component={AddProfesssional}
+                    headerShown={false}
+                />
+                <Stack.Screen
+                    name="BlockClients"
+                    component={BlockClients}
+                    headerShown={false}
+                />
+                <Stack.Screen
+                    name="Support"
+                    component={Support}
+                    headerShown={false}
+                />
+                <Stack.Screen
+                    name="SettingScreen"
+                    component={SettingScreen}
+                    headerShown={false}
+                />
+                <Stack.Screen
+                    name="Analytics"
+                    component={Analytics}
+                    headerShown={false}
+                />
+                <Stack.Screen
+                    name="Notification"
+                    component={Notification}
+                    headerShown={false}
+                />
+
+                <Stack.Screen
+                    name="RosterScreen"
+                    component={RosterScreen}
+                    headerShown={false}
+                />
+
+                <Stack.Screen
+                    name="RosteringHours"
+                    component={RosteringHours}
+                    headerShown={false}
+                />
+
+                <Stack.Screen
+                    name="Availability"
+                    component={Availability}
                     headerShown={false}
                 />
 

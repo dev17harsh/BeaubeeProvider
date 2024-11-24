@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -9,13 +9,13 @@ import {
   Image,
   TextInput,
 } from 'react-native';
-import {Images} from '../assets/images';
+import { Images } from '../assets/images';
 import CustomSwitch from '../components/CustomSwitch';
-import {Colors} from '../theme/colors';
+import { Colors } from '../theme/colors';
 import BookingModal from '../components/Modal.js/BookingModal';
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
-const ProfileScreen = ({navigation}) => {
+const ProfileScreen = ({ navigation }) => {
   const [isEnable, setisEnable] = useState(false);
   const [isEnable1, setisEnable1] = useState(false);
 
@@ -57,7 +57,7 @@ const ProfileScreen = ({navigation}) => {
         midText={
           'You’ll have to manually turn the bookings on to continue receiving bookings.'
         }
-        buttonBackgroundColor={{backgroundColor: Colors.primary}}
+        buttonBackgroundColor={{ backgroundColor: Colors.primary }}
         visible={resumeBookingModal}
         onClose={bookingResume}
         type={resumeBookingModal}
@@ -69,22 +69,24 @@ const ProfileScreen = ({navigation}) => {
         midText={
           'Closing shop early will cancel them and you will be charged Beaubee commission fees If you would like to keep them you can choose to pause bookings instead on the bookings page. '
         }
-        onFirstBtn={()=>{
+        onFirstBtn={() => {
           navigation.navigate('CloseShopEarly')
         }}
         visible={CloseShop}
-        onClose={()=>{setCloseShop(false)}}
+        onClose={() => { setCloseShop(false) }}
         type={CloseShop}
         cancelButtonText={'Pause Bookings'}
-       />
+      />
 
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Profile</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('Notification')}>
         <Image source={Images?.BellNotification} style={styles.bellIcon} />
+        </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={{paddingBottom: (mobileH * 5) / 100}}>
+      <ScrollView contentContainerStyle={{ paddingBottom: (mobileH * 5) / 100 }}>
         {/* Static Profile Options */}
         <View style={styles.topContainer}>
           <View style={styles.topViewContainer}>
@@ -127,7 +129,7 @@ const ProfileScreen = ({navigation}) => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => navigation.navigate('Wishlist')}
+          onPress={() => navigation.navigate('ServiceScreen')}
           activeOpacity={0.8}
           style={styles.itemContainer}>
           <Image source={Images?.service} style={styles.icon} />
@@ -140,7 +142,9 @@ const ProfileScreen = ({navigation}) => {
           <Image source={Images?.forwardIcon} style={styles.forwardDicicon} />
         </TouchableOpacity>
 
-        <TouchableOpacity activeOpacity={0.8} style={styles.itemContainer}>
+        <TouchableOpacity activeOpacity={0.8} style={styles.itemContainer} onPress={()=>{
+          navigation.navigate('RosterScreen')
+        }}>
           <Image source={Images?.roster} style={styles.icon} />
           <View style={styles.txtView}>
             <Text style={styles.itemLabel}>Roster</Text>
@@ -149,7 +153,9 @@ const ProfileScreen = ({navigation}) => {
           <Image source={Images?.forwardIcon} style={styles.forwardDicicon} />
         </TouchableOpacity>
 
-        <TouchableOpacity activeOpacity={0.8} style={styles.itemContainer}>
+        <TouchableOpacity onPress={() => {
+          navigation.navigate('StaffProfile')
+        }} activeOpacity={0.8} style={styles.itemContainer}>
           <Image source={Images?.staff} style={styles.icon} />
           <View style={styles.txtView}>
             <Text style={styles.itemLabel}>Staff</Text>
@@ -160,7 +166,7 @@ const ProfileScreen = ({navigation}) => {
 
         <TouchableOpacity
           onPress={() => {
-            navigation.navigate('UserWallet');
+            navigation.navigate('Promotions');
           }}
           activeOpacity={0.8}
           style={styles.itemContainer}>
@@ -174,7 +180,7 @@ const ProfileScreen = ({navigation}) => {
 
         <TouchableOpacity
           onPress={() => {
-            navigation.navigate('UserWallet');
+            navigation.navigate('AddPrepaidPack');
           }}
           activeOpacity={0.8}
           style={styles.itemContainer}>
@@ -188,7 +194,7 @@ const ProfileScreen = ({navigation}) => {
 
         <TouchableOpacity
           onPress={() => {
-            navigation.navigate('Settings');
+            navigation.navigate('SettingScreen');
           }}
           activeOpacity={0.8}
           style={styles.itemContainer}>
@@ -205,7 +211,7 @@ const ProfileScreen = ({navigation}) => {
 
         <TouchableOpacity
           onPress={() => {
-            navigation.navigate('Settings');
+            navigation.navigate('BdayGiftCard');
           }}
           activeOpacity={0.8}
           style={styles.itemContainer}>
@@ -220,7 +226,7 @@ const ProfileScreen = ({navigation}) => {
 
         <TouchableOpacity
           onPress={() => {
-            navigation.navigate('Settings');
+            navigation.navigate('Analytics');
           }}
           activeOpacity={0.8}
           style={styles.itemContainer}>
@@ -235,7 +241,7 @@ const ProfileScreen = ({navigation}) => {
 
         <TouchableOpacity
           onPress={() => {
-            navigation.navigate('Settings');
+            navigation.navigate('BlockClients');
           }}
           activeOpacity={0.8}
           style={styles.itemContainer}>
@@ -248,7 +254,7 @@ const ProfileScreen = ({navigation}) => {
           <Image source={Images?.forwardIcon} style={styles.forwardDicicon} />
         </TouchableOpacity>
 
-        <TouchableOpacity activeOpacity={0.8} style={styles.itemContainer}>
+        <TouchableOpacity activeOpacity={0.8} style={styles.itemContainer} onPress={()=>{navigation.navigate('Support')}}>
           <Image source={Images?.support} style={styles.icon} />
           <View style={styles.txtView}>
             <Text style={styles.itemLabel}>Support</Text>
@@ -278,7 +284,9 @@ const ProfileScreen = ({navigation}) => {
           <Image source={Images?.forwardIcon} style={styles.forwardDicicon} />
         </TouchableOpacity>
 
-        <TouchableOpacity activeOpacity={0.8} style={styles.footer}>
+        <TouchableOpacity activeOpacity={0.8} style={styles.footer} onPress={()=>{
+          navigation.navigate('FootprintScreen')
+        }}>
           <Image source={Images?.footprint} style={styles.icon} />
           <View style={styles.txtView}>
             <Text style={styles.footerItemLabel}>Footprint</Text>
@@ -286,7 +294,7 @@ const ProfileScreen = ({navigation}) => {
           </View>
           <Image
             source={Images?.forwardIcon}
-            style={[styles.forwardDicicon, {tintColor: '#FFFFFF'}]}
+            style={[styles.forwardDicicon, { tintColor: '#FFFFFF' }]}
           />
         </TouchableOpacity>
       </ScrollView>

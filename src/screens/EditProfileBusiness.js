@@ -17,10 +17,18 @@ import {Colors} from '../theme/colors';
 import {TextInput as TextInputPaper} from 'react-native-paper';
 import CustomSwitch from '../components/CustomSwitch';
 import {launchImageLibrary} from 'react-native-image-picker';
+import CommonButton from '../components/CommonButton';
+import {mobileH, mobileW} from '../components/utils';
 import BreakDuratinModal from '../components/Modal.js/BreakDurationModal';
-// import TimingsModal from '../components/Modal/TimingsModal';
-const mobileH = Math.round(Dimensions.get('window').height);
-const mobileW = Math.round(Dimensions.get('window').width);
+
+const data = [
+  {image: Images.AddPhoto},
+  {image: Images.image11},
+  {image: Images.image22},
+  {image: Images.image33},
+  {image: Images.image44},
+  {image: Images.image55},
+];
 
 const EditProfileBusiness = ({navigation}) => {
   const [breakModal, setbreakModal] = useState(false);
@@ -84,7 +92,7 @@ const EditProfileBusiness = ({navigation}) => {
               marginTop: (mobileW * 3) / 100,
               backgroundColor: '#fff',
             }}
-            outlineColor={Colors?.primary}
+            outlineColor={Colors?.lightGray}
             activeOutlineColor={Colors?.primary}
             label="Business Name"
             placeholder="Business"
@@ -93,7 +101,7 @@ const EditProfileBusiness = ({navigation}) => {
           <View style={styles.inputMainView}>
             <TextInputPaper
               style={styles.textInputStyle}
-              outlineColor={Colors?.primary}
+              outlineColor={Colors?.lightGray}
               activeOutlineColor={Colors?.primary}
               label="Email"
               placeholder="test@email.com"
@@ -124,25 +132,16 @@ const EditProfileBusiness = ({navigation}) => {
           </View>
         </View>
         {/* Business Details */}
-        <View
-          style={{
-            paddingHorizontal: (mobileW * 3) / 100,
-            paddingVertical: (mobileW * 2) / 100,
-          }}>
+        <View style={styles.socialMediaTextView}>
           <Text style={styles.selectTitle}>Select Plateforms</Text>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              width: (mobileW * 91) / 100,
-            }}>
+          {/* Facebook View */}
+          <View style={styles.socialMediaMainView}>
             <View style={styles.plateformBavkView}>
-              <Image
-                source={Images?.cameraWithBack}
-                style={styles.socialMediaIcon}
+              <Image source={Images?.facebook} style={styles.socialMediaIcon} />
+              <TextInput
+                placeholder="www.facebook.com"
+                style={styles.socialtextInputStyle}
               />
-              <TextInput></TextInput>
             </View>
             <CustomSwitch
               isEnabled={isEnablePhone}
@@ -150,6 +149,117 @@ const EditProfileBusiness = ({navigation}) => {
                 togglePhone();
               }}
             />
+          </View>
+
+          {/* Facebook View */}
+          <View style={styles.socialMediaMainView}>
+            <View style={styles.plateformBavkView}>
+              <Image
+                source={Images?.instagram}
+                style={styles.socialMediaIcon}
+              />
+              <TextInput
+                placeholder="www.instagram.com"
+                style={styles.socialtextInputStyle}
+              />
+            </View>
+            <CustomSwitch
+              isEnabled={isEnablePhone}
+              toggleSwitch={() => {
+                togglePhone();
+              }}
+            />
+          </View>
+
+          {/* Facebook View */}
+          <View style={styles.socialMediaMainView}>
+            <View style={styles.plateformBavkView}>
+              <Image source={Images?.whatsapp} style={styles.socialMediaIcon} />
+              <TextInput
+                placeholder="www.whatsapp.com"
+                style={styles.socialtextInputStyle}
+              />
+            </View>
+            <CustomSwitch
+              isEnabled={isEnablePhone}
+              toggleSwitch={() => {
+                togglePhone();
+              }}
+            />
+          </View>
+
+          {/* Facebook View */}
+          <View style={styles.socialMediaMainView}>
+            <View style={styles.plateformBavkView}>
+              <Image source={Images?.twitter} style={styles.socialMediaIcon} />
+              <TextInput
+                placeholder="www.twitter.com"
+                style={styles.socialtextInputStyle}
+              />
+            </View>
+            <CustomSwitch
+              isEnabled={isEnablePhone}
+              toggleSwitch={() => {
+                togglePhone();
+              }}
+            />
+          </View>
+
+          {/* Facebook View */}
+          <View style={styles.socialMediaMainView}>
+            <View style={styles.plateformBavkView}>
+              <Image source={Images?.youtube} style={styles.socialMediaIcon} />
+              <TextInput
+                placeholder="www.youtube.com"
+                style={styles.socialtextInputStyle}
+              />
+            </View>
+            <CustomSwitch
+              isEnabled={isEnablePhone}
+              toggleSwitch={() => {
+                togglePhone();
+              }}
+            />
+          </View>
+
+          {/*  */}
+          <View style={{marginTop: (mobileW * 4) / 100}}>
+            <Text style={styles.selectTitle}>Add Photo</Text>
+            <View style={{marginTop: (mobileW * 4) / 100}}>
+              <FlatList
+                data={data}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                renderItem={({item, index}) => (
+                  <TouchableOpacity>
+                    <ImageBackground
+                      source={item?.image}
+                      style={{
+                        width: (mobileW * 40) / 100,
+                        height: (mobileW * 40) / 100,
+                        marginRight: (mobileW * 4) / 100,
+                      }}>
+                      {index !== 0 && (
+                        <TouchableOpacity activeOpacity={0.8}>
+                          <Image
+                            source={Images?.RemoveWithBack}
+                            style={{
+                              left: 110,
+                              top: 6,
+                              width: (mobileW * 8) / 100,
+                              height: (mobileW * 8) / 100,
+                            }}
+                          />
+                        </TouchableOpacity>
+                      )}
+                    </ImageBackground>
+                  </TouchableOpacity>
+                )}
+                keyExtractor={item => item.key}
+              />
+            </View>
+
+            <CommonButton title={'Save Changes'} />
           </View>
         </View>
       </ScrollView>
@@ -195,8 +305,9 @@ const styles = StyleSheet.create({
     right: (mobileH * -5) / 100,
   },
   socialMediaIcon: {
-    width: (mobileW * 10) / 100,
-    height: (mobileW * 10) / 100,
+    width: (mobileW * 6) / 100,
+    height: (mobileW * 6) / 100,
+    left: 5,
   },
   businessName: {
     fontSize: (mobileW * 5) / 100,
@@ -389,6 +500,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#EEE6F1',
     marginVertical: (mobileW * 4) / 100,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
   },
   methodDetails: {
     flexDirection: 'row',
@@ -548,15 +662,34 @@ const styles = StyleSheet.create({
     color: '#000',
     left: 10,
   },
+  socialMediaMainView: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: (mobileW * 92) / 100,
+    marginTop: (mobileW * 4) / 100,
+  },
   plateformBavkView: {
-    width: (mobileW * 72) / 100,
+    width: (mobileW * 70) / 100,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: 1,
-    borderColor: 'red',
-    borderRadius: (mobileW * 1) / 100,
+    borderColor: Colors.lightGray,
+    borderRadius: (mobileW * 1.7) / 100,
     alignItems: 'center',
+    left: (mobileW * 2) / 100,
+  },
+  socialtextInputStyle: {
+    width: '88%',
+    height: (mobileW * 11) / 100,
+    color: Colors.black,
+  },
+  socialMediaTextView: {
+    paddingHorizontal: (mobileW * 3) / 100,
+    paddingVertical: (mobileW * 2) / 100,
+    marginTop: (mobileW * 3) / 100,
+    marginBottom: (mobileW * 10) / 100,
   },
 });
 

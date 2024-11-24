@@ -9,7 +9,7 @@ import {
   Dimensions,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import {Images} from '../assets/images';
+import { Images } from '../assets/images';
 import { Colors } from '../theme/colors';
 // import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 const mobileH = Math.round(Dimensions.get('window').height);
@@ -82,8 +82,8 @@ const data = [
   // Add more entries as needed
 ];
 
-const CloseShopEarly = ({navigation}) => {
-  const renderItem = ({item}) => (
+const CloseShopEarly = ({ navigation }) => {
+  const renderItem = ({ item }) => (
     <View style={styles.card}>
       <Image source={item?.image} style={styles.image} />
       <View style={styles.content}>
@@ -155,6 +155,34 @@ const CloseShopEarly = ({navigation}) => {
         renderItem={renderItem}
         contentContainerStyle={styles.list}
       />
+      <View style={{
+        width: '90%',
+        marginBottom: 10,
+        alignSelf: 'center',
+        position: 'absolute',
+        bottom: 0
+      }}>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={[
+            styles.pauseButton,
+          ]}>
+          <Text style={styles.pauseButtonText}>
+            Cancel All Bookings and Close Early
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={[
+            styles.cancelButton,
+          ]}
+        >
+          <Text style={styles.cancelButtonText}>
+            Pause Bookings
+          </Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -186,7 +214,7 @@ const styles = StyleSheet.create({
     height: (mobileW * 3.8) / 100,
     left: (mobileW * 2) / 100,
     tintColor: '#9E98AC',
-    resizeMode:"contain"
+    resizeMode: "contain"
   },
   ratingIcons: {
     width: (mobileW * 5) / 100,
@@ -261,7 +289,32 @@ const styles = StyleSheet.create({
     color: Colors.black,
     left: (mobileW * 4) / 100,
     fontWeight: '600',
-    marginTop:10
+    marginTop: 10
+  },
+  pauseButton: {
+    width: '100%',
+    padding: 15,
+    backgroundColor: Colors.red, // Default red, but will be overridden
+    borderRadius: 10,
+    marginBottom: 10,
+    alignItems: 'center',
+  },
+  pauseButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  cancelButton: {
+    width: '100%',
+    padding: 15,
+    backgroundColor: '#f2f2f2', // Default background color
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  cancelButtonText: {
+    color: '#a14ebe',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 
