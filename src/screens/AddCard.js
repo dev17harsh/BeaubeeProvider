@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  SafeAreaView,
 } from 'react-native';
 import React from 'react';
 import {TextInput as TextInputPaper} from 'react-native-paper';
@@ -17,7 +18,8 @@ const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
 export default function AddCardDetails({navigation}) {
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={()=>{
@@ -98,7 +100,8 @@ export default function AddCardDetails({navigation}) {
           <Text style={styles.selectionButtonTxt}>Save Card</Text>
         </TouchableOpacity>
       </ScrollView>
-    </View>
+      </View>
+    </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({

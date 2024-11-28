@@ -8,6 +8,7 @@ import {
   Image,
   FlatList,
   StatusBar,
+  SafeAreaView,
 } from 'react-native';
 import { mobileH, mobileW } from '../components/utils';
 import { Colors } from '../theme/colors';
@@ -548,7 +549,7 @@ const BookingsQueueScreen = ({navigation}) => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={Colors?.white} barStyle={'dark-content'} />
       {/* Cancel appointment Modal */}
       <BookingModal
@@ -603,7 +604,7 @@ const BookingsQueueScreen = ({navigation}) => {
       {tabsView()}
       {/* Data manage as per screen */}
       {selectedTab === 'Booking' ? BookingsData() : QueueData()}
-    </View>
+    </SafeAreaView>
   );
 };
 

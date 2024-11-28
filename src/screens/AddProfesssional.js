@@ -8,6 +8,7 @@ import {
   FlatList,
   TouchableOpacity,
   ImageBackground,
+  SafeAreaView,
 } from 'react-native';
 import { Images } from '../assets/images';
 import AppHeader from '../components/AppHeader';
@@ -113,6 +114,7 @@ const AddProfesssional = ({ navigation }) => {
   );
 
   return (
+    <SafeAreaView style={styles.container}>
     <View style={styles.container}>
       <BreakDuratinModal visible={breakModal} onClose={breakVisibleModal} />
       <AppHeader title={'Add Professsional'} />
@@ -308,6 +310,7 @@ const AddProfesssional = ({ navigation }) => {
         </View>
       </ScrollView>
     </View>
+    </SafeAreaView>
   );
 };
 

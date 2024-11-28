@@ -7,6 +7,7 @@ import {
     TouchableOpacity,
     StyleSheet,
     Dimensions,
+    SafeAreaView,
 } from 'react-native';
 import { Images } from '../assets/images';
 import AppHeader from '../components/AppHeader';
@@ -21,6 +22,7 @@ const AddTimingLocation = ({ navigation }) => {
     ]);
 
     return (
+        <SafeAreaView style={styles.container}>
         <View style={styles.container}>
             {/* Header */}
             <AppHeader title={'Addresses and Timings'} />
@@ -62,6 +64,7 @@ const AddTimingLocation = ({ navigation }) => {
                 </TouchableOpacity>
             </View>
         </View>
+        </SafeAreaView>
     );
 };
 

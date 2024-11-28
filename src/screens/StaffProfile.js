@@ -8,6 +8,7 @@ import {
   FlatList,
   Dimensions,
   Image,
+  SafeAreaView,
 } from 'react-native';
 import {DimensionsConfig} from '../theme/dimensions';
 import {Images} from '../assets/images';
@@ -120,6 +121,7 @@ const StaffProfile = ({navigation}) => {
   };
 
   return (
+    <SafeAreaView style={styles.modalOverlay}>
     <View style={styles.modalOverlay}>
       <AppHeader title={'Staff Profiles'} />
       <FlatList
@@ -139,6 +141,7 @@ const StaffProfile = ({navigation}) => {
                 }} />
             </TouchableOpacity>
     </View>
+    </SafeAreaView>
   );
 };
 

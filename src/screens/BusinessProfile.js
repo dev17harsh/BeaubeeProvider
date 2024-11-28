@@ -9,6 +9,7 @@ import {
   FlatList,
   Dimensions,
   ImageBackground,
+  SafeAreaView,
 } from 'react-native';
 import {Images} from '../assets/images';
 import AppHeader from '../components/AppHeader';
@@ -84,6 +85,7 @@ const BusinessProfile = ({navigation}) => {
   };
 
   return (
+    <SafeAreaView style={styles.container}>
     <View style={styles.container}>
       {/* <TimingsModal
         visible={isTimingModalVisible} 
@@ -223,6 +225,7 @@ const BusinessProfile = ({navigation}) => {
         </View>
       </ScrollView>
     </View>
+    </SafeAreaView>
   );
 };
 

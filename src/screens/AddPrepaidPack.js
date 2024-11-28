@@ -9,6 +9,7 @@ import {
   Dimensions,
   Image,
   ScrollView,
+  SafeAreaView,
 } from 'react-native';
 import {DimensionsConfig} from '../theme/dimensions';
 import {Images} from '../assets/images';
@@ -151,6 +152,7 @@ const AddPrepaidPack = ({navigation}) => {
   };
 
   return (
+    <SafeAreaView style={{flex: 1, backgroundColor: Colors.white}} >
     <View style={{flex: 1, backgroundColor: Colors.white}}>
       <AppHeader title={'Add Prepaid Package'} />
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -291,6 +293,7 @@ const AddPrepaidPack = ({navigation}) => {
         </View>
       </ScrollView>
     </View>
+    </SafeAreaView>
   );
 };
 

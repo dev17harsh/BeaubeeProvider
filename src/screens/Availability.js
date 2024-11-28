@@ -7,6 +7,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
+  SafeAreaView,
 } from 'react-native';
 import React, {useState} from 'react';
 import AppHeader from '../components/AppHeader';
@@ -102,6 +103,7 @@ const Availability = ({navigation}) => {
   );
 
   return (
+    <SafeAreaView style={styles.container}> 
     <View style={styles.container}>
       {/* Header */}
       <AppHeader title={'Availability'} />
@@ -188,6 +190,7 @@ const Availability = ({navigation}) => {
       </TouchableOpacity> */}
       </ScrollView>
     </View>
+    </SafeAreaView>
   );
 };
 

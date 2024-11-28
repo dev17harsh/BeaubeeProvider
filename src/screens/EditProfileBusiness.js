@@ -10,6 +10,7 @@ import {
   Dimensions,
   ImageBackground,
   TextInput,
+  SafeAreaView,
 } from 'react-native';
 import {Images} from '../assets/images';
 import AppHeader from '../components/AppHeader';
@@ -64,6 +65,7 @@ const EditProfileBusiness = ({navigation}) => {
   };
 
   return (
+    <SafeAreaView style={styles.container}>
     <View style={styles.container}>
       {/* Header */}
       <BreakDuratinModal visible={breakModal} onClose={breakVisibleModal} />
@@ -264,6 +266,7 @@ const EditProfileBusiness = ({navigation}) => {
         </View>
       </ScrollView>
     </View>
+    </SafeAreaView>
   );
 };
 

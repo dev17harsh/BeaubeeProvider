@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet, Dimensions, StatusBar } from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet, Dimensions, StatusBar, SafeAreaView } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { Colors } from '../theme/colors';
 import { Images } from '../assets/images';
@@ -27,7 +27,8 @@ const AddProfilePictureScreen = ({navigation}) => {
     };
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
+            <View  style={styles.container}>
             <StatusBar backgroundColor={Colors?.white} barStyle={'dark-content'} />
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>Add a profile picture</Text>
@@ -73,7 +74,8 @@ const AddProfilePictureScreen = ({navigation}) => {
                 <Text style={styles.skipText}>Skip</Text>
             </TouchableOpacity>
             </View>
-        </View>
+            </View>
+        </SafeAreaView>
     );
 };
 
@@ -141,6 +143,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: (mobileH * 5) / 100,
+        width: '95%',
+        alignSelf: 'center'
     },
     nextButtonText: {
         color: '#FFF',

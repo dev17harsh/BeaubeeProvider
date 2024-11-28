@@ -1,4 +1,4 @@
-import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { FlatList, Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import { Colors } from '../theme/colors'
 import AppHeader from '../components/AppHeader'
@@ -63,6 +63,7 @@ const ComibeSave = [
 const AddUpdateServiceScreen = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState('Services');
   return (
+    <SafeAreaView style={styles.container}>
     <View style={styles.container}>
       <AppHeader
         title={"Hair Services"}
@@ -182,6 +183,7 @@ const AddUpdateServiceScreen = ({ navigation }) => {
         )}
       </View>
     </View>
+    </SafeAreaView>
   )
 }
 
@@ -287,7 +289,7 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 50,
     right: 20,
     width: DimensionsConfig.screenHeight * 0.07,
     height: DimensionsConfig.screenHeight * 0.07,

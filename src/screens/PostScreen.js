@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Dimensions,
   ImageBackground,
+  SafeAreaView,
 } from 'react-native';
 import {DimensionsConfig} from '../theme/dimensions';
 import {Images} from '../assets/images';
@@ -105,7 +106,7 @@ const Posts = ({navigation}) => {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* Header Section */}
       <AppHeader title={'Posts'} />
       {/* Vertical FlatList for categories */}
@@ -134,7 +135,7 @@ const Posts = ({navigation}) => {
         }}
         ListFooterComponent={<View style={{height: 20}} />}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 

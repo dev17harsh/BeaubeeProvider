@@ -6,6 +6,7 @@ import {
   Image,
   ScrollView,
   TextInput,
+  SafeAreaView,
 } from 'react-native';
 import React, {useState} from 'react';
 import {Images} from '../assets/images';
@@ -95,6 +96,7 @@ export default function Support({navigation}) {
   };
 
   return (
+    <SafeAreaView style={styles.container}>
     <View style={styles.container}>
       <SelectCustomer
         visible={isModalProfessionalVisible}
@@ -187,6 +189,7 @@ export default function Support({navigation}) {
         <CommonButton />
       </View>
     </View>
+    </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({

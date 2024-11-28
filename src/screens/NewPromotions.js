@@ -9,6 +9,7 @@ import {
   Dimensions,
   Image,
   ScrollView,
+  SafeAreaView,
 } from 'react-native';
 import {DimensionsConfig} from '../theme/dimensions';
 import {Images} from '../assets/images';
@@ -93,6 +94,7 @@ const NewPromotions = ({navigation}) => {
     </TouchableOpacity>
   );
   return (
+    <SafeAreaView style={{flex: 1, backgroundColor: Colors.white}}>
     <View style={{flex: 1, backgroundColor: Colors.white}}>
       <AppHeader title={'New Promotions'} />
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -290,6 +292,7 @@ const NewPromotions = ({navigation}) => {
         </View>
       </ScrollView>
     </View>
+    </SafeAreaView>
   );
 };
 

@@ -6,6 +6,7 @@ import {
     Dimensions,
     ScrollView,
     TouchableOpacity,
+    SafeAreaView,
  } from 'react-native'
 import React, { useState } from 'react'
 import AppHeader from '../components/AppHeader'
@@ -80,7 +81,8 @@ const AddBusinessTimingScreen = ({navigation}) => {
     );
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
+            <View style={styles.container}>
             {/* Header */}
             <AppHeader
                 title={"Business Timings"}
@@ -132,7 +134,8 @@ const AddBusinessTimingScreen = ({navigation}) => {
                 style={styles.selectLocationButton}>
                 <Text style={styles.selectionButtonTxt}>Save Location and Timings</Text>
             </TouchableOpacity>
-        </View>
+            </View>
+        </SafeAreaView>
     )
 }
 

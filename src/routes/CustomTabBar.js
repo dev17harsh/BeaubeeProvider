@@ -70,6 +70,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
                         testID={options.tabBarTestID}
                         onPress={onPress}
                         style={styles.tabItem}
+                        activeOpacity={1}
                     >
                         <View style={isFocused ? styles.activeTab : styles.inactiveTab}>
                             <Image source={iconSource} style={styles.icon} />
@@ -86,10 +87,10 @@ const styles = StyleSheet.create({
     tabContainer: {
         flexDirection: 'row',
         backgroundColor: Colors?.primary,
-        height: DimensionsConfig.screenHeight * 0.095,
+        height: Platform.OS == 'ios' ? DimensionsConfig.screenHeight * 0.12 : DimensionsConfig.screenHeight * 0.095,
         justifyContent: 'space-around',
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
+        borderTopLeftRadius: DimensionsConfig.screenHeight * 0.022,
+        borderTopRightRadius: DimensionsConfig.screenHeight * 0.022,
     },
     tabItem: {
         alignItems: 'center',

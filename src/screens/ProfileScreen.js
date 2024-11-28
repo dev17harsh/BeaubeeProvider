@@ -8,6 +8,7 @@ import {
   Dimensions,
   Image,
   TextInput,
+  SafeAreaView,
 } from 'react-native';
 import { Images } from '../assets/images';
 import CustomSwitch from '../components/CustomSwitch';
@@ -40,6 +41,7 @@ const ProfileScreen = ({ navigation }) => {
   };
 
   return (
+    <SafeAreaView style={styles.container}>
     <View style={styles.container}>
       {/* Cancel appointment Modal */}
       <BookingModal
@@ -299,6 +301,7 @@ const ProfileScreen = ({ navigation }) => {
         </TouchableOpacity>
       </ScrollView>
     </View>
+    </SafeAreaView>
   );
 };
 

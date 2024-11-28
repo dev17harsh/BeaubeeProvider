@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import AppHeader from "../components/AppHeader";
 import ListProfessionalModal from "../components/ListProfessionalModal";
 import ServiceSelector from "../components/Modal.js/ServiceSelector";
@@ -115,7 +115,7 @@ const PostLook = ({navigation}) => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <ScrollView>
         <AppHeader title={'Poat a Look!'} />
         <ListProfessionalModal
@@ -201,7 +201,7 @@ const PostLook = ({navigation}) => {
           <View style={{height: 50}} />
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 

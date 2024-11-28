@@ -8,6 +8,7 @@ import {
   FlatList,
   Dimensions,
   Image,
+  SafeAreaView,
 } from 'react-native';
 import {DimensionsConfig} from '../theme/dimensions';
 import {Images} from '../assets/images';
@@ -147,6 +148,7 @@ const Promotions = ({visible, onClose, onSelect , navigation}) => {
   };
 
   return (
+    <SafeAreaView style={{flex: 1, backgroundColor: Colors.white}}>
     <View style={{flex: 1, backgroundColor: Colors.white}}>
       <AppHeader title={'Promotions'} />
       <View style={{marginBottom: (mobileW * 18) / 100}}>
@@ -165,6 +167,7 @@ const Promotions = ({visible, onClose, onSelect , navigation}) => {
         <Image style={styles.calenderIcon} source={Images.PlusWhite} />
       </TouchableOpacity>
     </View>
+    </SafeAreaView>
   );
 };
 

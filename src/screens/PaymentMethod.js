@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
+  SafeAreaView,
 } from 'react-native';
 import { Images } from '../assets/images';
 import { Colors } from '../theme/colors';
@@ -70,7 +71,7 @@ const PaymentMethod = ({ navigation, ...props }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* Header */}
       <View
         style={[
@@ -121,7 +122,7 @@ const PaymentMethod = ({ navigation, ...props }) => {
           <Text style={styles.AddLaterTxt}>Add Later</Text>
         </TouchableOpacity>
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, Dimensions, SafeAreaView } from 'react-native';
 import { Images } from '../assets/images';
 import { Colors } from '../theme/colors';
 const mobileH = Math.round(Dimensions.get('window').height);
@@ -66,7 +66,8 @@ const Notification = ({navigation}) => {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>   
+       <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={()=>{navigation.goBack()}}>
@@ -87,6 +88,8 @@ const Notification = ({navigation}) => {
         contentContainerStyle={styles.listContent}
       />
     </View>
+    </SafeAreaView>
+
   );
 };
 

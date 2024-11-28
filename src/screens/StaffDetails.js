@@ -9,6 +9,7 @@ import {
   Dimensions,
   Touchable,
   TouchableOpacity,
+  SafeAreaView,
 } from 'react-native';
 import {Images} from '../assets/images';
 import AppHeader from '../components/AppHeader';
@@ -58,6 +59,7 @@ const StaffDetails = ({navigation}) => {
   };
 
   return (
+    <SafeAreaView style={styles.container}>
     <View style={styles.container}>
       <BreakDuratinModal visible={breakModal} onClose={breakVisibleModal} />
       <AppHeader title={'Details'} />
@@ -177,6 +179,7 @@ const StaffDetails = ({navigation}) => {
         </View>
       </ScrollView>
     </View>
+    </SafeAreaView>
   );
 };
 

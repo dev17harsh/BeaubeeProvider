@@ -8,7 +8,8 @@ import {
     FlatList,
     StyleSheet,
     Image,
-    Dimensions
+    Dimensions,
+    SafeAreaView
 } from 'react-native';
 import { Images } from '../../assets/images';
 
@@ -53,7 +54,7 @@ const LocationSearchModal = ({ visible, onClose }) => {
 
     return (
         <Modal visible={visible} animationType="slide" transparent={true}>
-            <View style={styles.modalContainer}>
+            <SafeAreaView style={styles.modalContainer}>
                 <View style={styles.modalContent}>
                     <View style={styles.searchBar}>
                         <TouchableOpacity onPress={onClose}>
@@ -80,7 +81,7 @@ const LocationSearchModal = ({ visible, onClose }) => {
                         }}
                     />
                 </View>
-            </View>
+            </SafeAreaView>
         </Modal>
     );
 };

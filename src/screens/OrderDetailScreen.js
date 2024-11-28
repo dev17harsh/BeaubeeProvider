@@ -7,6 +7,7 @@ import {
   ScrollView,
   StyleSheet,
   Dimensions,
+  SafeAreaView,
 } from 'react-native';
 import AppHeader from '../components/AppHeader';
 import {Colors} from '../theme/colors';
@@ -17,7 +18,7 @@ const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
 const OrderDetailScreen = ({navigation}) => {
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* Header */}
       <AppHeader title={'Order Detail'} />
 
@@ -175,7 +176,7 @@ const OrderDetailScreen = ({navigation}) => {
 
         <View style={{marginTop: (mobileH * 5) / 100}} />
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 

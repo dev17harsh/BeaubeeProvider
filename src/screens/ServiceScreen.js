@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Dimensions, Image, Modal, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Dimensions, Image, Modal, ScrollView, SafeAreaView } from 'react-native';
 import { Images } from '../assets/images';
 import { DimensionsConfig } from '../theme/dimensions';
 
@@ -66,6 +66,7 @@ const ServiceScreen = ({navigation}) => {
         );
     };
     return (
+        <SafeAreaView style={styles.container}>
         <View style={styles.container}>
             <Text style={styles.header}>Services</Text>
             <FlatList
@@ -120,6 +121,7 @@ const ServiceScreen = ({navigation}) => {
             </TouchableOpacity>
             {AddRemoveService()}
         </View>
+        </SafeAreaView>
     );
 };
 

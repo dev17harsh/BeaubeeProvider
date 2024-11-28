@@ -8,6 +8,7 @@ import {
     StyleSheet,
     Dimensions,
     Modal,
+    SafeAreaView,
 } from 'react-native';
 import AppHeader from '../components/AppHeader';
 import { Colors } from '../theme/colors';
@@ -67,7 +68,8 @@ const BookingDetailScreen = ({ navigation }) => {
     }
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
+            <View style={styles.container}>
             <AppHeader title={'Booking Details'} />
 
             <ScrollView style={styles.Scrollcontainer}>
@@ -198,7 +200,8 @@ const BookingDetailScreen = ({ navigation }) => {
             </ScrollView>
             {cancelConformationModal()}
             {cancelChargesModal()}
-        </View>
+            </View>
+        </SafeAreaView>
     );
 };
 

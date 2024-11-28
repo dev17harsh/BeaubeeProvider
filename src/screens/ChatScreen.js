@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, SectionList, ImageBackground, StatusBar } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, SectionList, ImageBackground, StatusBar, SafeAreaView } from 'react-native';
 import { Images } from '../assets/images';
 import { Colors } from '../theme/colors';
 import { DimensionsConfig } from '../theme/dimensions';
@@ -107,7 +107,8 @@ const ChatScreen = ({navigation}) => {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
       <StatusBar backgroundColor={Colors?.white} barStyle={'dark-content'} />
       <View style={styles.tabContainer}>
         <TouchableOpacity onPress={() => setActiveTab('Upcoming')} style={[styles.tabButton, activeTab == 'Upcoming' && styles.tabInactive]}>
@@ -133,7 +134,8 @@ const ChatScreen = ({navigation}) => {
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
       />
-    </View>
+      </View>
+    </SafeAreaView>
   );
 };
 

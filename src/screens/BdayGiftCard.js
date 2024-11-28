@@ -7,6 +7,7 @@ import {
   Image,
   ScrollView,
   FlatList,
+  SafeAreaView,
 } from 'react-native';
 import React, {useState} from 'react';
 import {TextInput, TextInput as TextInputPaper} from 'react-native-paper';
@@ -141,6 +142,7 @@ export default function BdayGiftCard({navigation}) {
   };
 
   return (
+    <SafeAreaView style={styles.container}>
     <View style={styles.container}>
       <ListProfessionalModal
         visible={isModalProfessionalVisible}
@@ -249,6 +251,7 @@ export default function BdayGiftCard({navigation}) {
         <CommonButton onPress={()=>{navigation.navigate('SensGiftCard')}} title={'Send a Gift Card'}/>
       </View>
     </View>
+    </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({

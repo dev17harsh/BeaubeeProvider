@@ -7,6 +7,7 @@ import {
     Dimensions,
     TouchableOpacity,
     Image,
+    SafeAreaView,
 } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { Images } from '../assets/images';
@@ -37,6 +38,7 @@ const SettingScreen = ({navigation}) => {
     };
 
     return (
+        <SafeAreaView style={styles.container}>
         <View style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -119,6 +121,7 @@ const SettingScreen = ({navigation}) => {
                 ))}
             </View>
         </View>
+        </SafeAreaView>
     );
 };
 

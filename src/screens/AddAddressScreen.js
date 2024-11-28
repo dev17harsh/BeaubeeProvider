@@ -1,29 +1,31 @@
 import {
-    View,
-    Text,
-    StyleSheet,
-    Dimensions,
-    TouchableOpacity,
-    Image,
-    ScrollView,
-  } from 'react-native';
-  import React from 'react';
-  import {TextInput as TextInputPaper} from 'react-native-paper';
-  import {Images} from '../assets/images';
-  import InputField from '../components/InputField';
-  import {DimensionsConfig} from '../theme/dimensions';
-  import { Colors } from '../theme/colors';
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  SafeAreaView,
+} from 'react-native';
+import React from 'react';
+import { TextInput as TextInputPaper } from 'react-native-paper';
+import { Images } from '../assets/images';
+import InputField from '../components/InputField';
+import { DimensionsConfig } from '../theme/dimensions';
+import { Colors } from '../theme/colors';
 import AppHeader from '../components/AppHeader';
-  const mobileH = Math.round(Dimensions.get('window').height);
-  const mobileW = Math.round(Dimensions.get('window').width);
-  export default function AddAddressScreen({navigation}) {
-    return (
+const mobileH = Math.round(Dimensions.get('window').height);
+const mobileW = Math.round(Dimensions.get('window').width);
+export default function AddAddressScreen({ navigation }) {
+  return (
+    <SafeAreaView style={styles.container}>
       <View style={styles.container}>
         {/* Header */}
-       <AppHeader 
-       title={"Address Details"}
-       />
-        <ScrollView contentContainerStyle={{paddingBottom: (mobileW * 5) / 100}}>
+        <AppHeader
+          title={"Address Details"}
+        />
+        <ScrollView contentContainerStyle={{ paddingBottom: (mobileW * 5) / 100 }}>
           <View
             style={{
               alignSelf: 'center',
@@ -56,7 +58,7 @@ import AppHeader from '../components/AppHeader';
                 borderBottomRightRadius: (mobileW * 2.3) / 100,
               }}>
               <View>
-                <Text style={{fontSize: (mobileW * 4) / 100, color: '#000'}}>
+                <Text style={{ fontSize: (mobileW * 4) / 100, color: '#000' }}>
                   Location Name
                 </Text>
                 <Text
@@ -80,9 +82,9 @@ import AppHeader from '../components/AppHeader';
               justifyContent: 'space-between',
             }}>
             <TextInputPaper
-               style={{width: (mobileW * 43) / 100 , fontSize: 14 , backgroundColor: '#fff'}}
-               outlineColor={Colors?.primary}
-               activeOutlineColor={Colors?.primary}
+              style={{ width: (mobileW * 43) / 100, fontSize: 14, backgroundColor: '#fff' }}
+              outlineColor={Colors?.primary}
+              activeOutlineColor={Colors?.primary}
               label="Flat/Villa No."
               // value="Flat/Villa No."
               placeholder="Flat add here"
@@ -90,16 +92,16 @@ import AppHeader from '../components/AppHeader';
               mode="outlined"
             />
             <TextInputPaper
-               style={{width: (mobileW * 43) / 100 , fontSize: 14 , backgroundColor: '#fff'}}
-               outlineColor={Colors?.primary}
-               activeOutlineColor={Colors?.primary}
+              style={{ width: (mobileW * 43) / 100, fontSize: 14, backgroundColor: '#fff' }}
+              outlineColor={Colors?.primary}
+              activeOutlineColor={Colors?.primary}
               label="Building/Villa"
               // onChangeText={text => setText(text)}
               placeholder="Building name here"
               mode="outlined"
             />
           </View>
-  
+
           <View
             style={{
               width: mobileW,
@@ -109,16 +111,16 @@ import AppHeader from '../components/AppHeader';
               justifyContent: 'space-between',
             }}>
             <TextInputPaper
-               style={{width: (mobileW * 43) / 100 , fontSize: 14  , backgroundColor: '#fff'}}
-               outlineColor={Colors?.primary}
-               activeOutlineColor={Colors?.primary}
+              style={{ width: (mobileW * 43) / 100, fontSize: 14, backgroundColor: '#fff' }}
+              outlineColor={Colors?.primary}
+              activeOutlineColor={Colors?.primary}
               label="Street"
               // onChangeText={text => setText(text)}
               mode="outlined"
               placeholder="Street name here"
             />
             <TextInputPaper
-              style={{width: (mobileW * 43) / 100 , fontSize: 14 , backgroundColor: '#fff'}}
+              style={{ width: (mobileW * 43) / 100, fontSize: 14, backgroundColor: '#fff' }}
               label="Area"
               outlineColor={Colors?.primary}
               activeOutlineColor={Colors?.primary}
@@ -127,7 +129,7 @@ import AppHeader from '../components/AppHeader';
               mode="outlined"
             />
           </View>
-  
+
           <View
             style={{
               marginLeft: (mobileW * 5) / 100,
@@ -135,11 +137,11 @@ import AppHeader from '../components/AppHeader';
             }}>
             <InputField
               placeholder="Directions"
-              // value={'email'}
-              //   onChangeText={setEmail}
+            // value={'email'}
+            //   onChangeText={setEmail}
             />
           </View>
-  
+
           {/* <View
             style={{
               flexDirection: 'row',
@@ -188,70 +190,70 @@ import AppHeader from '../components/AppHeader';
               </Text>
             </TouchableOpacity>
           </View> */}
-  
-        </ScrollView>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('AddBusinessTimingScreen')}
-            style={styles.selectLocationButton}>
-            <Text style={styles.selectionButtonTxt}>Next</Text>
-          </TouchableOpacity>
-      </View>
-    );
-  }
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: Colors?.white,
-    },
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      paddingHorizontal: (mobileW * 5) / 100,
-      backgroundColor: Colors?.white,
-      paddingVertical: (mobileW * 8) / 100,
-      borderBottomColor: '#ebedf4',
-      borderBottomWidth: (mobileW * 0.5) / 100,
-    },
-    backIcon: {
-      width: (mobileW * 5) / 100,
-      height: (mobileW * 5) / 100,
-    },
-    backButton: {
-      fontSize: 18,
-      color: '#000',
-    },
-    headerTitle: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      marginLeft: 15,
-      color: '#000',
-    },
-    spacingBtwInput: {
-      marginVertical: DimensionsConfig?.screenHeight * 0.012,
-      marginLeft: (mobileW * 5) / 100,
-    },
-    selectLocationButton: {
-      backgroundColor: '#8D10B5',
-      width: (mobileW * 90) / 100,
-      borderRadius: DimensionsConfig?.buttonHeight * 0.18,
-        paddingVertical: DimensionsConfig?.buttonHeight * 0.28,
-      alignItems: 'center',
-      justifyContent: 'center',
-      alignSelf: 'center',
-      marginTop: (mobileH * 15) / 100,
-      position: 'absolute',
-      bottom: (mobileH * 2) / 100,
 
-    },
-    selectionButtonTxt: {
-      fontSize: (mobileW * 4) / 100,
-      fontWeight: '500',
-      color: '#FFFFFF',
-    },
-    AddressIcon: {
-      width: (mobileW * 13) / 100,
-      height: (mobileW * 13) / 100,
-    },
-  });
-  
+        </ScrollView>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('AddBusinessTimingScreen')}
+          style={styles.selectLocationButton}>
+          <Text style={styles.selectionButtonTxt}>Next</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
+  );
+}
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors?.white,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: (mobileW * 5) / 100,
+    backgroundColor: Colors?.white,
+    paddingVertical: (mobileW * 8) / 100,
+    borderBottomColor: '#ebedf4',
+    borderBottomWidth: (mobileW * 0.5) / 100,
+  },
+  backIcon: {
+    width: (mobileW * 5) / 100,
+    height: (mobileW * 5) / 100,
+  },
+  backButton: {
+    fontSize: 18,
+    color: '#000',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginLeft: 15,
+    color: '#000',
+  },
+  spacingBtwInput: {
+    marginVertical: DimensionsConfig?.screenHeight * 0.012,
+    marginLeft: (mobileW * 5) / 100,
+  },
+  selectLocationButton: {
+    backgroundColor: '#8D10B5',
+    width: (mobileW * 90) / 100,
+    borderRadius: DimensionsConfig?.buttonHeight * 0.18,
+    paddingVertical: DimensionsConfig?.buttonHeight * 0.28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    marginTop: (mobileH * 15) / 100,
+    position: 'absolute',
+    bottom: (mobileH * 2) / 100,
+
+  },
+  selectionButtonTxt: {
+    fontSize: (mobileW * 4) / 100,
+    fontWeight: '500',
+    color: '#FFFFFF',
+  },
+  AddressIcon: {
+    width: (mobileW * 13) / 100,
+    height: (mobileW * 13) / 100,
+  },
+});

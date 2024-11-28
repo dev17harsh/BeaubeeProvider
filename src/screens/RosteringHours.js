@@ -9,6 +9,7 @@ import {
   Dimensions,
   Image,
   ScrollView,
+  SafeAreaView,
 } from 'react-native';
 import { DimensionsConfig } from '../theme/dimensions';
 import { Images } from '../assets/images';
@@ -92,6 +93,7 @@ const RosteringHours = ({ visible, onClose, onSelect }) => {
   };
 
   return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.white }}>
     <View style={{ flex: 1, backgroundColor: Colors.white }}>
       <AppHeader title={'Rostering Hours'} />
       <ScrollView style={{ paddingHorizontal: (mobileW * 3) / 100 }}>
@@ -181,6 +183,7 @@ const RosteringHours = ({ visible, onClose, onSelect }) => {
         <CommonButton title={'Save'} />
       </View>
     </View>
+    </SafeAreaView>
   );
 };
 

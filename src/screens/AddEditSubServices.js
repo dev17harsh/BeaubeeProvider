@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Switch, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Switch, TouchableOpacity, ScrollView, Image, SafeAreaView } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons'; // Use appropriate icon library
 import AppHeader from '../components/AppHeader';
 import { Colors } from '../theme/colors';
@@ -15,7 +15,8 @@ const AddEditSubServices = () => {
   const [serviceAvailabel, setServiceAvailabel] = useState(false);
 
   return (
-    <View style={styles.mainConatiner}>
+    <SafeAreaView style={styles.mainConatiner}> 
+          <View style={styles.mainConatiner}>
       <AppHeader title={"Add Combine & Save"} />
       <ScrollView contentContainerStyle={styles.container}>
         <TextInputPaper
@@ -177,6 +178,8 @@ const AddEditSubServices = () => {
         </TouchableOpacity>
       </ScrollView>
     </View>
+    </SafeAreaView>
+
   );
 };
 

@@ -7,6 +7,7 @@ import {
   Image,
   ScrollView,
   FlatList,
+  SafeAreaView,
 } from 'react-native';
 import React, {useState} from 'react';
 import { mobileW } from '../components/utils';
@@ -130,6 +131,7 @@ export default function Analytics({navigation}) {
   };
 
   return (
+    <SafeAreaView style={styles.container}>
     <View style={styles.container}>
       {/* Header */}
       <AppHeader title={'Analytics'} />
@@ -303,6 +305,7 @@ export default function Analytics({navigation}) {
         </View>
       </ScrollView>
     </View>
+    </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({

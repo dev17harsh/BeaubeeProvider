@@ -9,6 +9,7 @@ import {
     Dimensions,
     ImageBackground,
     TextInput,
+    SafeAreaView,
 } from 'react-native';
 import { Images } from '../assets/images';
 import AppHeader from '../components/AppHeader';
@@ -23,7 +24,8 @@ const AddressMapScreen = ({ navigation }) => {
 
     return (
         <>
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
+            <View style={styles.container}>
             <AppHeader
                 title={"Business Address"}
             />
@@ -56,7 +58,8 @@ const AddressMapScreen = ({ navigation }) => {
                     </TouchableOpacity>
                 </View>
             </ImageBackground>
-        </View>
+            </View>
+        </SafeAreaView>
         
         <LocationSearchModal 
             visible={searchModalVisible} 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Image, TouchableOpacity, TextInput, StyleSheet, FlatList } from 'react-native';
+import { View, Text, Image, TouchableOpacity, TextInput, StyleSheet, FlatList, SafeAreaView } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { Colors } from '../theme/colors';
 import { Images } from '../assets/images';
@@ -85,6 +85,7 @@ const UserChatScreen = ({ navigation }) => {
   };
 
   return (
+    <SafeAreaView style={styles.container}>
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={{
@@ -131,6 +132,7 @@ const UserChatScreen = ({ navigation }) => {
         </View>
       </View>
     </View>
+    </SafeAreaView>
   );
 };
 

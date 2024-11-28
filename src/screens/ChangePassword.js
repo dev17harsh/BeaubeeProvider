@@ -8,6 +8,7 @@ import {
   Dimensions,
   Image,
   ScrollView,
+  SafeAreaView,
 } from 'react-native';
 import { Images } from '../assets/images';
 // import Icon from 'react-native-vector-icons/Ionicons';
@@ -22,7 +23,8 @@ const ChangePasswordScreen = ({ navigation }) => {
   const [secureEntry3, setSecureEntry3] = useState(true);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+          <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => {
@@ -101,6 +103,8 @@ const ChangePasswordScreen = ({ navigation }) => {
         </TouchableOpacity>
       </ScrollView>
     </View>
+    </SafeAreaView>
+
   );
 };
 

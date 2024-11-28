@@ -7,6 +7,7 @@ import {
     TouchableOpacity,
     ScrollView,
     Image,
+    SafeAreaView,
 } from 'react-native';
 import AppHeader from '../components/AppHeader';
 import { DimensionsConfig } from '../theme/dimensions';
@@ -47,6 +48,7 @@ const RosterScreen = ({navigation}) => {
     );
 
     return (
+        <SafeAreaView style={styles.container}>
         <View style={styles.container}>
             {/* Header */}
             <AppHeader title={"Roaster"} />
@@ -90,6 +92,7 @@ const RosterScreen = ({navigation}) => {
                 }} />
             </TouchableOpacity>
         </View>
+        </SafeAreaView>
     );
 };
 
