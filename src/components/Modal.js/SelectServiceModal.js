@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     marginVertical: (mobileW * 3) / 100,
   },
   CloserView: {
-    height: DimensionsConfig?.screenHeight * 0.008,
+    height: DimensionsConfig?.screenHeight * 0.004,
     width: DimensionsConfig?.screenWidth * 0.14,
     borderRadius: 10,
     backgroundColor: '#9E98AC',

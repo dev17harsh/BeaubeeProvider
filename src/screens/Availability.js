@@ -180,6 +180,7 @@ const Availability = ({navigation}) => {
         title={'+ Add'}
         />
         <CommonButton
+        onPress={()=>navigation.navigate('Profile')}
         title={'Save'}
         />
         </View>

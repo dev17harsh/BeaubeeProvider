@@ -93,7 +93,7 @@ const ListProfessionalModal = ({visible, onClose, onSelect}) => {
     return (
       <TouchableOpacity
         style={styles.itemContainer}
-        onPress={() => handleItemPress(item)}>
+        onPress={() =>{ handleItemPress(item),onClose()}}>
         <Image source={item.image} style={styles.profileImage} />
         <View style={styles.textContainer}>
           <Text style={styles.nameText}>{item.name}</Text>
@@ -162,18 +162,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: (mobileW * 2) / 100,
   },
   profileImage: {
-    width: (mobileW * 14) / 100,
-    height: (mobileW * 14) / 100,
-    borderRadius: (mobileW * 7) / 100,
+    width: (mobileW * 13) / 100,
+    height: (mobileW * 13) / 100,
+    borderRadius: (mobileW * 6.5) / 100,
     marginRight: 16,
   },
   textContainer: {
     flex: 1,
   },
   nameText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#301E39',
   },
   ratingContainer: {
     flexDirection: 'row',
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     height: (mobileW * 5) / 100,
   },
   CloserView: {
-    height: DimensionsConfig?.screenHeight * 0.008,
+    height: DimensionsConfig?.screenHeight * 0.004,
     width: DimensionsConfig?.screenWidth * 0.14,
     borderRadius: 10,
     backgroundColor: '#9E98AC',

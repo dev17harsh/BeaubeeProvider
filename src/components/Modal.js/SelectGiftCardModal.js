@@ -20,7 +20,7 @@ const mobileW = Math.round(Dimensions.get('window').width);
 const SelectGiftCardModal = ({visible, onClose, onSelect}) => {
   const [selectedOption, setSelectedOption] = useState('highToLow');
   const [selectedId, setSelectedId] = useState(null);
-  const [selectedTab, setSelectedTab] = useState('Exixting');
+  const [selectedTab, setSelectedTab] = useState('Existing');
   const tabsView = () => {
     return (
       <View style={styles.tabs}>
@@ -179,7 +179,7 @@ const SelectGiftCardModal = ({visible, onClose, onSelect}) => {
               marginTop: (mobileH * 30) / 100,
               alignSelf: 'center',
             }}>
-            <CommonButton title={'Add Customer'} />
+            <CommonButton onPress={() => onClose()} title={'Add Customer'} />
           </View>
         </View>
       </>
@@ -206,7 +206,7 @@ const SelectGiftCardModal = ({visible, onClose, onSelect}) => {
               renderItem={renderItem}
               contentContainerStyle={styles.listContent}
             />
-            <CommonButton title={'Select'} />
+            <CommonButton onPress={() => onClose()} title={'Select'} />
           </>
         ) : (
           <>{newDataView()}</>
@@ -235,9 +235,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: DimensionsConfig.screenWidth * 0.02,
   },
   title: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: Colors.black,
+    fontSize: 16,
+    fontWeight: '700',
+    color: Colors.textDark,
     marginBottom: 15,
     paddingHorizontal: (mobileW * 3) / 100,
   },
@@ -245,15 +245,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    // borderBottomWidth: 1,
+    // borderBottomColor: '#E0E0E0',
     backgroundColor: Colors.white,
     alignSelf: 'center',
     width: (mobileW * 90) / 100,
-    elevation: 2,
-    marginTop: (mobileW * 4) / 100,
+    // elevation: 1,
+    // shadowColor: '#000',
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.3,
+    // shadowRadius: 4,
+    marginTop: (mobileW * 1) / 100,
     paddingHorizontal: (mobileW * 3) / 100,
-    borderRadius: (mobileW * 2) / 100,
+    // borderRadius: (mobileW * 2) / 100,
+    // borderWidth:1,
+    // borderColor:Colors.borderColor
   },
   profileImage: {
     width: (mobileW * 12) / 100,
@@ -265,9 +271,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   nameText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.textDark,
   },
   ratingContainer: {
     flexDirection: 'row',
@@ -289,7 +295,7 @@ const styles = StyleSheet.create({
     height: (mobileW * 5) / 100,
   },
   CloserView: {
-    height: DimensionsConfig?.screenHeight * 0.008,
+    height: DimensionsConfig?.screenHeight * 0.004,
     width: DimensionsConfig?.screenWidth * 0.14,
     borderRadius: 10,
     backgroundColor: '#9E98AC',

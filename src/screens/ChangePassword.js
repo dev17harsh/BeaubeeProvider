@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   TextInput,
@@ -10,11 +10,12 @@ import {
   ScrollView,
   SafeAreaView,
 } from 'react-native';
-import { Images } from '../assets/images';
+import {Images} from '../assets/images';
+import AppHeader from '../components/AppHeader';
 // import Icon from 'react-native-vector-icons/Ionicons';
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
-const ChangePasswordScreen = ({ navigation }) => {
+const ChangePasswordScreen = ({navigation}) => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -24,87 +25,74 @@ const ChangePasswordScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-          <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => {
-          navigation.goBack()
-        }}>
-          <Image source={Images.BackIcon} style={styles.backIcon} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Change Password</Text>
-        <TouchableOpacity>
-          <Image style={styles.backIcon} />
-        </TouchableOpacity>
-      </View>
-      <ScrollView
-        contentContainerStyle={{
-          marginTop: (mobileW * 5) / 100,
-          paddingHorizontal: (mobileW * 5) / 100,
-          paddingBottom: (mobileW * 16) / 100,
-        }}>
-        <View>
-          <TextInput
-            style={styles.input}
-            placeholder="Current Password"
-            value={currentPassword}
-            secureTextEntry={secureEntry1}
-            onChangeText={setCurrentPassword}
-            placeholderTextColor="#B8B8B8"
-          />
-          <TouchableOpacity
-            style={styles.icon}
-            onPress={() => setSecureEntry1(!secureEntry1)}>
-            <Image source={Images.EyeIcon} style={styles.eyeIcon} />
-            {/* <Icon  openEyeIcons
+      <View style={styles.container}>
+        <AppHeader title={'Change Password'} />
+        <ScrollView
+          contentContainerStyle={{
+            marginTop: (mobileW * 5) / 100,
+            paddingHorizontal: (mobileW * 5) / 100,
+            paddingBottom: (mobileW * 16) / 100,
+          }}>
+          <View>
+            <TextInput
+              style={styles.input}
+              placeholder="Current Password"
+              value={currentPassword}
+              secureTextEntry={secureEntry1}
+              onChangeText={setCurrentPassword}
+              placeholderTextColor="#B8B8B8"
+            />
+            <TouchableOpacity
+              style={styles.icon}
+              onPress={() => setSecureEntry1(!secureEntry1)}>
+              <Image source={Images.EyeIcon} style={styles.eyeIcon} />
+              {/* <Icon  openEyeIcons
           name={secureEntry1 ? 'eye-off-outline' : 'eye-outline'}
           size={20}
           color="#B8B8B8"
         /> */}
-          </TouchableOpacity>
-        </View>
-        <View>
-          <TextInput
-            style={styles.input}
-            placeholder="New Password"
-            value={newPassword}
-            secureTextEntry={secureEntry2}
-            onChangeText={setNewPassword}
-            placeholderTextColor="#B8B8B8"
-          />
-          <TouchableOpacity
-            style={styles.icon}
-            onPress={() => setSecureEntry2(!secureEntry2)}>
-            <Image source={Images.EyeIcon} style={styles.eyeIcon} />
-          </TouchableOpacity>
-        </View>
-        <View>
-          <TextInput
-            style={styles.input}
-            placeholder="Re-Enter New Password"
-            value={confirmPassword}
-            secureTextEntry={secureEntry3}
-            onChangeText={setConfirmPassword}
-            placeholderTextColor="#B8B8B8"
-          />
-          <TouchableOpacity
-            style={styles.icon}
-            onPress={() => setSecureEntry3(!secureEntry3)}>
-            <Image source={Images.EyeIcon} style={styles.eyeIcon} />
-          </TouchableOpacity>
-        </View>
+            </TouchableOpacity>
+          </View>
+          <View>
+            <TextInput
+              style={styles.input}
+              placeholder="New Password"
+              value={newPassword}
+              secureTextEntry={secureEntry2}
+              onChangeText={setNewPassword}
+              placeholderTextColor="#B8B8B8"
+            />
+            <TouchableOpacity
+              style={styles.icon}
+              onPress={() => setSecureEntry2(!secureEntry2)}>
+              <Image source={Images.EyeIcon} style={styles.eyeIcon} />
+            </TouchableOpacity>
+          </View>
+          <View>
+            <TextInput
+              style={styles.input}
+              placeholder="Re-Enter New Password"
+              value={confirmPassword}
+              secureTextEntry={secureEntry3}
+              onChangeText={setConfirmPassword}
+              placeholderTextColor="#B8B8B8"
+            />
+            <TouchableOpacity
+              style={styles.icon}
+              onPress={() => setSecureEntry3(!secureEntry3)}>
+              <Image source={Images.EyeIcon} style={styles.eyeIcon} />
+            </TouchableOpacity>
+          </View>
 
-
-        {/* Save Button */}
-        <TouchableOpacity
-          onPress={() => navigation.navigate('AddAddress')}
-          style={styles.selectLocationButton}>
-          <Text style={styles.selectionButtonTxt}>Save New Password</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </View>
+          {/* Save Button */}
+          <TouchableOpacity
+            onPress={() => navigation.navigate('AddAddress')}
+            style={styles.selectLocationButton}>
+            <Text style={styles.selectionButtonTxt}>Save New Password</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </View>
     </SafeAreaView>
-
   );
 };
 

@@ -49,136 +49,157 @@ const StaffDetails = ({navigation}) => {
         }}>
         <Text
           style={{
-            color: Colors.black,
+            color: '#554F67',
+            fontWeight:'400',
+            fontSize:14
           }}>
           {item.day}
         </Text>
-        <Text>{item.time}</Text>
+        <Text
+         style={{
+          color: '#554F67',
+          fontWeight:'400',
+          fontSize:14
+        }}
+        >{item.time}</Text>
       </View>
     );
   };
 
   return (
     <SafeAreaView style={styles.container}>
-    <View style={styles.container}>
-      <BreakDuratinModal visible={breakModal} onClose={breakVisibleModal} />
-      <AppHeader title={'Details'} />
+      <View style={styles.container}>
+        <BreakDuratinModal visible={breakModal} onClose={breakVisibleModal} />
+        <AppHeader title={'Details'} />
 
-      <ScrollView style={styles.Scrollcontainer}>
-        {/* Business Image */}
+        <ScrollView style={styles.Scrollcontainer}>
+          {/* Business Image */}
 
-        <Image source={Images?.image22} style={styles.homeServiceIcon} />
+          <Image source={Images?.image22} style={styles.homeServiceIcon} />
 
-        <View style={{alignItems: 'center', marginTop: (mobileW * 3) / 100}}>
-          {/* User Info */}
-          <Text style={styles.name}>Kynthia Johnson</Text>
-          <Text style={styles.email}>kynthiajohnson@email.com</Text>
-          <Text style={styles.phone}>+123 456 7890</Text>
-        </View>
-        {/* Business Details */}
-        <View
-          style={{
-            paddingHorizontal: (mobileW * 3) / 100,
-          }}>
-          <View style={styles.itemContainer}>
-            <View style={[styles.txtView]}>
-              <Text style={styles.itemLabel}>Ratings</Text>
-            </View>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-              <Image source={Images?.starIcon} style={styles?.backIcon} />
-              <Text style={styles?.ratingText}>
-                {'5.0 '}
-                <Text style={[styles.ratingText, styles.reviewTxt]}>
-                  ({'191' + ' Ratings'})
-                </Text>
-              </Text>
-            </View>
+          <View style={{alignItems: 'center', marginTop: (mobileW * 3) / 100}}>
+            {/* User Info */}
+            <Text style={styles.name}>Kynthia Johnson</Text>
+            <Text style={styles.email}>kynthiajohnson@email.com</Text>
+            <Text style={styles.phone}>+123 456 7890</Text>
           </View>
-
-          <View style={styles.itemContainer}>
-            <View style={[styles.txtView]}>
-              <Text style={styles.itemLabel}>Service</Text>
-            </View>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-              {/* <Image source={Images?.starIcon} style={styles?.backIcon} /> */}
-              <Text style={styles?.ratingText}>
-                
-                <Text style={[styles.ratingText, styles.reviewTxt]}>
-                 Hair
-                </Text>
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.itemContainerBio}>
-            <View style={[styles.txtView]}>
-              <Text style={styles.itemLabel}>Bio</Text>
-            </View>
-            <Text style={styles.itemDescription}>
-              Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu,
-              consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus
-              in, viverra quis
-            </Text>
-          </View>
-
-          <View style={styles.itemContainerBio}>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                width: '100%',
-              }}>
-              <View style={[styles.txtView]}>
-                <Text style={styles.itemLabel}>Availability</Text>
-              </View>
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() => setAvailableData(!availableData)}>
-                <Image
-                  source={!availableData? Images?.PlusWithLightBAck:Images.MinusWithLightBack}
-                  style={styles?.plusWithBack}
-                />
-              </TouchableOpacity>
-            </View>
-            {availableData && (
-              <View style={{marginTop: (mobileW * 3) / 100}}>
-                <FlatList
-                  data={ScheduleDay}
-                  renderItem={item => renderData(item)}
-                />
-              </View>
-            )}
-          </View>
+          {/* Business Details */}
           <View
             style={{
-              marginBottom: (mobileW * 6) / 100,
-              width: (mobileW * 90) / 100,
-              alignSelf: 'center',
+              paddingHorizontal: (mobileW * 3) / 100,
             }}>
-            <CustomButton
-              title={'Edit'}
-              onPress={()=>{
-                navigation.navigate('AddProfesssional')
-              }}
-              style={{
-                marginBottom: (mobileW * 3) / 100,
-                marginTop: (mobileW * 5) / 100,
-                backgroundColor: Colors.semiPurpleLight,
-              }}
-              textStyle={{color: Colors.primary}}
-            />
+            <View style={styles.itemContainer}>
+              <View style={[styles.txtView]}>
+                <Text style={styles.itemLabel}>Ratings</Text>
+              </View>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <Image source={Images?.starIcon} style={styles?.backIcon} />
+                <Text style={styles?.ratingText}>
+                  {'5.0 '}
+                  <Text style={[styles.ratingText, styles.reviewTxt]}>
+                    ({'191' + ' Ratings'})
+                  </Text>
+                </Text>
+              </View>
+            </View>
 
-            <CustomButton
-              title={'Delete'}
+            <View style={styles.itemContainer}>
+              <View style={[styles.txtView]}>
+                <Text style={styles.itemLabel}>Service</Text>
+              </View>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                {/* <Image source={Images?.starIcon} style={styles?.backIcon} /> */}
+                <Text style={styles?.ratingText}>
+                  <Text style={[styles.ratingText, styles.reviewTxt]}>
+                    Hair
+                  </Text>
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.itemContainerBio}>
+              <View style={[styles.txtView]}>
+                <Text style={styles.itemLabel}>Bio</Text>
+              </View>
+              <Text style={styles.itemDescription}>
+                Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor
+                eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante,
+                dapibus in, viverra quis
+              </Text>
+            </View>
+
+            <View style={styles.itemContainerBio}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  width: '100%',
+                }}>
+                <View style={[styles.txtView]}>
+                  <Text style={styles.itemLabel}>Availability</Text>
+                </View>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() => setAvailableData(!availableData)}>
+                  <Image
+                    source={
+                      !availableData
+                        ? Images?.PlusWithLightBAck
+                        : Images.MinusWithLightBack
+                    }
+                    style={styles?.plusWithBack}
+                  />
+                </TouchableOpacity>
+              </View>
+              {availableData && (
+                <View style={{marginTop: (mobileW * 3) / 100}}>
+                  <FlatList
+                    data={ScheduleDay}
+                    renderItem={item => renderData(item)}
+                  />
+                </View>
+              )}
+            </View>
+            <View
               style={{
-                marginBottom: (mobileW * 3) / 100,
-                marginTop: (mobileW * 3) / 100,
-              }}
-            />
+                marginBottom: (mobileW * 6) / 100,
+                width: (mobileW * 90) / 100,
+                alignSelf: 'center',
+              }}>
+              <CustomButton
+                title={'Edit'}
+                onPress={() => {
+                  navigation.navigate('AddProfesssional');
+                }}
+                style={{
+                  marginBottom: (mobileW * 3) / 100,
+                  marginTop: (mobileW * 5) / 100,
+                  backgroundColor: Colors.semiPurpleLight,
+                  paddingVertical: (mobileW * 3.2) / 100,
+                }}
+                textStyle={{
+                  color: Colors.primary,
+                  fontWeight: '600',
+                  fontSize: 14,
+                }}
+              />
+
+              <CustomButton
+                title={'Delete'}
+                onPress={() => {
+                  navigation.navigate('Profile');
+                }}
+                style={{
+                  marginBottom: (mobileW * 3) / 100,
+                  marginTop: (mobileW * 2) / 100,
+                  paddingVertical: (mobileW * 3.2) / 100,
+                }}
+                textStyle={{fontWeight: '600', fontSize: 14}}
+              />
+            </View>
           </View>
-        </View>
-      </ScrollView>
-    </View>
+        </ScrollView>
+      </View>
     </SafeAreaView>
   );
 };
@@ -430,19 +451,21 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333333',
+    fontWeight: '700',
+    color: '#301E39',
     marginBottom: 5,
   },
   email: {
     fontSize: 14,
-    color: '#666666',
+    color: '#554F67',
     marginBottom: 2,
+    fontWeight: '400',
   },
   phone: {
     fontSize: 14,
-    color: '#666666',
+    color: '#554F67',
     marginBottom: 20,
+    fontWeight: '400',
   },
   editButton: {
     flexDirection: 'row',
@@ -468,7 +491,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: (mobileW * 3) / 100,
     width: (mobileW * 90) / 100,
     alignSelf: 'center',
-    paddingVertical: (mobileW * 4) / 100,
+    paddingVertical: (mobileW * 3.6) / 100,
     borderRadius: (mobileW * 2) / 100,
     borderWidth: 0.3,
     borderColor: Colors.OrGray,
@@ -476,8 +499,9 @@ const styles = StyleSheet.create({
     marginTop: (mobileW * 4) / 100,
     elevation: 1,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   itemContainerBio: {
     backgroundColor: '#FFFFFF',
@@ -492,8 +516,9 @@ const styles = StyleSheet.create({
     marginTop: (mobileW * 4) / 100,
     elevation: 1,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   itemContainer1: {
     alignItems: 'center',
@@ -510,18 +535,19 @@ const styles = StyleSheet.create({
     elevation: 1,
     shadowColor: '#000',
     shadowOpacity: 0.1,
-    shadowRadius: 5,
+    shadowOffset: {width: 0, height: 2},
+    shadowRadius: 4,
   },
   txtView: {},
   itemLabel: {
-    fontSize: (mobileW * 4) / 100,
+    fontSize: 14,
     color: '#333333',
     flex: 1,
     fontWeight: '700',
   },
   itemDescription: {
-    fontSize: (mobileW * 3.7) / 100,
-    color: Colors.gray,
+    fontSize: 14,
+    color: '#554F67',
     fontWeight: '400',
     marginTop: (mobileW * 1) / 100,
   },
@@ -563,7 +589,7 @@ const styles = StyleSheet.create({
   reviewTxt: {
     fontSize: 14,
     fontWeight: '500',
-    color: Colors.gray, // Star color
+    color: '#9A98AC', // Star color
     marginRight: 8,
   },
   ratingText: {

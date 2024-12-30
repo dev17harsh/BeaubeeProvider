@@ -9,10 +9,10 @@ import {
   Dimensions,
   Image,
 } from 'react-native';
-import { Images } from '../../assets/images';
-import { Colors } from '../../theme/colors';
-import { DimensionsConfig } from '../../theme/dimensions';
- const mobileH = Math.round(Dimensions.get('window').height);
+import {Images} from '../../assets/images';
+import {Colors} from '../../theme/colors';
+import {DimensionsConfig} from '../../theme/dimensions';
+const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
 
 const SelectPackageModal = ({visible, onClose, onSelect}) => {
@@ -26,7 +26,7 @@ const SelectPackageModal = ({visible, onClose, onSelect}) => {
       rating: 5.0,
       reviews: 121,
       image: Images.Image1,
-      email:'Johnathanmorrison@gmail.com'
+      email: 'Johnathanmorrison@gmail.com',
     },
     {
       id: '2',
@@ -34,7 +34,7 @@ const SelectPackageModal = ({visible, onClose, onSelect}) => {
       rating: 5.0,
       reviews: 100,
       image: Images.Image2,
-      email:'Mariakevin@gmail.com'
+      email: 'Mariakevin@gmail.com',
     },
     {
       id: '3',
@@ -42,7 +42,7 @@ const SelectPackageModal = ({visible, onClose, onSelect}) => {
       rating: 5.0,
       reviews: 99,
       image: Images.image11,
-      email:'Lindajohnson@gmail.com'
+      email: 'Lindajohnson@gmail.com',
     },
     {
       id: '4',
@@ -50,7 +50,7 @@ const SelectPackageModal = ({visible, onClose, onSelect}) => {
       rating: 5.0,
       reviews: 80,
       image: Images.image22,
-      email:'KevinFrank@gmail@gmail.com'
+      email: 'KevinFrank@gmail@gmail.com',
     },
     {
       id: '5',
@@ -58,7 +58,7 @@ const SelectPackageModal = ({visible, onClose, onSelect}) => {
       rating: 5.0,
       reviews: 60,
       image: Images.image33,
-      email:'Dwaynejackson@gmail@gmail.com'
+      email: 'Dwaynejackson@gmail@gmail.com',
     },
     {
       id: '6',
@@ -66,7 +66,7 @@ const SelectPackageModal = ({visible, onClose, onSelect}) => {
       rating: 5.0,
       reviews: 45,
       image: Images.image44,
-      email:'Tomcameron@gmail@gmail.com'
+      email: 'Tomcameron@gmail@gmail.com',
     },
     {
       id: '7',
@@ -74,7 +74,7 @@ const SelectPackageModal = ({visible, onClose, onSelect}) => {
       rating: 5.0,
       reviews: 40,
       image: Images.image55,
-      email:'Conorcharlie@gmail@gmail.com'
+      email: 'Conorcharlie@gmail@gmail.com',
     },
   ];
 
@@ -86,6 +86,7 @@ const SelectPackageModal = ({visible, onClose, onSelect}) => {
     if (onSelect) {
       onSelect(newSelectedId ? item : null); // Pass selected item or null if deselected
     }
+    onClose();
   };
 
   const renderItem = ({item}) => {
@@ -157,14 +158,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 16,
-    borderRadius:mobileW*3/100,
-     borderBottomColor: '#E0E0E0',
+    borderRadius: (mobileW * 3) / 100,
+    borderBottomColor: '#E0E0E0',
     paddingHorizontal: (mobileW * 2) / 100,
-    width:mobileW*90/100,
-    backgroundColor:Colors.white,
-    marginTop:mobileW*4/100,
-    alignSelf:'center',
-    elevation:2
+    width: (mobileW * 90) / 100,
+    backgroundColor: Colors.white,
+    marginTop: (mobileW * 4) / 100,
+    alignSelf: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   profileImage: {
     width: (mobileW * 14) / 100,
@@ -200,7 +205,7 @@ const styles = StyleSheet.create({
     height: (mobileW * 5) / 100,
   },
   CloserView: {
-    height: DimensionsConfig?.screenHeight * 0.008,
+    height: DimensionsConfig?.screenHeight * 0.004,
     width: DimensionsConfig?.screenWidth * 0.14,
     borderRadius: 10,
     backgroundColor: '#9E98AC',

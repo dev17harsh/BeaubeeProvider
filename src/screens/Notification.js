@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, Dimensions, SafeAreaView } from 'react-native';
 import { Images } from '../assets/images';
 import { Colors } from '../theme/colors';
+import AppHeader from '../components/AppHeader';
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
 // Dummy Data for notifications
@@ -11,37 +12,37 @@ const notifications = [
     title: 'Fresh Cuts Straight hair',
     // time: 'Today at 13:10',
     timestamp: '1hr ago',
-    icon: Images?.TimeSquare,
+    icon: Images?.chatWithBack,
   },
   {
     id: '2',
     title: 'Fresh Cuts sent you a message',
     timestamp: '3hrs ago',
-    icon: Images?.TimeSquare,
+    icon: Images?.crossWithBack,
   },
   {
     id: '3',
     title: 'Fresh Cuts cancelled your appointment',
     timestamp: '6hrs ago',
-    icon: Images?.TimeSquare,
+    icon: Images?.timeBack,
   },
   {
     id: '4',
     title: 'Fresh Cuts added a new service',
     timestamp: '1d ago',
-    icon: Images?.TimeSquare,
+    icon: Images?.crossWithBack,
   },
   {
     id: '5',
     title: 'Fresh Cuts IS ON SALE NOW!',
     timestamp: '1d ago',
-    icon:Images?.TimeSquare,
+    icon:Images?.chatWithBack,
   },
   {
     id: '6',
     title: 'Appointment at fresh cuts is now available to book 12.10 5pm',
     timestamp: '1d ago',
-    icon: Images?.TimeSquare,
+    icon: Images?.chatWithBack,
   }
 ];
 
@@ -52,9 +53,9 @@ const Notification = ({navigation}) => {
     <TouchableOpacity
       activeOpacity={0.8}
       style={styles.notificationItem}>
-      <View style={styles?.timestampView}>
+      {/* <View style={styles?.timestampView}> */}
         <Image source={item.icon} style={styles.icon} />
-      </View>
+      {/* </View> */}
       <View style={styles.textContainer}>
         <View style={{flexDirection: 'row' , justifyContent: 'space-between'}}>
         <Text style={styles.title}>{item.title}</Text>
@@ -69,15 +70,9 @@ const Notification = ({navigation}) => {
     <SafeAreaView style={styles.container}>   
        <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={()=>{navigation.goBack()}}>
-          <Image source={Images?.BackIcon} style={styles.backIcon} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Notifications</Text>
-        <TouchableOpacity>
-          <Image style={styles.backIcon} />
-        </TouchableOpacity>
-      </View>
+      <AppHeader
+      title={'Notifications'}
+      />
 
       {/* Notification List BackIcon*/}
       <FlatList
@@ -127,16 +122,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: Colors?.white,
     borderRadius: 10,
-    padding: 15,
+    paddingVertical: 15,
     marginBottom: 10,
-    width: mobileW * 94 / 100,
+    width: mobileW * 92 / 100,
     alignSelf: 'center',
     borderBottomColor: Colors?.borderColor,
-    borderBottomWidth: mobileW * 0.3 / 100
+    borderBottomWidth: mobileW * 0.3 / 100,
   },
   icon: {
-    width: mobileW * 4.8 / 100,
-    height: mobileW * 4.8 / 100,
+    width: mobileW * 10 / 100,
+    height: mobileW * 10 / 100,
   },
   backIcon: {
     width: mobileW * 5 / 100,
@@ -147,13 +142,13 @@ const styles = StyleSheet.create({
     left: 10
   },
   title: {
-    fontSize: 16,
+    fontSize: 14,
     color: Colors?.black,
     marginBottom: 5,
-    fontWeight: '500'
+    fontWeight: '600'
   },
   timestamp: {
-    fontSize: mobileW * 3.5 / 100,
+    fontSize: 12,
     color: Colors?.darkGrey,
     fontWeight: '400'
   },

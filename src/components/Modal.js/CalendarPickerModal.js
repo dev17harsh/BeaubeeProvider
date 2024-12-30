@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity, FlatList } from 'react-native';
 import moment from 'moment';
+import { Colors } from '../../theme/colors';
 
-const CustomCalendarModal = ({ visible, onClose, selectedDates , setSelectedDates }) => {
+const CustomCalendarModal = ({ visible, onClose, selectedDates, setSelectedDates }) => {
   const [currentMonth, setCurrentMonth] = useState(moment());
 
   const handleDatePress = (date) => {
     const isDateInPast = date.isBefore(moment().startOf('day'));
-  
+
     if (isDateInPast) return; // Block past dates
-  
+
     // Check if the selected date is before the current start date, and reset if so
     if (selectedDates.length === 1 && date.isBefore(selectedDates[0], 'day')) {
       setSelectedDates([date]); // Start a new range from the selected date
@@ -19,7 +20,7 @@ const CustomCalendarModal = ({ visible, onClose, selectedDates , setSelectedDate
     } else if (selectedDates.length === 1) {
       const startDate = selectedDates[0];
       const endDate = date;
-  
+
       // Ensure the range does not exceed 7 days
       const daysDifference = endDate.diff(startDate, 'days');
       if (daysDifference <= 7 && daysDifference > 0) {
@@ -34,7 +35,7 @@ const CustomCalendarModal = ({ visible, onClose, selectedDates , setSelectedDate
       setSelectedDates([date]);
     }
   };
-  
+
 
   const renderDaysOfWeek = () => {
     const daysOfWeek = moment.weekdaysShort(true); // Adjust to start on Sunday
@@ -51,7 +52,7 @@ const CustomCalendarModal = ({ visible, onClose, selectedDates , setSelectedDate
     const startOfMonth = currentMonth.clone().startOf('month');
     const endOfMonth = currentMonth.clone().endOf('month');
     const daysInMonth = [];
-    
+
     // Fill empty days for the first row
     for (let i = 0; i < startOfMonth.day(); i++) {
       daysInMonth.push(null);
@@ -99,7 +100,7 @@ const CustomCalendarModal = ({ visible, onClose, selectedDates , setSelectedDate
 
   return (
     <Modal visible={visible} transparent={true} animationType="slide">
-      <View style={styles.modalOverlay}>
+      <TouchableOpacity onPress={onClose} style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <View style={styles.header}>
             <TouchableOpacity onPress={handlePreviousMonth}>
@@ -114,11 +115,11 @@ const CustomCalendarModal = ({ visible, onClose, selectedDates , setSelectedDate
           {renderDaysOfWeek()}
           {renderDaysInMonth()}
 
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+          {/* { <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <Text style={styles.closeButtonText}>Close</Text>
-          </TouchableOpacity>
+          </TouchableOpacity>} */}
         </View>
-      </View>
+      </TouchableOpacity>
     </Modal>
   );
 };
@@ -145,13 +146,13 @@ const styles = StyleSheet.create({
   },
   arrowText: {
     fontSize: 20,
-    color: '#6c379e',
+    color: '#301E39',
     fontWeight: 'bold',
   },
   monthText: {
     fontSize: 16,
     color: '#6c379e',
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
   daysRow: {
     flexDirection: 'row',
@@ -160,8 +161,8 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   dayText: {
-    fontSize: 14,
-    color: '#333',
+    fontSize: 13,
+    color: '#554F67',
     fontWeight: '500',
     width: 30,
     textAlign: 'center',
@@ -174,7 +175,7 @@ const styles = StyleSheet.create({
     margin: 5,
   },
   selectedDay: {
-    backgroundColor: '#6c379e',
+    backgroundColor: Colors?.primary,
     borderRadius: 15,
   },
   disabledDayText: {

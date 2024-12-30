@@ -95,7 +95,7 @@ export default function AddCardDetails({navigation}) {
         </View>
 
         <TouchableOpacity
-          // onPress={() => navigation.navigate('AddAddress')}
+          onPress={() => navigation.navigate('Booking/Queue')}
           style={styles.selectLocationButton}>
           <Text style={styles.selectionButtonTxt}>Save Card</Text>
         </TouchableOpacity>

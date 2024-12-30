@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   Modal,
   View,
@@ -10,14 +10,14 @@ import {
   Image,
   SafeAreaView,
 } from 'react-native';
-import { DimensionsConfig } from '../theme/dimensions';
-import { Images } from '../assets/images';
-import { Colors } from '../theme/colors';
+import {DimensionsConfig} from '../theme/dimensions';
+import {Images} from '../assets/images';
+import {Colors} from '../theme/colors';
 import AppHeader from '../components/AppHeader';
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
 
-const BlockClients = ({ visible, onClose, onSelect }) => {
+const BlockClients = ({visible, onClose, onSelect}) => {
   const [selectedOption, setSelectedOption] = useState('highToLow');
   const [selectedId, setSelectedId] = useState(null);
 
@@ -115,9 +115,10 @@ const BlockClients = ({ visible, onClose, onSelect }) => {
     }
   };
 
-  const renderItem = ({ item }) => {
+  const renderItem = ({item}) => {
     return (
       <TouchableOpacity
+        activeOpacity={0.8}
         style={[
           styles.itemContainer,
           {
@@ -142,9 +143,9 @@ const BlockClients = ({ visible, onClose, onSelect }) => {
           <Text
             style={[
               styles.nameText,
-              { color: item.isBlock ? Colors.primary : Colors.red },
+              {color: item.isBlock ? Colors.primary : Colors.red},
             ]}>
-            {item.isBlock ? 'UnBlock' : 'Block'}
+            {item.isBlock ? 'Unblock' : 'Block'}
           </Text>
         </View>
       </TouchableOpacity>
@@ -191,35 +192,35 @@ const BlockClients = ({ visible, onClose, onSelect }) => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.white }}>   
-        <View style={{ flex: 1, backgroundColor: Colors.white }}>
-      <AppHeader title={'Block Clients'} />
-      <View style={{ paddingHorizontal: (mobileW * 3) / 100 }}>{tabsView()}</View>
-      <TouchableOpacity
-        // onPress={() => setSearchModalVisible(true)} 
-        style={styles.locationSection}
-      >
-        <Image
-          style={styles.tagIcon}
-          resizeMode="contain"
-          source={Images.SearchIcon}
-        />
-        <View style={styles.textInputView}>
-          <Text style={styles.searchPlaceholder}>Search Client</Text>
+    <SafeAreaView style={{flex: 1, backgroundColor: Colors.white}}>
+      <View style={{flex: 1, backgroundColor: Colors.white}}>
+        <AppHeader title={'Block Clients'} />
+        <View style={{paddingHorizontal: (mobileW * 3) / 100}}>
+          {tabsView()}
         </View>
-      </TouchableOpacity>
-      <View style={{ marginBottom: (mobileW * 36) / 100 }}>
-        <FlatList
-          data={filteredData}
-          showsVerticalScrollIndicator={false}
-          keyExtractor={item => item.id}
-          renderItem={renderItem}
-          style={styles.listContent}
-        />
+        <TouchableOpacity
+          // onPress={() => setSearchModalVisible(true)}
+          style={styles.locationSection}>
+          <Image
+            style={styles.tagIcon}
+            resizeMode="contain"
+            source={Images.SearchIcon}
+          />
+          <View style={styles.textInputView}>
+            <Text style={styles.searchPlaceholder}>Search Client</Text>
+          </View>
+        </TouchableOpacity>
+        <View style={{marginBottom: (mobileW * 36) / 100}}>
+          <FlatList
+            data={filteredData}
+            showsVerticalScrollIndicator={false}
+            keyExtractor={item => item.id}
+            renderItem={renderItem}
+            style={styles.listContent}
+          />
+        </View>
       </View>
-    </View>
     </SafeAreaView>
-
   );
 };
 
@@ -282,7 +283,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '400',
     color: '#554F67',
-    maxWidth: '95%'
+    maxWidth: '95%',
   },
   ratingContainer: {
     flexDirection: 'row',
@@ -304,7 +305,7 @@ const styles = StyleSheet.create({
     height: (mobileW * 5) / 100,
   },
   CloserView: {
-    height: DimensionsConfig?.screenHeight * 0.008,
+    height: DimensionsConfig?.screenHeight * 0.004,
     width: DimensionsConfig?.screenWidth * 0.14,
     borderRadius: 10,
     backgroundColor: '#9E98AC',
@@ -351,6 +352,10 @@ const styles = StyleSheet.create({
     paddingVertical: (mobileW * 3.5) / 100,
     paddingHorizontal: (mobileW * 4) / 100,
     elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   tagIcon: {
     width: (mobileW * 5.2) / 100,
@@ -364,5 +369,5 @@ const styles = StyleSheet.create({
     fontSize: (mobileW * 4) / 100,
     fontWeight: '400',
     color: '#554F67',
-},
+  },
 });

@@ -31,7 +31,8 @@ const BookingModal = ({
               style={{
                 paddingHorizontal: 15,
                 textAlign: 'center',
-                fontSize: (mobileW * 3.5) / 100,
+                fontSize: 13,
+                fontWeight: '400',
                 color: '#554F67',
               }}>
               {midText}
@@ -91,24 +92,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContainer: {
-    width: '90%',
-    padding: 20,
+    width: '88%',
     backgroundColor: 'white',
-    borderRadius: 15,
+    borderRadius: 19,
     alignItems: 'center',
-    paddingVertical: (mobileW * 8) / 100,
+    paddingVertical: (mobileW * 5) / 100,
+    paddingHorizontal: (mobileW * 4) / 100,
   },
   modalText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '700',
     textAlign: 'center',
     marginBottom: 20,
     width: '90%',
-    color: Colors.black,
+    color: '#301E39',
   },
   pauseButton: {
-    width: '100%',
-    padding: 15,
+    width: '95%',
+    padding: 14,
     backgroundColor: Colors.red, // Default red, but will be overridden
     borderRadius: 10,
     marginBottom: 10,
@@ -120,12 +121,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   cancelButton: {
-    width: '100%',
-    padding: 15,
+    width: '95%',
+    padding: 14,
     backgroundColor: '#f2f2f2', // Default background color
     borderRadius: 10,
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 7,
   },
   cancelButtonText: {
     color: '#a14ebe',

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   Modal,
   View,
@@ -11,14 +11,14 @@ import {
   ScrollView,
   SafeAreaView,
 } from 'react-native';
-import { DimensionsConfig } from '../theme/dimensions';
-import { Images } from '../assets/images';
+import {DimensionsConfig} from '../theme/dimensions';
+import {Images} from '../assets/images';
 import AppHeader from '../components/AppHeader';
 import CustomSwitch from '../components/CustomSwitch';
 import CustomButton from '../components/CustomButton';
 import CommonButton from '../components/CommonButton';
-import { Colors } from '../theme/colors';
-import { Picker } from '@react-native-picker/picker';
+import {Colors} from '../theme/colors';
+import {Picker} from '@react-native-picker/picker';
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
 
@@ -44,7 +44,7 @@ const generateTimeOptions = () => {
 
 const timeOptions = generateTimeOptions();
 
-const RosteringHours = ({ visible, onClose, onSelect }) => {
+const RosteringHours = ({visible, onClose, onSelect,navigation}) => {
   const [selectedOption, setSelectedOption] = useState('highToLow');
   const [selectedId, setSelectedId] = useState(null);
 
@@ -53,7 +53,7 @@ const RosteringHours = ({ visible, onClose, onSelect }) => {
       day,
       isOpen: day !== 'Saturday' && day !== 'Sunday',
       timeFrames: [
-        { openingTime: '12:00 PM', closingTime: '12:30 PM' }, // Default timeframe
+        {openingTime: '12:00 PM', closingTime: '12:30 PM'}, // Default timeframe
       ],
     })),
   );
@@ -93,96 +93,118 @@ const RosteringHours = ({ visible, onClose, onSelect }) => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.white }}>
-    <View style={{ flex: 1, backgroundColor: Colors.white }}>
-      <AppHeader title={'Rostering Hours'} />
-      <ScrollView style={{ paddingHorizontal: (mobileW * 3) / 100 }}>
-        <TouchableOpacity style={[styles.itemContainer]}>
-          <Image source={Images?.image11} style={styles.profileImage} />
-          <View style={styles.textContainer}>
-            <Text style={styles.nameText}>{'Linda Johnson'}</Text>
-          </View>
+    <SafeAreaView style={{flex: 1, backgroundColor: Colors.white}}>
+      <View style={{flex: 1, backgroundColor: Colors.white}}>
+        <AppHeader title={'Rostering Hours'} />
+        <ScrollView style={{paddingHorizontal: (mobileW * 3) / 100}}>
+          <TouchableOpacity style={[styles.itemContainer]}>
+            <Image source={Images?.image11} style={styles.profileImage} />
+            <View style={styles.textContainer}>
+              <Text style={styles.nameText}>{'Linda Johnson'}</Text>
+            </View>
 
-          <Text style={[styles.nameText, { color: Colors.black }]}>
-            {'3 Aug, 2024'}
-          </Text>
-        </TouchableOpacity>
-        <View
-          style={{
-            backgroundColor: Colors.semiPurpleLight,
-            width: '100%',
-            paddingVertical: (mobileW * 3) / 100,
-            width: (mobileW * 89) / 100,
-            alignSelf: 'center',
-            borderRadius: (mobileW * 2) / 100,
-            flexDirection: 'row',
-            alignItems: 'center',
-            paddingHorizontal: (mobileW * 2) / 100,
-          }}>
-          <Image source={Images?.timeBack} style={styles.imageWatch} />
-          <Text style={[styles.nameText, { left: 10, color: Colors.gray, fontWeight: '400' }]}>{'Linda is available 9am-1pm'}</Text>
+            <Text style={[styles.nameText, {color: Colors.black}]}>
+              {'3 Aug, 2024'}
+            </Text>
+          </TouchableOpacity>
+          <View
+            style={{
+              backgroundColor: Colors.semiPurpleLight,
+              width: '100%',
+              paddingVertical: (mobileW * 3) / 100,
+              width: (mobileW * 89) / 100,
+              alignSelf: 'center',
+              borderRadius: (mobileW * 2) / 100,
+              flexDirection: 'row',
+              alignItems: 'center',
+              paddingHorizontal: (mobileW * 2) / 100,
+            }}>
+            <Image source={Images?.timeBack} style={styles.imageWatch} />
+            <Text
+              style={[
+                styles.nameText,
+                {left: 10, color: Colors.gray, fontWeight: '400'},
+              ]}>
+              {'Linda is available 9am-1pm'}
+            </Text>
+          </View>
+          <View style={styles.straightLine} />
+
+          {schedule.map((item, index) => (
+            <View key={item.day} style={styles.dayContainer}>
+              {item.timeFrames.map((timeFrame, timeFrameIndex) => {
+                const validClosingOptions = timeOptions.slice(
+                  timeOptions.indexOf(timeFrame.openingTime) + 1,
+                );
+                return (
+                  <View key={timeFrameIndex} style={styles.timeContainer}>
+                    <View style={styles.pickerContainer}>
+                      <Picker
+                        selectedValue={timeFrame.openingTime}
+                        style={styles.timePicker}
+                        onValueChange={value =>
+                          updateTime(
+                            index,
+                            timeFrameIndex,
+                            'openingTime',
+                            value,
+                          )
+                        }
+                        mode="dropdown">
+                        {timeOptions.map(timeOption => (
+                          <Picker.Item
+                            label={timeOption}
+                            value={timeOption}
+                            key={timeOption}
+                          />
+                        ))}
+                      </Picker>
+                    </View>
+                    <Text style={styles.toText}>To</Text>
+                    <View style={styles.pickerContainer}>
+                      <Picker
+                        selectedValue={timeFrame.closingTime}
+                        style={styles.timePicker}
+                        onValueChange={value =>
+                          updateTime(
+                            index,
+                            timeFrameIndex,
+                            'closingTime',
+                            value,
+                          )
+                        }
+                        mode="dropdown">
+                        {validClosingOptions.map(timeOption => (
+                          <Picker.Item
+                            label={timeOption}
+                            value={timeOption}
+                            key={timeOption}
+                          />
+                        ))}
+                      </Picker>
+                    </View>
+                  </View>
+                );
+              })}
+              <TouchableOpacity
+                onPress={() => addTimeFrame(index)}
+                style={styles.addTimeFrameButton}>
+                <Image
+                  source={Images.PlusWithLightBAck}
+                  style={styles.addIcon}
+                />
+                <Text style={styles.addText}>Add Timeframe</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
+        </ScrollView>
+        <View style={styles.buttonContainer}>
+          <CommonButton
+            onPress={() => navigation.navigate('Profile')}
+            title={'Save'}
+          />
         </View>
-        <View style={styles.straightLine} />
-
-        {schedule.map((item, index) => (
-          <View key={item.day} style={styles.dayContainer}>
-            {item.timeFrames.map((timeFrame, timeFrameIndex) => {
-              const validClosingOptions = timeOptions.slice(
-                timeOptions.indexOf(timeFrame.openingTime) + 1,
-              );
-              return (
-                <View key={timeFrameIndex} style={styles.timeContainer}>
-                  <View style={styles.pickerContainer}>
-                    <Picker
-                      selectedValue={timeFrame.openingTime}
-                      style={styles.timePicker}
-                      onValueChange={value =>
-                        updateTime(index, timeFrameIndex, 'openingTime', value)
-                      }
-                      mode="dropdown">
-                      {timeOptions.map(timeOption => (
-                        <Picker.Item
-                          label={timeOption}
-                          value={timeOption}
-                          key={timeOption}
-                        />
-                      ))}
-                    </Picker>
-                  </View>
-                  <Text style={styles.toText}>To</Text>
-                  <View style={styles.pickerContainer}>
-                    <Picker
-                      selectedValue={timeFrame.closingTime}
-                      style={styles.timePicker}
-                      onValueChange={value =>
-                        updateTime(index, timeFrameIndex, 'closingTime', value)
-                      }
-                      mode="dropdown">
-                      {validClosingOptions.map(timeOption => (
-                        <Picker.Item
-                          label={timeOption}
-                          value={timeOption}
-                          key={timeOption}
-                        />
-                      ))}
-                    </Picker>
-                  </View>
-                </View>
-              );
-            })}
-            <TouchableOpacity
-              onPress={() => addTimeFrame(index)}
-              style={styles.addTimeFrameButton}>
-              <Image source={Images.PlusWithLightBAck} style={styles.addIcon} />
-              <Text style={styles.addText}>Add Timeframe</Text>
-            </TouchableOpacity>
-          </View>
-        ))}
-      </ScrollView>
-      <View style={styles.buttonContainer}>
-        <CommonButton title={'Save'} />
       </View>
-    </View>
     </SafeAreaView>
   );
 };
@@ -265,7 +287,7 @@ const styles = StyleSheet.create({
     height: (mobileW * 5) / 100,
   },
   CloserView: {
-    height: DimensionsConfig?.screenHeight * 0.008,
+    height: DimensionsConfig?.screenHeight * 0.004,
     width: DimensionsConfig?.screenWidth * 0.14,
     borderRadius: 10,
     backgroundColor: '#9E98AC',
@@ -312,6 +334,10 @@ const styles = StyleSheet.create({
     paddingVertical: (mobileW * 3.5) / 100,
     paddingHorizontal: (mobileW * 4) / 100,
     elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   tagIcon: {
     width: (mobileW * 5.2) / 100,

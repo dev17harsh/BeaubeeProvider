@@ -28,12 +28,23 @@ export default function Support({navigation}) {
     useState(false);
   const [isPackageModal, setisPackageModal] = useState(false);
   const [clientBooking, setclientBooking] = useState('client');
-
+  const [customerData, setcustomerData] = useState(null);
+  const [storeData, setStoreData] = useState(null);
   const handleOpenModal = () => setModalProfessionalVisible(true);
   const handleCloseModal = () => setModalProfessionalVisible(false);
 
   const handlePackageModalOpen = () => setisPackageModal(true);
   const handlePackageModalClose = () => setisPackageModal(false);
+
+  const storeDataToState = data => {
+    setcustomerData(data);
+  };
+
+  const storeServiceToState = data => {
+    console.log('=>>>>>>>>>', data);
+    setStoreData(data);
+  };
+
   const ReportPress = () => {
     return (
       <View>
@@ -74,22 +85,123 @@ export default function Support({navigation}) {
           </TouchableOpacity>
         </View>
         {clientBooking === 'client' && (
-          <TouchableOpacity
-            onPress={() => handleOpenModal()}
-            activeOpacity={0.8}
-            style={styles.itemContainer}>
-            <Text style={styles.itemLabel}>Select Client</Text>
-            <Image source={Images?.forwardIcon} style={styles.forwardDicicon} />
-          </TouchableOpacity>
+          <>
+            {customerData == null ? (
+              <TouchableOpacity
+                onPress={() => handleOpenModal()}
+                activeOpacity={0.8}
+                style={styles.itemContainer}>
+                <Text style={styles.itemLabel}>Select Client</Text>
+                <Image
+                  source={Images?.forwardIcon}
+                  style={styles.forwardDicicon}
+                />
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.itemContainer}>
+                <Image
+                  source={customerData?.image}
+                  style={styles.profileImage}
+                />
+                <View style={styles.textContainer}>
+                  <Text style={styles.nameText}>{customerData?.name}</Text>
+                  <View style={styles.ratingRow}>
+                    <Image
+                      source={Images?.activeStar}
+                      style={styles.starIcon}
+                    />
+                    <Text style={styles.rating}>
+                      {customerData?.rating + '.0'}
+                    </Text>
+                    <Text style={styles.review}>
+                      {''}({customerData?.reviews} Reviews)
+                    </Text>
+                  </View>
+                </View>
+                <TouchableOpacity onPress={() => setcustomerData(null)}>
+                  <Image
+                    source={Images?.deleteButton}
+                    style={styles.deleteButton}
+                  />
+                </TouchableOpacity>
+              </View>
+            )}
+          </>
         )}
         {clientBooking === 'booking' && (
-          <TouchableOpacity
-            onPress={() => handlePackageModalOpen()}
-            activeOpacity={0.8}
-            style={styles.itemContainer}>
-            <Text style={styles.itemLabel}>Select Booking</Text>
-            <Image source={Images?.forwardIcon} style={styles.forwardDicicon} />
-          </TouchableOpacity>
+          <>
+            {storeData === null ? (
+              <TouchableOpacity
+                onPress={() => handlePackageModalOpen()}
+                activeOpacity={0.8}
+                style={styles.itemContainer}>
+                <Text style={styles.itemLabel}>Select Booking</Text>
+                <Image
+                  source={Images?.forwardIcon}
+                  style={styles.forwardDicicon}
+                />
+              </TouchableOpacity>
+            ) : (
+              <View activeOpacity={0.8} style={styles.card}>
+                <Image source={storeData?.image} style={styles.image} />
+                <View style={styles.content}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}>
+                    <Text style={styles.name}>{storeData?.name}</Text>
+                    <TouchableOpacity
+                      onPress={() => setStoreData(null)}
+                      activeOpacity={0.8}>
+                      <Image
+                        source={Images.deleteButton}
+                        style={styles.deleteButton}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  <View style={styles.categories}>
+                    {storeData?.categories?.includes('Hair') && (
+                      <View
+                        style={{
+                          right: 8,
+                          paddingHorizontal: (mobileW * 2) / 100,
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          marginTop: (mobileW * 1) / 100,
+                        }}>
+                        <Image source={Images.Hair} style={styles.listIcons} />
+                        <Text style={styles.iconText}>Hair</Text>
+                      </View>
+                    )}
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      marginTop: (mobileW * 1) / 100,
+                    }}>
+                    <Image
+                      source={Images?.calenderIcon}
+                      style={styles.listIcons}
+                    />
+                    <Text style={styles.iconText}>
+                      23 March, 2022 (from 1:00-2:00)
+                    </Text>
+                  </View>
+                  <View style={styles.ratingRow}>
+                    <Image
+                      source={Images?.locationIcon}
+                      style={styles.listIcons}
+                    />
+                    <Text style={styles.ratingText}>{'Home'}</Text>
+                  </View>
+                </View>
+              </View>
+            )}
+          </>
         )}
       </View>
     );
@@ -97,98 +209,98 @@ export default function Support({navigation}) {
 
   return (
     <SafeAreaView style={styles.container}>
-    <View style={styles.container}>
-      <SelectCustomer
-        visible={isModalProfessionalVisible}
-        onClose={handleCloseModal}
-        // onSelect={e => storeDataToState(e)}
-      />
-      <SelectBookingModal
-        visible={isPackageModal}
-        onClose={handlePackageModalClose}
-        // onSelect={e => storeDataToState(e)}
-      />
-      {/* Header */}
-      <AppHeader title={'Support'} />
-      <ScrollView
-        contentContainerStyle={{
-          paddingBottom: (mobileW * 5) / 100,
-          paddingHorizontal: (mobileW * 2) / 100,
-          marginTop: (mobileW * 4) / 100,
-        }}>
-        <Text style={styles.selectTitle}>Submit Report or Feedback ?</Text>
-        <Text style={[styles.payMethod , {marginTop: 10}]}>
-          Please review alll of the details of your booking
-        </Text>
+      <View style={styles.container}>
+        <SelectCustomer
+          visible={isModalProfessionalVisible}
+          onClose={handleCloseModal}
+          onSelect={e => storeDataToState(e)}
+        />
+        <SelectBookingModal
+          visible={isPackageModal}
+          onClose={handlePackageModalClose}
+          onSelect={e => storeServiceToState(e)}
+        />
+        {/* Header */}
+        <AppHeader title={'Support'} />
+        <ScrollView
+          contentContainerStyle={{
+            paddingBottom: (mobileW * 5) / 100,
+            paddingHorizontal: (mobileW * 2) / 100,
+            marginTop: (mobileW * 4) / 100,
+          }}>
+          <Text style={styles.selectTitle}>Submit Report or Feedback ?</Text>
+          <Text style={[styles.payMethod, {marginTop: 10}]}>
+            Please review alll of the details of your booking
+          </Text>
 
+          <View
+            style={{
+              paddingVertical: (mobileH * 2) / 100,
+              paddingHorizontal: (mobileW * 3) / 100,
+              flexDirection: 'row',
+            }}>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => setSelectedOption('feebback')}
+              style={styles.selectedView}>
+              <Image
+                source={
+                  selectedOption === 'feebback'
+                    ? Images.selectedButton
+                    : Images.unSelectedButton
+                }
+                style={styles.plusIcon}
+              />
+              <Text style={styles.payMethod}>Feedback</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => setSelectedOption('report')}
+              style={[styles.selectedView, {left: (mobileW * 10) / 100}]}>
+              <Image
+                source={
+                  selectedOption === 'report'
+                    ? Images.selectedButton
+                    : Images.unSelectedButton
+                }
+                style={styles.plusIcon}
+              />
+              <Text style={styles.payMethod}>Report</Text>
+            </TouchableOpacity>
+          </View>
+          {selectedOption === 'report' && ReportPress()}
+          <View>
+            <TextInput
+              multiline={true}
+              textAlignVertical="top"
+              placeholder="Type here..."
+              maxLength={500}
+              placeholderTextColor={'#9E98AC'}
+              style={{
+                width: (mobileW * 90) / 100,
+                height: (mobileW * 30) / 100,
+                alignSelf: 'center',
+                borderWidth: 1,
+                borderColor: Colors.lightGray,
+                borderRadius: (mobileW * 2) / 100,
+                padding: (mobileW * 3) / 100,
+                fontSize: 14,
+                fontWeight: '400',
+              }}
+            />
+          </View>
+          <Text style={[styles.limitWords]}>Limit of 500 words</Text>
+        </ScrollView>
         <View
           style={{
-            paddingVertical: (mobileH * 2) / 100,
-            paddingHorizontal: (mobileW * 3) / 100,
-            flexDirection: 'row',
+            position: 'absolute',
+            bottom: 10,
+            width: (mobileW * 90) / 100,
+            alignSelf: 'center',
           }}>
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={() => setSelectedOption('feebback')}
-            style={styles.selectedView}>
-            <Image
-              source={
-                selectedOption === 'feebback'
-                  ? Images.selectedButton
-                  : Images.unSelectedButton
-              }
-              style={styles.plusIcon}
-            />
-            <Text style={styles.payMethod}>Feedback</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={() => setSelectedOption('report')}
-            style={[styles.selectedView, {left: (mobileW * 10) / 100}]}>
-            <Image
-              source={
-                selectedOption === 'report'
-                  ? Images.selectedButton
-                  : Images.unSelectedButton
-              }
-              style={styles.plusIcon}
-            />
-            <Text style={styles.payMethod}>Report</Text>
-          </TouchableOpacity>
+          <CommonButton onPress={() => navigation.goBack()} />
         </View>
-        {selectedOption === 'report' && ReportPress()}
-        <View>
-          <TextInput
-            multiline={true}
-            textAlignVertical="top"
-            placeholder="Type here..."
-            maxLength={500}
-            placeholderTextColor={"#9E98AC"}
-            style={{
-              width: (mobileW * 90) / 100,
-              height: (mobileW * 30) / 100,
-              alignSelf: 'center',
-              borderWidth: 1,
-              borderColor: Colors.lightGray,
-              borderRadius: (mobileW * 2) / 100,
-              padding: (mobileW * 3) / 100,
-              fontSize: 14,
-              fontWeight: '400'
-            }}
-          />
-        </View>
-        <Text style={[styles.limitWords]}>Limit of 500 words</Text>
-      </ScrollView>
-      <View
-        style={{
-          position: 'absolute',
-          bottom: 10,
-          width: (mobileW * 90) / 100,
-          alignSelf: 'center',
-        }}>
-        <CommonButton />
       </View>
-    </View>
     </SafeAreaView>
   );
 }
@@ -267,7 +379,7 @@ const styles = StyleSheet.create({
   selectTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#301E39',
+    color:Colors.textDark,
     left: 12,
   },
   dropdown: {
@@ -360,5 +472,115 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontSize: 16,
     color: '#000',
+  },
+  textContainer: {
+    flex: 1,
+  },
+  profileImage: {
+    width: (mobileW * 12) / 100,
+    height: (mobileW * 12) / 100,
+    borderRadius: (mobileW * 7) / 100,
+    marginRight: 16,
+  },
+  ratingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: (mobileW * 1) / 100,
+  },
+  rating: {
+    fontSize: 14,
+    color: Colors.black,
+    marginLeft: 4,
+    fontWeight: '700',
+  },
+  review: {
+    fontSize: 14,
+    color: Colors.black,
+    marginLeft: 4,
+    fontWeight: '300',
+  },
+  starIcon: {
+    width: (mobileW * 4) / 100,
+    height: (mobileW * 4) / 100,
+  },
+  nameText: {
+    fontSize: (mobileW * 3.5) / 100,
+    color: Colors.black,
+    fontWeight: '600',
+  },
+  deleteButton: {
+    width: (mobileW * 5) / 100,
+    height: (mobileW * 5) / 100,
+  },
+  card: {
+    flexDirection: 'row',
+    backgroundColor: '#ffffff',
+    // padding: 12,
+    marginBottom: (mobileW * 3) / 100,
+    borderBottomWidth: (mobileW * 0.1) / 100,
+    borderBottomColor: '#9E98AC',
+    width: (mobileW * 90) / 100,
+    alignSelf: 'center',
+    padding: (mobileW * 2) / 100,
+    borderRadius: (mobileW * 2) / 100,
+    borderWidth: 1,
+    borderColor: '#F6EFF9',
+  },
+  image: {
+    width: (mobileW * 25) / 100,
+    height: (mobileW * 25) / 100,
+    borderRadius: 10,
+    marginRight: 10,
+  },
+  content: {
+    flex: 1,
+  },
+  name: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#301E39',
+    marginBottom: 4,
+  },
+  categories: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  ratingTxt: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: (mobileW * 2) / 100,
+  },
+  ratingText: {
+    marginLeft: (mobileW * 2.3) / 100,
+    color: '#555',
+  },
+  heartIcon: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  topLabel: {
+    fontSize: (mobileW * 4.2) / 100,
+    color: Colors.black,
+    left: (mobileW * 4) / 100,
+    fontWeight: '600',
+    marginTop: 10,
+  },
+  heartIconStyle: {
+    width: (mobileW * 6) / 100,
+    height: (mobileW * 6) / 100,
+  },
+  listIcons: {
+    width: (mobileW * 3.8) / 100,
+    height: (mobileW * 3.8) / 100,
+    // left: (mobileW * 2) / 100,
+    tintColor: '#9E98AC',
+    resizeMode: 'contain',
+  },
+  iconText: {
+    color: '#301E39',
+    fontWeight: '400',
+    fontSize: 12,
+    left: (mobileW * 2) / 100,
   },
 });

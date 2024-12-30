@@ -85,9 +85,9 @@ const AddBusinessTimingScreen = ({navigation}) => {
             <View style={styles.container}>
             {/* Header */}
             <AppHeader
-                title={"Business Timings"}
+                title={"Timings"}
             />
-            <ScrollView contentContainerStyle={{ paddingBottom: (mobileW * 8) / 100 }}>
+            <ScrollView contentContainerStyle={{ paddingBottom: (mobileW * 18) / 100 }}>
                 <View style={styles.subContainer}>
                     {schedule.map((item, index) => {
                         // Filter closing time options based on selected opening time
@@ -132,7 +132,7 @@ const AddBusinessTimingScreen = ({navigation}) => {
             <TouchableOpacity
                 onPress={() => navigation.navigate('AddServicesScreen')}
                 style={styles.selectLocationButton}>
-                <Text style={styles.selectionButtonTxt}>Save Location and Timings</Text>
+                <Text style={styles.selectionButtonTxt}>Save Location</Text>
             </TouchableOpacity>
             </View>
         </SafeAreaView>
@@ -195,10 +195,13 @@ const styles = StyleSheet.create({
     },
     pickerContainer: {
         width: mobileW * 0.4,
-        borderRadius: 5,
+        borderRadius: 10,
         borderWidth: 1,
         borderColor: '#EEE6F1',
         marginHorizontal: 5,
+        height:mobileW * 0.13,
+        alignItems:'center',
+        justifyContent:'center'
     },
     timePicker: {
         width: '100%',

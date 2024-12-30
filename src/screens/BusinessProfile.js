@@ -20,42 +20,13 @@ const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
 const tabs = ['Hair', 'Makeup', 'Skincare', 'Nails'];
 const professionalsData = [
-  {
-    id: '1',
-    name: 'Johnathan M.',
-    rating: 5,
-    image: Images.personImage, // replace with actual URL
-  },
-  {
-    id: '2',
-    name: 'Maria K.',
-    rating: 5,
-    image: Images.image11, // replace with actual URL
-  },
-  {
-    id: '3',
-    name: 'Linda J.',
-    rating: 5,
-    image: Images.image11, // replace with actual URL
-  },
-  {
-    id: '4',
-    name: 'Kevin F.',
-    rating: 5,
-    image: Images.image11, // replace with actual URL
-  },
-  {
-    id: '3',
-    name: 'Linda J.',
-    rating: 5,
-    image: Images.image11, // replace with actual URL
-  },
-  {
-    id: '4',
-    name: 'Kevin F.',
-    rating: 5,
-    image: Images.image11, // replace with actual URL
-  },
+  {id: 1, day: 'Monday', time: '06:00-17:00'},
+  {id: 1, day: 'Tuesday', time: '06:00-17:00'},
+  {id: 1, day: 'Wednesday', time: '06:00-17:00'},
+  {id: 1, day: 'Thusday', time: '06:00-17:00'},
+  {id: 1, day: 'Friday', time: '06:00-17:00'},
+  {id: 1, day: 'Saturday', time: '06:00-17:00'},
+  {id: 1, day: 'Sunday', time: '06:00-17:00'},
 ];
 
 const imageArray = [
@@ -79,6 +50,7 @@ const timings = [
 
 const BusinessProfile = ({navigation}) => {
   const [breakModal, setbreakModal] = useState(false);
+  const [showDate, setShowDate] = useState(false);
 
   const breakVisibleModal = () => {
     setbreakModal(!breakModal);
@@ -86,145 +58,170 @@ const BusinessProfile = ({navigation}) => {
 
   return (
     <SafeAreaView style={styles.container}>
-    <View style={styles.container}>
-      {/* <TimingsModal
-        visible={isTimingModalVisible} 
-        onClose={handleCloseModal} 
-        timings={timings} 
-      /> */}
-      {/* Header */}
-      <BreakDuratinModal visible={breakModal} onClose={breakVisibleModal} />
-      <AppHeader title={'Business Profile'} />
+      <View style={styles.container}>
+        {/* Header */}
+        <BreakDuratinModal visible={breakModal} onClose={breakVisibleModal} />
+        <AppHeader title={'Business Profile'} />
 
-      <ScrollView style={styles.Scrollcontainer}>
-        {/* Business Image */}
-        <ImageBackground
-          resizeMode="cover"
-          source={Images?.image11}
-          imageStyle={styles?.businessImage}
-          style={styles?.businessImage}>
-          <Image source={Images?.image22} style={styles.homeServiceIcon} />
-        </ImageBackground>
+        <ScrollView style={styles.Scrollcontainer}>
+          {/* Business Image */}
+          <ImageBackground
+            resizeMode="cover"
+            source={Images?.image11}
+            imageStyle={styles?.businessImage}
+            style={styles?.businessImage}>
+            <Image source={Images?.image22} style={styles.homeServiceIcon} />
+          </ImageBackground>
 
-        <View style={{alignItems: 'center', marginTop: (mobileW * 16) / 100}}>
-          {/* User Info */}
-          <Text style={styles.name}>Kynthia Johnson</Text>
-          <Text style={styles.email}>kynthiajohnson@email.com</Text>
-          <Text style={styles.phone}>+123 456 7890</Text>
+          <View style={{alignItems: 'center', marginTop: (mobileW * 16) / 100}}>
+            {/* User Info */}
+            <Text style={styles.name}>Kynthia Johnson</Text>
+            <Text style={styles.email}>kynthiajohnson@email.com</Text>
+            <Text style={styles.phone}>+123 456 7890</Text>
 
-          {/* Edit Profile Button */}
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate('EditProfileBusiness');
-            }}
-            activeOpacity={0.8}
-            style={styles.editButton}>
-            <Image source={Images?.Edit} style={styles.icon} />
-            <Text style={styles.editButtonText}>Edit Profile</Text>
-          </TouchableOpacity>
-        </View>
-        {/* Business Details */}
-        <View
-          style={{
-            paddingHorizontal: (mobileW * 3) / 100,
-            paddingVertical: (mobileW * 2) / 100,
-          }}>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('AddTimingLocation')}
-            activeOpacity={0.8}
-            style={styles.itemContainer}>
-            <Image source={Images?.locationBAck} style={styles.locationIcons} />
-            <View style={styles.txtView}>
-              <Text style={styles.itemLabel}>Locations and Timings</Text>
-              <Text style={styles.itemDescription}>
-                88 Ballarat Rd. Footscray 304 VIC
-              </Text>
-            </View>
-            <Image source={Images?.EditBlack} style={styles.forwardDicicon} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            // onPress={() => navigation.navigate('Wishlist')}
-            activeOpacity={0.8}
-            style={styles.itemContainer1}>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}>
-              <Image source={Images?.timeBack} style={styles.locationIcons} />
-              <Text style={styles.itemLabel}>Opening Hours</Text>
-              <TouchableOpacity>
-                <Image
-                  source={Images?.EditBlack}
-                  style={[styles.forwardDicicon, {right: 15}]}
-                />
-              </TouchableOpacity>
-            </View>
-            <View style={styles.dayView}>
-              <Text style={styles.dayTxt}>Monday</Text>
-              <Text style={styles.timeTxt}>06:00-17:00</Text>
-              <TouchableOpacity>
-                <Image source={Images?.Plus} style={styles.plusIcon} />
-              </TouchableOpacity>
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            // onPress={() => navigation.navigate('Wishlist')}
-            activeOpacity={0.8}
-            style={styles.itemContainer}>
-            <Image source={Images?.breakBack} style={styles.locationIcons} />
-            <View style={styles.txtView}>
-              <Text style={styles.itemLabel}>10 minute break</Text>
-              <Text style={styles.itemDescription}>
-                Breaks in between services
-              </Text>
-            </View>
-            <TouchableOpacity activeOpacity={0.8} onPress={() => breakVisibleModal()}>
+            {/* Edit Profile Button */}
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate('EditProfileBusiness');
+              }}
+              activeOpacity={0.8}
+              style={styles.editButton}>
+              <Image source={Images?.Edit} style={styles.icon} />
+              <Text style={styles.editButtonText}>Edit Profile</Text>
+            </TouchableOpacity>
+          </View>
+          {/* Business Details */}
+          <View
+            style={{
+              paddingHorizontal: (mobileW * 3) / 100,
+              paddingVertical: (mobileW * 2) / 100,
+            }}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('AddTimingLocation')}
+              activeOpacity={0.8}
+              style={styles.itemContainer}>
+              <Image
+                source={Images?.locationBAck}
+                style={styles.locationIcons}
+              />
+              <View style={styles.txtView}>
+                <Text style={styles.itemLabel}>Locations</Text>
+                <Text style={styles.itemDescription}>
+                  88 Ballarat Rd. Footscray 304 VIC
+                </Text>
+              </View>
               <Image source={Images?.EditBlack} style={styles.forwardDicicon} />
             </TouchableOpacity>
-          </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={() => navigation.navigate('ChangePassword')}
-            activeOpacity={0.8}
-            style={styles.itemContainer}>
-            <Image source={Images?.lockBack} style={styles.locationIcons} />
-            <View style={styles.txtView}>
-              <Text style={styles.itemLabel}>Password</Text>
-              <Text style={styles.itemDescription}>Change password</Text>
-            </View>
-            <Image source={Images?.EditBlack} style={styles.forwardDicicon} />
-          </TouchableOpacity>
+            <TouchableOpacity
+              // onPress={() => navigation.navigate('Wishlist')}
+              activeOpacity={0.8}
+              style={styles.itemContainer1}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}>
+                <Image source={Images?.timeBack} style={styles.locationIcons} />
+                <Text style={styles.itemLabel}>Opening Hours</Text>
+                <TouchableOpacity>
+                  <Image
+                    source={Images?.EditBlack}
+                    style={[styles.forwardDicicon, {right: 15}]}
+                  />
+                </TouchableOpacity>
+              </View>
+              <View style={styles.dayView}>
+                <FlatList
+                  data={
+                    showDate ? professionalsData : professionalsData.slice(0, 1)
+                  } // Show all items or just the first
+                  renderItem={({item}) => (
+                    <View
+                      style={{
+                        width: (mobileW * 85) / 100,
+                        paddingVertical: (mobileW * 1) / 100,
+                      }}>
+                      <View style={{flexDirection: 'row', width: '100%'}}>
+                        <Text style={styles.dayTxt}>{item.day}</Text>
+                        <Text style={styles.timeTxt}>{item.time}</Text>
+                      </View>
+                    </View>
+                  )}
+                />
 
-          <TouchableOpacity
-            // onPress={() => navigation.navigate('Wishlist')}
-            activeOpacity={0.8}
-            style={styles.itemContainer}>
-            <Image source={Images?.crossBack} style={styles.locationIcons} />
-            <View style={styles.txtView}>
-              <Text style={styles.itemLabel}>Cancellation Policy</Text>
-              <Text style={styles.itemDescription}>20% within 24 hours</Text>
-            </View>
-            <Image source={Images?.EditBlack} style={styles.forwardDicicon} />
-          </TouchableOpacity>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() => setShowDate(!showDate)}
+                  style={{alignSelf: 'flex-start'}}>
+                  <Image source={Images?.Plus} style={styles.plusIcon} />
+                </TouchableOpacity>
+              </View>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            // onPress={() => navigation.navigate('Wishlist')}
-            activeOpacity={0.8}
-            style={styles.itemContainer}>
-            <Image source={Images?.discountBack} style={styles.locationIcons} />
-            <View style={styles.txtView}>
-              <Text style={styles.itemLabel}>Discount Code</Text>
-              <Text style={styles.itemDescription}>3 active promos</Text>
-            </View>
-            <Image source={Images?.EditBlack} style={styles.forwardDicicon} />
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </View>
+            <TouchableOpacity
+              // onPress={() => navigation.navigate('Wishlist')}
+              activeOpacity={0.8}
+              style={styles.itemContainer}>
+              <Image source={Images?.breakBack} style={styles.locationIcons} />
+              <View style={styles.txtView}>
+                <Text style={styles.itemLabel}>10 minute break</Text>
+                <Text style={styles.itemDescription}>
+                  Breaks in between services
+                </Text>
+              </View>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => breakVisibleModal()}>
+                <Image
+                  source={Images?.EditBlack}
+                  style={styles.forwardDicicon}
+                />
+              </TouchableOpacity>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => navigation.navigate('ChangePassword')}
+              activeOpacity={0.8}
+              style={styles.itemContainer}>
+              <Image source={Images?.lockBack} style={styles.locationIcons} />
+              <View style={styles.txtView}>
+                <Text style={styles.itemLabel}>Password</Text>
+                <Text style={styles.itemDescription}>Change password</Text>
+              </View>
+              <Image source={Images?.EditBlack} style={styles.forwardDicicon} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              // onPress={() => navigation.navigate('Wishlist')}
+              activeOpacity={0.8}
+              style={styles.itemContainer}>
+              <Image source={Images?.crossBack} style={styles.locationIcons} />
+              <View style={styles.txtView}>
+                <Text style={styles.itemLabel}>Cancellation Policy</Text>
+                <Text style={styles.itemDescription}>20% within 24 hours</Text>
+              </View>
+              <Image source={Images?.EditBlack} style={styles.forwardDicicon} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              // onPress={() => navigation.navigate('Wishlist')}
+              activeOpacity={0.8}
+              style={styles.itemContainer}>
+              <Image
+                source={Images?.discountBack}
+                style={styles.locationIcons}
+              />
+              <View style={styles.txtView}>
+                <Text style={styles.itemLabel}>Discount Code</Text>
+                <Text style={styles.itemDescription}>3 active promos</Text>
+              </View>
+              <Image source={Images?.EditBlack} style={styles.forwardDicicon} />
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </View>
     </SafeAreaView>
   );
 };
@@ -474,19 +471,21 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   name: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333333',
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#301E39',
     marginBottom: 5,
   },
   email: {
     fontSize: 14,
-    color: '#666666',
+    fontWeight: '400',
+    color: Colors.textLight,
     marginBottom: 2,
   },
   phone: {
     fontSize: 14,
-    color: '#666666',
+    fontWeight: '400',
+    color: Colors.textLight,
     marginBottom: 20,
   },
   editButton: {
@@ -498,9 +497,10 @@ const styles = StyleSheet.create({
     borderRadius: (mobileW * 3) / 100,
   },
   editButtonText: {
-    color: '#8D10B5',
-    fontSize: 16,
+    color: Colors.primary,
+    fontSize: 14,
     marginLeft: 15,
+    fontWeight: '600',
   },
   icon: {
     width: (mobileW * 4) / 100,
@@ -521,8 +521,11 @@ const styles = StyleSheet.create({
     borderRadius: (mobileW * 3) / 100,
     elevation: 1,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    borderWidth: 1,
+    borderColor: Colors.borderColor,
   },
   itemContainer1: {
     alignItems: 'center',
@@ -538,22 +541,23 @@ const styles = StyleSheet.create({
     borderRadius: (mobileW * 3) / 100,
     elevation: 1,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   txtView: {
     width: (mobileW * 68) / 100,
   },
   itemLabel: {
-    fontSize: (mobileW * 4) / 100,
-    color: '#333333',
+    fontSize: 14,
+    color: Colors.textDark,
     marginLeft: 10,
     flex: 1,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   itemDescription: {
-    fontSize: (mobileW * 3.2) / 100,
-    color: '#c2becb',
+    fontSize: 12,
+    color: Colors.textBrown,
     marginLeft: 10,
     fontWeight: '400',
   },
@@ -569,15 +573,15 @@ const styles = StyleSheet.create({
     paddingVertical: (mobileW * 2.5) / 100,
   },
   dayTxt: {
-    fontSize: (mobileW * 3.5) / 100,
+    fontSize: 12,
     color: Colors.black,
-    fontWeight: '400',
+    fontWeight: '500',
     width: '60%',
   },
   timeTxt: {
-    fontSize: (mobileW * 3.2) / 100,
+    fontSize: 12,
     color: Colors.black,
-    fontWeight: '400',
+    fontWeight: '500',
   },
   forwardDicicon: {
     width: (mobileW * 5) / 100,
@@ -588,8 +592,8 @@ const styles = StyleSheet.create({
     height: (mobileW * 6) / 100,
   },
   locationIcons: {
-    width: (mobileW * 11) / 100,
-    height: (mobileW * 11) / 100,
+    width: (mobileW * 10) / 100,
+    height: (mobileW * 10) / 100,
     resizeMode: 'contain',
   },
 });

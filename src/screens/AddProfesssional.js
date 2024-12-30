@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -10,35 +10,35 @@ import {
   ImageBackground,
   SafeAreaView,
 } from 'react-native';
-import { Images } from '../assets/images';
+import {Images} from '../assets/images';
 import AppHeader from '../components/AppHeader';
-import { Colors } from '../theme/colors';
+import {Colors} from '../theme/colors';
 import CustomButton from '../components/CustomButton';
-import { mobileH, mobileW } from '../components/utils';
-import { launchImageLibrary } from 'react-native-image-picker';
-import { TextInput as TextInputPaper } from 'react-native-paper';
+import {mobileH, mobileW} from '../components/utils';
+import {launchImageLibrary} from 'react-native-image-picker';
+import {TextInput as TextInputPaper} from 'react-native-paper';
 import BreakDuratinModal from '../components/Modal.js/BreakDurationModal';
 
 const ScheduleDay = [
-  { day: 'Monday', time: '10:00AM to 09:00PM' },
-  { day: 'Tuesday', time: '10:00AM to 09:00PM' },
-  { day: 'Wednesday', time: '10:00AM to 09:00PM' },
-  { day: 'Thusday', time: '10:00AM to 09:00PM' },
-  { day: 'Friday', time: '10:00AM to 09:00PM' },
-  { day: 'Saturday', time: '10:00AM to 09:00PM' },
-  { day: 'Sunday', time: '10:00AM to 09:00PM' },
+  {day: 'Monday', time: '10:00AM to 09:00PM'},
+  {day: 'Tuesday', time: '10:00AM to 09:00PM'},
+  {day: 'Wednesday', time: '10:00AM to 09:00PM'},
+  {day: 'Thusday', time: '10:00AM to 09:00PM'},
+  {day: 'Friday', time: '10:00AM to 09:00PM'},
+  {day: 'Saturday', time: '10:00AM to 09:00PM'},
+  {day: 'Sunday', time: '10:00AM to 09:00PM'},
 ];
 
 const checkboxOptions = [
-  { title: 'Hair', Image: Images?.Hair },
-  { title: 'SkinCare', Image: Images?.Skincare },
-  { title: 'Makeup', Image: Images?.Makeup },
-  { title: 'Nails', Image: Images?.Nail },
-  { title: 'Taining', Image: Images?.Tanning },
-  { title: 'Hair Removal', Image: Images?.HairRemoval },
+  {title: 'Hair', Image: Images?.Hair},
+  {title: 'SkinCare', Image: Images?.Skincare},
+  {title: 'Makeup', Image: Images?.Makeup},
+  {title: 'Nails', Image: Images?.Nail},
+  {title: 'Taining', Image: Images?.Tanning},
+  {title: 'Hair Removal', Image: Images?.HairRemoval},
 ];
 
-const AddProfesssional = ({ navigation }) => {
+const AddProfesssional = ({navigation}) => {
   const [breakModal, setbreakModal] = useState(false);
   const [availableData, setAvailableData] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
@@ -88,7 +88,7 @@ const AddProfesssional = ({ navigation }) => {
     });
   };
 
-  const renderCheckbox = ({ item }) => (
+  const renderCheckbox = ({item}) => (
     <TouchableOpacity
       style={[
         styles.checkbox,
@@ -97,10 +97,10 @@ const AddProfesssional = ({ navigation }) => {
       onPress={() => handleCheckboxPress(item?.title)}>
       <Image
         resizeMode="contain"
-        source={
-          item?.Image
+        source={item?.Image}
+        tintColor={
+          selectedCheckbox === item?.title ? Colors?.white : Colors?.primary
         }
-        tintColor={selectedCheckbox === item?.title ? Colors?.white : Colors?.primary}
         style={styles.cardIcons}
       />
       <Text
@@ -115,201 +115,208 @@ const AddProfesssional = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-    <View style={styles.container}>
-      <BreakDuratinModal visible={breakModal} onClose={breakVisibleModal} />
-      <AppHeader title={'Add Professsional'} />
+      <View style={styles.container}>
+        <BreakDuratinModal visible={breakModal} onClose={breakVisibleModal} />
+        <AppHeader title={'Add Professsional'} />
 
-      <ScrollView style={styles.Scrollcontainer}>
-        {/* Business Image */}
-        <View>
-          <ImageBackground
-            source={Images?.image22}
-            imageStyle={styles.homeServiceIcon}
-            style={styles.homeServiceIcon}
-          />
-          <TouchableOpacity
-            onPress={() => openImagePicker()}
-            activeOpacity={0.8}>
-            <Image source={Images?.cameraWithBack} style={styles.cameraIcon} />
-          </TouchableOpacity>
-        </View>
-        <View style={{ alignItems: 'center', marginTop: (mobileW * 3) / 100 }}>
-          {/* User Info */}
-          <Text style={styles.name}>Kynthia Johnson</Text>
-          <Text style={styles.email}>kynthiajohnson@email.com</Text>
-          <Text style={styles.phone}>+123 456 7890</Text>
-        </View>
-
-        <View
-          style={{
-            width: mobileW,
-            paddingHorizontal: (mobileW * 5) / 100,
-            marginTop: (mobileW * 5) / 100,
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-          }}>
-          <TextInputPaper
-            style={{
-              width: (mobileW * 43) / 100,
-              fontSize: 14,
-              backgroundColor: '#fff',
-              color: '#301E39'
-            }}
-            outlineColor={"#EEE6F1"}
-            activeOutlineColor={"#EEE6F1"}
-            label="First Name"
-            // value="Flat/Villa No."
-            placeholder="Enter first name"
-            // onChangeText={text => setText(text)}
-            mode="outlined"
-          />
-          <TextInputPaper
-            style={{
-              width: (mobileW * 43) / 100,
-              fontSize: 14,
-              backgroundColor: '#fff',
-              color: '#301E39'
-            }}
-            outlineColor={"#EEE6F1"}
-            activeOutlineColor={"#EEE6F1"}
-            label="Last Name"
-            // onChangeText={text => setText(text)}
-            placeholder="Enter last name"
-            mode="outlined"
-          />
-        </View>
-
-        <View
-          style={{
-            width: mobileW,
-            paddingHorizontal: (mobileW * 5) / 100,
-            marginTop: (mobileW * 5) / 100,
-          }}>
-          <TextInputPaper
-            style={{
-              width: (mobileW * 90) / 100,
-              fontSize: 14,
-              backgroundColor: '#fff',
-              color: '#301E39'
-            }}
-            outlineColor={"#EEE6F1"}
-            activeOutlineColor={"#EEE6F1"}
-            label="Position Description"
-            // onChangeText={text => setText(text)}
-            placeholder="Position description goes here"
-            mode="outlined"
-          />
-
-          <TextInputPaper
-            style={{
-              width: (mobileW * 90) / 100,
-              fontSize: 14,
-              backgroundColor: '#fff',
-              color: '#301E39'
-            }}
-            outlineColor={"#EEE6F1"}
-            activeOutlineColor={"#EEE6F1"}
-            label="Email"
-            // onChangeText={text => setText(text)}
-            placeholder="Enter email"
-            mode="outlined"
-          />
-
-          <TextInputPaper
-            style={{
-              width: (mobileW * 90) / 100,
-              fontSize: 14,
-              backgroundColor: '#fff',
-              color: '#301E39',
-              marginTop: (mobileW * 5) / 100,
-            }}
-            outlineColor={"#EEE6F1"}
-            activeOutlineColor={"#EEE6F1"}
-            label="Tier"
-            // onChangeText={text => setText(text)}
-            placeholder="Enter tier"
-            mode="outlined"
-          />
-        </View>
-
-        <View style={styles.straightLine} />
-
-        <FlatList
-          data={checkboxOptions}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={renderCheckbox}
-          numColumns={2}
-          contentContainerStyle={styles.checkboxContainer}
-        />
-
-        {/* Business Details */}
-        <View
-          style={{
-            paddingHorizontal: (mobileW * 3) / 100,
-          }}>
-
-          <View style={styles.itemContainerBio}>
-            <View style={[styles.txtView]}>
-              <Text style={styles.itemLabel}>Tell customer about this professional</Text>
-            </View>
-            <Text style={styles.itemDescription}>
-              Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu,
-              consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus
-              in, viverra quis
-            </Text>
+        <ScrollView style={styles.Scrollcontainer}>
+          {/* Business Image */}
+          <View>
+            <ImageBackground
+              source={Images?.image22}
+              imageStyle={styles.homeServiceIcon}
+              style={styles.homeServiceIcon}
+            />
+            <TouchableOpacity
+              onPress={() => openImagePicker()}
+              activeOpacity={0.8}>
+              <Image
+                source={Images?.cameraWithBack}
+                style={styles.cameraIcon}
+              />
+            </TouchableOpacity>
+          </View>
+          <View style={{alignItems: 'center', marginTop: (mobileW * 3) / 100}}>
+            {/* User Info */}
+            <Text style={styles.name}>Kynthia Johnson</Text>
+            <Text style={styles.email}>kynthiajohnson@email.com</Text>
+            <Text style={styles.phone}>+123 456 7890</Text>
           </View>
 
-          <View style={styles.itemContainerBio}>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                width: '100%',
-              }}>
-              <View style={[styles.txtView]}>
-                <Text style={styles.itemLabel}>Availability</Text>
-              </View>
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() => {navigation.navigate('Availability')}}>
-                <Image
-                  source={
-                    !availableData
-                      ? Images?.PlusWithLightBAck
-                      : Images.MinusWithLightBack
-                  }
-                  style={styles?.plusWithBack}
-                />
-              </TouchableOpacity>
-            </View>
-            {availableData && (
-              <View style={{ marginTop: (mobileW * 3) / 100 }}>
-                <FlatList
-                  data={ScheduleDay}
-                  renderItem={item => renderData(item)}
-                />
-              </View>
-            )}
-          </View>
           <View
             style={{
-              marginBottom: (mobileW * 6) / 100,
-              width: (mobileW * 90) / 100,
-              alignSelf: 'center',
+              width: mobileW,
+              paddingHorizontal: (mobileW * 5) / 100,
+              marginTop: (mobileW * 5) / 100,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
             }}>
-            <CustomButton
-              title={'Add Member'}
+            <TextInputPaper
               style={{
-                marginBottom: (mobileW * 3) / 100,
-                marginTop: (mobileW * 5) / 100,
-                backgroundColor: Colors.primary,
+                width: (mobileW * 43) / 100,
+                fontSize: 14,
+                backgroundColor: '#fff',
+                color: '#301E39',
               }}
-              textStyle={{ color: Colors.white }}
+              outlineColor={'#EEE6F1'}
+              activeOutlineColor={'#EEE6F1'}
+              label="First Name"
+              // value="Flat/Villa No."
+              placeholder="Enter first name"
+              // onChangeText={text => setText(text)}
+              mode="outlined"
+            />
+            <TextInputPaper
+              style={{
+                width: (mobileW * 43) / 100,
+                fontSize: 14,
+                backgroundColor: '#fff',
+                color: '#301E39',
+              }}
+              outlineColor={'#EEE6F1'}
+              activeOutlineColor={'#EEE6F1'}
+              label="Last Name"
+              // onChangeText={text => setText(text)}
+              placeholder="Enter last name"
+              mode="outlined"
             />
           </View>
-        </View>
-      </ScrollView>
-    </View>
+
+          <View
+            style={{
+              width: mobileW,
+              paddingHorizontal: (mobileW * 5) / 100,
+              marginTop: (mobileW * 5) / 100,
+            }}>
+            <TextInputPaper
+              style={{
+                width: (mobileW * 90) / 100,
+                fontSize: 14,
+                backgroundColor: '#fff',
+                color: '#301E39',
+              }}
+              outlineColor={'#EEE6F1'}
+              activeOutlineColor={'#EEE6F1'}
+              label="Position Description"
+              // onChangeText={text => setText(text)}
+              placeholder="Position description goes here"
+              mode="outlined"
+            />
+
+            <TextInputPaper
+              style={{
+                width: (mobileW * 90) / 100,
+                fontSize: 14,
+                backgroundColor: '#fff',
+                color: '#301E39',
+              }}
+              outlineColor={'#EEE6F1'}
+              activeOutlineColor={'#EEE6F1'}
+              label="Email"
+              // onChangeText={text => setText(text)}
+              placeholder="Enter email"
+              mode="outlined"
+            />
+
+            <TextInputPaper
+              style={{
+                width: (mobileW * 90) / 100,
+                fontSize: 14,
+                backgroundColor: '#fff',
+                color: '#301E39',
+                marginTop: (mobileW * 5) / 100,
+              }}
+              outlineColor={'#EEE6F1'}
+              activeOutlineColor={'#EEE6F1'}
+              label="Tier"
+              // onChangeText={text => setText(text)}
+              placeholder="Enter tier"
+              mode="outlined"
+            />
+          </View>
+
+          <View style={styles.straightLine} />
+
+          <FlatList
+            data={checkboxOptions}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={renderCheckbox}
+            numColumns={2}
+            contentContainerStyle={styles.checkboxContainer}
+          />
+
+          {/* Business Details */}
+          <View
+            style={{
+              paddingHorizontal: (mobileW * 3) / 100,
+            }}>
+            <View style={styles.itemContainerBio}>
+              <View style={[styles.txtView]}>
+                <Text style={styles.itemLabel}>
+                  Tell customer about this professional
+                </Text>
+              </View>
+              <Text style={styles.itemDescription}>
+                Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor
+                eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante,
+                dapibus in, viverra quis
+              </Text>
+            </View>
+
+            <View style={styles.itemContainerBio}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  width: '100%',
+                }}>
+                <View style={[styles.txtView]}>
+                  <Text style={styles.itemLabel}>Availability</Text>
+                </View>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() => {
+                    setAvailableData(true)
+                  }}>
+                  <Image
+                    source={
+                      !availableData
+                        ? Images?.PlusWithLightBAck
+                        : Images.MinusWithLightBack
+                    }
+                    style={styles?.plusWithBack}
+                  />
+                </TouchableOpacity>
+              </View>
+              {availableData && (
+                <View style={{marginTop: (mobileW * 3) / 100}}>
+                  <FlatList
+                    data={ScheduleDay}
+                    renderItem={item => renderData(item)}
+                  />
+                </View>
+              )}
+            </View>
+            <View
+              style={{
+                marginBottom: (mobileW * 6) / 100,
+                width: (mobileW * 90) / 100,
+                alignSelf: 'center',
+              }}>
+              <CustomButton
+                title={'Add Member'}
+                onPress={()=>navigation.navigate('Availability')}
+                style={{
+                  marginBottom: (mobileW * 3) / 100,
+                  marginTop: (mobileW * 5) / 100,
+                  backgroundColor: Colors.primary,
+                }}
+                textStyle={{color: Colors.white}}
+              />
+            </View>
+          </View>
+        </ScrollView>
+      </View>
     </SafeAreaView>
   );
 };
@@ -609,8 +616,9 @@ const styles = StyleSheet.create({
     marginTop: (mobileW * 4) / 100,
     elevation: 1,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   itemContainerBio: {
     backgroundColor: '#FFFFFF',
@@ -625,8 +633,9 @@ const styles = StyleSheet.create({
     marginTop: (mobileW * 4) / 100,
     elevation: 1,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   itemContainer1: {
     alignItems: 'center',
@@ -642,8 +651,9 @@ const styles = StyleSheet.create({
     borderRadius: (mobileW * 3) / 100,
     elevation: 1,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   txtView: {},
   itemLabel: {

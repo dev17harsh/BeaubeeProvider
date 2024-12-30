@@ -18,6 +18,10 @@ export const Colors = {
     red : '#FE5F7C',
     literPurple:"#EEE6F1",
     orange : '#F07C2E',
-    semiPurpleLight:'#EEE5F1'
+    semiPurpleLight:'#EEE5F1',
+    textDark:'#301E39',
+    textLight:'#554F67',
+    textBrown:'#9E98AC',
+    backGroundHome:'F1E2F6'
   };
   

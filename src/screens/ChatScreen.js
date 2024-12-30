@@ -145,8 +145,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors?.white,
-    paddingHorizontal: DimensionsConfig?.screenHeight * 0.02,
-    paddingTop: DimensionsConfig?.screenHeight * 0.035,
+    paddingHorizontal: DimensionsConfig?.screenHeight * 0.01,
+    paddingTop: DimensionsConfig?.screenHeight * 0.02,
   },
   tabContainer: {
     flexDirection: 'row',

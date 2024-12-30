@@ -20,6 +20,7 @@ import BookingModal from '../components/Modal.js/BookingModal';
 import CalendarPickerModal from '../components/Modal.js/CalendarPickerModal';
 import ProfileModal from '../components/ProfileCard';
 import CommonButton from '../components/CommonButton';
+import { DimensionsConfig } from '../theme/dimensions';
 
 // Helper function to generate time slots between a given start and end time
 const generateTimeSlots = (startTime, endTime) => {
@@ -47,55 +48,77 @@ const dataForQue = [
     name: 'Olivia Smith',
     service: 'Classic Manicure',
     time: '4:10 pm',
-    image: Images.image11,
+    image: Images.person1,
     status: true,
+    price: '$70.00',
+    addOns: 'Add On 1',
+    rating: '5.0',
+    reviews: '78',
+    assistantName: 'Linda Johnson',
   },
   {
     id: '2',
     name: 'Ava Williams',
     service: 'Deluxe Pedicure',
     time: '5:00 pm',
-    image: Images.image22,
+    image: Images.person2,
+    price: '$100.00',
+    addOns: 'Add On 2',
+    rating: '4.0',
+    reviews: '121',
+    assistantName: 'Jasmine Does',
   },
   {
     id: '3',
     name: 'Mia Brown',
     service: 'Deep Cleansing Facial',
     time: '5:40 pm',
-    image: Images.image33,
+    image: Images.person3,
+    price: '$90.00',
+    addOns: 'Add On 1',
+    rating: '3.0',
+    reviews: '121',
+    assistantName: 'John Willium',
   },
   {
     id: '4',
     name: 'Charlotte Jones',
     service: 'Relaxation Massage',
     time: '6:15 pm',
-    image: Images.image55,
+    image: Images.person4,
+    price: '$80.00',
+    addOns: 'Add On 3',
+    rating: '4.0',
+    reviews: '121',
+    assistantName: 'Enna Mallik',
   },
   {
     id: '5',
     name: 'Amelia Taylor',
     service: 'Hair Styling and Blowout',
     time: '6:45 pm',
-    image: Images.image44,
+    image: Images.person5,
+    price: '$40.00',
+    addOns: 'Add On 4',
+    rating: '5.0',
+    reviews: '121',
+    assistantName: 'Rosy Stone',
   },
 ];
 
-const profileData = {
-  // profileImage:{Images.image11,},
+const profileDataDetails = {
   name: 'Olivia Smith',
-  serviceName: 'Straight Hair',
+  service: 'Straight Hair',
   price: '$70.00',
   addOns: 'Add On 1',
-  // assistantImage: "https://example.com/linda.jpg",
   assistantName: 'Linda Johnson',
   rating: '5.0',
   reviews: '121',
-  onAddAmendPress: () => alert('Add/Amend Pressed'),
+  onAddAmendPress: () => navigation.navigate('BookService'),
   onCompletePress: () => alert('Mark as Complete Pressed'),
 };
 
-
-const BookingsQueueScreen = ({navigation}) => {
+const BookingsQueueScreen = ({ navigation }) => {
   const [selectedDate, setSelectedDate] = useState('');
   const [dates, setDates] = useState([]);
   const [appointmentsData, setAppointmentsData] = useState({});
@@ -113,6 +136,34 @@ const BookingsQueueScreen = ({navigation}) => {
   const [isEnableQueue, setisEnableQueue] = useState(false);
   const [EnablineQueModal, setEnablineQueModal] = useState(false);
   const [selectedDates, setSelectedDates] = useState([]);
+  const [pauseResumeQuery, setpauseResumeQuery] = useState(false);
+  const [profileData, setprofileData] = useState(profileDataDetails);
+
+
+  const timeSlots = [
+    { id: "1", time: "4:10 pm - 4:40 pm", description: "Haircut and Beard Trim", stylist: "John D.", hour: "4PM" },
+    { id: "2", time: "5:00 pm - 5:30 pm", description: "Haircut and Beard Trim", stylist: "John D.", hour: "5PM" },
+    { id: "3", time: "5:30 pm - 6:00 pm", description: "Haircut and Beard Trim", stylist: "John D.", hour: "5PM" },
+    { id: "4", time: "6:10 pm - 6:40 pm", description: "Haircut and Beard Trim", stylist: "John D.", hour: "6PM" },
+  ];
+
+
+  // Ensure timeSlots is always initialized
+  const validTimeSlots = Array.isArray(timeSlots) ? timeSlots : [];
+
+  // Generate all hours from 12 AM to 12 PM
+  const hours = Array.from({ length: 24 }, (_, i) => {
+    const hour = i === 0 ? "12AM" : i < 12 ? `${i}AM` : i === 12 ? "12PM" : `${i - 12}PM`;
+    return hour;
+  });
+
+  // Group data by hour
+  const groupedSlots = validTimeSlots.reduce((acc, slot) => {
+    acc[slot.hour] = acc[slot.hour] || [];
+    acc[slot.hour].push(slot);
+    return acc;
+  }, {});
+
 
   const openCalendar = () => {
     setCalendarVisible(true);
@@ -167,7 +218,7 @@ const BookingsQueueScreen = ({navigation}) => {
   }, []);
 
   // Generate time slots between 4 PM and 8 PM
-  const timeSlots = generateTimeSlots('16:00', '20:00');
+  // const timeSlots = generateTimeSlots('16:00', '20:00');
 
   const renderTimeSlot = time => {
     const appointment = appointmentsData[selectedDate]?.find(
@@ -178,7 +229,9 @@ const BookingsQueueScreen = ({navigation}) => {
         <Text style={styles.timeLabel}>{time}</Text>
         {appointment ? (
           <TouchableOpacity
-            onPress={() => {navigation.navigate('BookingDetailScreen')}}
+            onPress={() => {
+              navigation.navigate('BookingDetailScreen');
+            }}
             style={[styles.appointmentContainer]}>
             <Text style={styles.timeText}>{appointment.time}</Text>
             <Text style={styles.nameText}>{appointment.name}</Text>
@@ -285,6 +338,12 @@ const BookingsQueueScreen = ({navigation}) => {
     setEnablineQueModal(!EnablineQueModal);
   };
 
+  const formatDate = (inputDate) => {
+    const date = new Date(inputDate);
+    const options = { year: "numeric", month: "long", day: "numeric" };
+    return date.toLocaleDateString("en-US", options);
+  };
+
   const BookingsData = () => {
     return (
       <>
@@ -300,19 +359,23 @@ const BookingsQueueScreen = ({navigation}) => {
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              justifyContent: 'space-around',
+              // justifyContent: 'flex-start',
+              paddingHorizontal: (mobileW * 2) / 100,
               width: (mobileW * 25) / 100,
             }}>
             <CustomSwitch
               isEnabled={isEnable}
               toggleSwitch={() => {
-                toggleOpen(), bookingModalOffOn()
+                toggleOpen(), bookingModalOffOn();
               }}
             />
-            <TouchableOpacity onPress={() => {
-              modalOnoff();
-            }}>
-              <Image style={styles.infoIcon} source={Images.Information} />
+            <TouchableOpacity
+              onPress={() => {
+                modalOnoff();
+              }} style={{
+                marginLeft: (mobileW * 1) / 100,
+              }}>
+              <Image style={styles.infoIcon} tintColor={'#554F67'} source={Images.Information} />
             </TouchableOpacity>
           </View>
           {dropDown()}
@@ -341,8 +404,8 @@ const BookingsQueueScreen = ({navigation}) => {
             paddingVertical: (mobileW * 4) / 100,
           }}>
           <Text
-            style={{ fontSize: (mobileW * 4.5) / 100, color: Colors.primary }}>
-            August 14, 2022
+            style={{ fontSize: 16, color: Colors.primary, fontWeight: '600' }}>
+            {formatDate(selectedDate)}
           </Text>
           <TouchableOpacity onPress={() => openCalendar()}>
             <Image
@@ -352,9 +415,6 @@ const BookingsQueueScreen = ({navigation}) => {
             />
           </TouchableOpacity>
         </View>
-        {selectedDates.length > 1 ?(
-          <></>
-        ):(
         <View>
           <ScrollView
             horizontal
@@ -387,11 +447,49 @@ const BookingsQueueScreen = ({navigation}) => {
             ))}
           </ScrollView>
         </View>
-      )}
+        <View style={styles.horizontalLine} />
+        {/* {selectedDates.length > 1 ?(
+            <>
+            
+            </>
+          ):( */}
+        <FlatList
+          data={hours}
+          keyExtractor={(item) => item}
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item: hour }) => (
+            <View style={styles.hourSection}>
+              {/* Hour Header */}
+              <View style={{ width: '15%' }}>
+                <Text style={styles.hourText}>{hour}</Text>
+              </View>
+              <View style={{ width: '85%' }}>
+                {/* Time Slots for the Hour */}
+                {groupedSlots[hour]?.length > 0 ? (
+                  groupedSlots[hour].map((slot) => (
+                    <TouchableOpacity
+                      onPress={() => {
+                        navigation.navigate('BookingDetailScreen');
+                      }}
+                      style={[styles.appointmentContainer]}>
+                      <Text style={styles.timeText}>{slot.time}</Text>
+                      <Text style={styles.nameText}>{slot.stylist}</Text>
+                      <Text style={styles.serviceText}>{slot.description}</Text>
+                    </TouchableOpacity>
+                  ))
+                ) : (
+                  <Text style={styles.emptySlot}>No bookings available</Text>
+                )}
+              </View>
+            </View>
+          )}
+        />
+        {/* )} */}
         {/* Vertical Time Slots with Appointments */}
-        <ScrollView style={styles.appointmentsList}>
+        {/* <ScrollView style={styles.appointmentsList}>
           {timeSlots.map(time => renderTimeSlot(time))}
-        </ScrollView>
+        </ScrollView> */}
+
 
         {/* Floating Add Button */}
         <TouchableOpacity
@@ -415,7 +513,7 @@ const BookingsQueueScreen = ({navigation}) => {
         maxHeight={300}
         labelField="label"
         valueField="value"
-        placeholder={!isFocus ? 'Select' : '...'}
+        placeholder={!isFocus ? 'All Staff' : '...'}
         value={value}
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
@@ -431,21 +529,23 @@ const BookingsQueueScreen = ({navigation}) => {
     return (
       <TouchableOpacity
         activeOpacity={0.8}
-        onPress={() => setIsProfileModalVisible(true)}
+        onPress={() => {
+          setIsProfileModalVisible(true), setprofileData(item);
+        }}
         style={[styles?.card, item.status && styles.borderStyle]}>
         <Image source={item.image} style={styles?.avatar} />
         <View style={styles?.infoContainer}>
-          <Text style={styles?.name}>{item.name}</Text>
-          <Text style={styles?.service}>{item.service}</Text>
+          <Text style={[styles?.name, { color: '#301E39', fontSize: 14, fontWeight: '600' }]}>{item.name}</Text>
+          <Text style={[styles?.service, { color: '#554F67', fontWeight: '400', fontSize: 12 }]}>{item.service}</Text>
         </View>
         {item.status ? (
           <View style={styles?.progressContainer}>
-            <Text style={styles?.progressTxt}>{'In Progress'}</Text>
+            <Text style={[styles?.progressTxt, { fontSize: 12, fontWeight: '600', }]}>{'In Progress'}</Text>
           </View>
         ) : (
           <View style={styles?.timeContainer}>
             <Image style={styles?.timeIcon} source={Images?.Time} />
-            <Text style={styles?.time}>{item.time}</Text>
+            <Text style={[styles?.time, { color: '#554F67', fontSize: 12, fontWeight: '600' }]}>{item.time}</Text>
           </View>
         )}
       </TouchableOpacity>
@@ -462,23 +562,26 @@ const BookingsQueueScreen = ({navigation}) => {
         <ProfileModal
           visible={isProfileModalVisible}
           onClose={() => setIsProfileModalVisible(false)}
-          profileImage={Images?.image11}
+          profileImage={profileData?.image}
           name={profileData.name}
-          serviceName={profileData.serviceName}
+          serviceName={profileData.service}
           price={profileData.price}
           addOns={profileData.addOns}
           assistantImage={Images?.image11}
           assistantName={profileData.assistantName}
           rating={profileData.rating}
           reviews={profileData.reviews}
-          onAddAmendPress={profileData.onAddAmendPress}
-          onCompletePress={profileData.onCompletePress}
+          onAddAmendPress={() => {
+            navigation.navigate('BookService'), setIsProfileModalVisible(false);
+          }}
+          onCompletePress={() => setIsProfileModalVisible(false)}
+          navigation={navigation}
         />
         <View
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
-            paddingVertical: (mobileW * 4) / 100,
+            paddingBottom: (mobileW * 4) / 100,
             borderBottomWidth: (mobileW * 0.2) / 100,
             borderBottomColor: Colors.lightGray,
           }}>
@@ -500,7 +603,7 @@ const BookingsQueueScreen = ({navigation}) => {
           </View>
           {dropDownQue()}
         </View>
-        <ScrollView>
+        <ScrollView showsVerticalScrollIndicator={false}>
           <View
             style={{
               backgroundColor: Colors.white,
@@ -510,13 +613,19 @@ const BookingsQueueScreen = ({navigation}) => {
               marginTop: (mobileW * 4) / 100,
               borderRadius: (mobileW * 2) / 100,
               elevation: 2,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 4,
+              borderWidth: 1,
+              borderColor: '#EEE6F1'
             }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Image
                 style={styles?.infoBackIcon}
                 source={Images?.infoWithBack}
               />
-              <Text style={[styles.name, { left: 10 }]}>
+              <Text style={[styles.name, { left: 10, color: '#0D0E11', fontSize: 14, fontWeight: '700' }]}>
                 Queue is getting too long
               </Text>
             </View>
@@ -526,16 +635,28 @@ const BookingsQueueScreen = ({navigation}) => {
                 {
                   paddingVertical: (mobileW * 2) / 100,
                   paddingHorizontal: (mobileW * 2) / 100,
+                  color: '#554F67',
+                  fontWeight: '400',
+                  fontSize: 12
                 },
               ]}>
               Pause the queue temporarily, new customer’s won’t be able to join
               the queue. The existing queue remains.
             </Text>
-            <CommonButton
-              buttonStyle={{ backgroundColor: Colors.red }}
-              title={'Pause Queue Temporarily'}
-              onPress={() => pauseQueryModal()}
-            />
+            {!pauseResumeQuery ? (
+              <CommonButton
+                buttonStyle={{ backgroundColor: Colors.red }}
+                title={'Pause Queue Temporarily'}
+                onPress={() => pauseQueryModal()}
+              />
+            ) : (
+              <CommonButton
+                buttonStyle={{ backgroundColor: Colors.semiPurpleLight }}
+                textStyle={{ color: Colors.primary }}
+                title={'Resume Queue'}
+                onPress={() => pauseQueryModal()}
+              />
+            )}
           </View>
           <FlatList
             data={dataForQue}
@@ -628,13 +749,16 @@ const styles = StyleSheet.create({
     height: (mobileW * 12) / 100,
   },
   dayText: {
-    color: '#666',
-    fontSize: (mobileW * 4) / 100,
+    color: '#16161B',
+    fontSize: 16,
+    fontWeight: '700'
   },
   dayText1: {
-    color: '#666',
-    fontSize: (mobileW * 2.4) / 100,
+    color: '#554F67',
+    fontSize: 12,
+    fontWeight: '400',
     textAlign: 'center',
+    marginBottom: (mobileW * 1) / 100,
   },
   dateText: {
     color: '#666',
@@ -677,6 +801,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderStartWidth: (mobileW * 1) / 100,
     borderStartColor: Colors.primary,
+    marginBottom: 5
   },
   timeText: {
     fontSize: 14,
@@ -711,6 +836,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 6,
     elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   addButtonText: {
     color: '#fff',
@@ -736,13 +865,19 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     backgroundColor: '#FFFFFF',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   tabText: {
     fontSize: 14,
-    color: Colors.black,
+    color: '#000000',
+    fontWeight: '600'
   },
   activeTabText: {
-    fontWeight: 'bold',
+    fontWeight: '600'
   },
   infoIcon: {
     width: (mobileW * 5.5) / 100,
@@ -771,38 +906,41 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   dropdown: {
-    height: (mobileW * 8) / 100,
-    borderColor: 'gray',
-    borderWidth: 0.5,
+    height: (mobileW * 9) / 100,
+    borderColor: '#D8DAE7',
+    borderWidth: (mobileW * 0.25) / 100,
     borderRadius: (mobileW * 5) / 100,
     paddingHorizontal: (mobileW * 4) / 100,
     width: (mobileW * 35) / 100,
     left: 10,
   },
   dropdownQue: {
-    height: (mobileW * 8) / 100,
-    borderColor: 'gray',
-    borderWidth: 0.5,
+    height: (mobileW * 9) / 100,
+    borderColor: '#D8DAE7',
+    borderWidth: (mobileW * 0.25) / 100,
     borderRadius: (mobileW * 5) / 100,
     paddingHorizontal: (mobileW * 4) / 100,
     width: (mobileW * 65) / 100,
     right: 10,
   },
   placeholderStyle: {
-    fontSize: 16,
-    color: 'gray',
+    fontSize: 14,
+    color: Colors.gray,
   },
   selectedTextStyle: {
-    fontSize: 16,
-    color: 'black',
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#301E39',
   },
   inputSearchStyle: {
     height: 40,
-    fontSize: 16,
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#301E39',
   },
   selectedText: {
     marginTop: 16,
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: 'bold',
   },
   listContainer: {
@@ -815,22 +953,24 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    // shadowColor: '#000',
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.1,
+    // shadowRadius: 4,
+    // elevation: 3,
     marginTop: (mobileW * 2) / 100,
+    borderColor: '#EEE6F1',
+    borderWidth: 1
   },
   borderStyle: {
     borderWidth: 0.7,
     borderColor: Colors.primary,
   },
   avatar: {
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
     borderRadius: 25,
-    marginRight: 16,
+    marginRight: 10,
   },
   infoContainer: {
     flex: 1,
@@ -850,7 +990,7 @@ const styles = StyleSheet.create({
   },
   time: {
     fontSize: 14,
-    color: '#666',
+    color: '#554F67',
     marginLeft: 4,
     fontWeight: '600',
   },
@@ -868,6 +1008,50 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  hourSection: {
+    marginBottom: 16,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    width: '100%',
+  },
+  hourText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#000000",
+    marginBottom: 8,
+  },
+  slotContainer: {
+    backgroundColor: "#F6E9FF",
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 8,
+  },
+  slotTime: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#6C3BA1",
+  },
+  slotDescription: {
+    fontSize: 13,
+    color: "#555",
+    marginTop: 4,
+  },
+  slotStylist: {
+    fontSize: 12,
+    color: "#888",
+    marginTop: 2,
+  },
+  emptySlot: {
+    fontSize: 12,
+    color: Colors?.gray,
+    fontStyle: "italic",
+  },
+  horizontalLine: {
+    height: 1,
+    width: '100%',
+    backgroundColor: '#E6E8F1',
+    marginBottom: DimensionsConfig.screenHeight * 0.016
+  }
 });
 
 export default BookingsQueueScreen;

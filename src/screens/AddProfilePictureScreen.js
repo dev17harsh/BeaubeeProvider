@@ -131,6 +131,10 @@ const styles = StyleSheet.create({
         borderRadius: 30,
         padding: 10,
         elevation: 5,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
     },
     cameraIcon: {
         width: (mobileH * 3) / 100,

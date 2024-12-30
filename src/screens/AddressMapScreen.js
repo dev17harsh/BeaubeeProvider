@@ -93,6 +93,10 @@ const styles = StyleSheet.create({
         paddingVertical: (mobileW * 3.5) / 100,
         paddingHorizontal: (mobileW * 4) / 100,
         elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
     },
     tagIcon: {
         width: (mobileW * 5.2) / 100,

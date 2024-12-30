@@ -109,12 +109,11 @@ export default function BdayGiftCard({navigation}) {
     },
   ];
 
-  const renderPaymentMethod = (items) => {
-     const item = items.item
+  const renderPaymentMethod = items => {
+    const item = items.item;
     return (
       <View
         style={{
-          paddingVertical: (mobileH * 1) / 100,
           paddingHorizontal: (mobileW * 3) / 100,
         }}>
         <View style={styles.paymentMethodContainer}>
@@ -125,7 +124,7 @@ export default function BdayGiftCard({navigation}) {
               style={styles.cardIcons}
             />
             <View style={{left: (mobileH * 1.5) / 100}}>
-              <Text style={styles.nameText}>TO : {item.name}</Text>
+              <Text style={styles.nameText}>To : {item.name}</Text>
               <Text style={styles.methodText}>On : {item.date}</Text>
             </View>
           </View>
@@ -143,114 +142,119 @@ export default function BdayGiftCard({navigation}) {
 
   return (
     <SafeAreaView style={styles.container}>
-    <View style={styles.container}>
-      <ListProfessionalModal
-        visible={isModalProfessionalVisible}
-        onClose={handleCloseModal}
-        // onSelect={e => storeDataToState(e)}
-      />
-      <SelectPackageModal
-        visible={isPackageModal}
-        onClose={handlePackageModalClose}
-        // onSelect={e => storeDataToState(e)}
-      />
-      {/* Header */}
-      <AppHeader title={'Birthday Gift Cards'} />
-      <ScrollView
-        contentContainerStyle={{
-          paddingBottom: (mobileW * 5) / 100,
-          paddingHorizontal: (mobileW * 2) / 100,
-          marginTop: (mobileW * 4) / 100,
-          alignItems: 'center',
-        }}>
+      <View style={styles.container}>
+        <ListProfessionalModal
+          visible={isModalProfessionalVisible}
+          onClose={handleCloseModal}
+          // onSelect={e => storeDataToState(e)}
+        />
+        <SelectPackageModal
+          visible={isPackageModal}
+          onClose={handlePackageModalClose}
+          // onSelect={e => storeDataToState(e)}
+        />
+        {/* Header */}
+        <AppHeader title={'Birthday Gift Cards'} />
+        <ScrollView
+          contentContainerStyle={{
+            paddingBottom: (mobileW * 5) / 100,
+            paddingHorizontal: (mobileW * 2) / 100,
+            marginTop: (mobileW * 4) / 100,
+            alignItems: 'center',
+          }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              paddingHorizontal: (mobileW * 3) / 100,
+              alignItems: 'center',
+              width: (mobileW * 96) / 100,
+            }}>
+            <Text style={styles.selectTitle}>
+              Enable gift cards for regular customers
+            </Text>
+            <CustomSwitch
+              isEnabled={isEnable}
+              toggleSwitch={() => {
+                toggleOpen();
+              }}
+            />
+          </View>
+          <View style={{marginTop: (mobileH * 3) / 100}}>
+            <TextInput
+              style={{
+                width: (mobileW * 90) / 100,
+                fontSize: 14,
+                backgroundColor: '#fff',
+              }}
+              outlineColor={Colors?.OrGray}
+              activeOutlineColor={Colors?.gray}
+              label="Enable after this number of bookings"
+              // onChangeText={text => setText(text)}
+              mode="outlined"
+              placeholder="Number of bookings"
+            />
+          </View>
+          <View style={{marginTop: (mobileH * 3) / 100}}>
+            <TextInput
+              style={{
+                width: (mobileW * 90) / 100,
+                fontSize: 14,
+                backgroundColor: '#fff',
+              }}
+              outlineColor={Colors?.OrGray}
+              activeOutlineColor={Colors?.gray}
+              label="Gift Amount"
+              // onChangeText={text => setText(text)}
+              mode="outlined"
+              placeholder="Enter gift amount"
+            />
+          </View>
+          <View style={{marginTop: (mobileH * 3) / 100}}>
+            <TextInput
+              style={{
+                width: (mobileW * 90) / 100,
+                fontSize: 14,
+                backgroundColor: '#fff',
+              }}
+              outlineColor={Colors?.OrGray}
+              activeOutlineColor={Colors?.gray}
+              label="Birthdat Message"
+              // onChangeText={text => setText(text)}
+              mode="outlined"
+              placeholder="Enter birthday message"
+            />
+          </View>
+          <View style={styles.straightLine} />
+          <Text
+            style={[
+              styles.sentGiftCart,
+              {alignSelf: 'flex-start', left: (mobileW * 3) / 100},
+            ]}>
+            Gift Cards Sent
+          </Text>
+          <FlatList
+            data={paymentMethods}
+            renderItem={(item, index) => renderPaymentMethod(item)}
+            keyExtractor={item => item.id}
+            contentContainerStyle={{paddingBottom: (mobileW * 12) / 100}}
+          />
+        </ScrollView>
         <View
           style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            paddingHorizontal: (mobileW * 3) / 100,
-            alignItems: 'center',
-            width: (mobileW * 96) / 100,
+            width: '95%',
+            position: 'absolute',
+            alignSelf: 'center',
+            bottom: 15,
           }}>
-          <Text style={styles.selectTitle}>
-            Enable gift cards for regular customers
-          </Text>
-          <CustomSwitch
-            isEnabled={isEnable}
-            toggleSwitch={() => {
-              toggleOpen();
+          <CommonButton
+            onPress={() => {
+              navigation.navigate('SensGiftCard');
             }}
+            title={'Send a Gift Card'}
           />
         </View>
-        <View style={{marginTop: (mobileH * 3) / 100}}>
-          <TextInput
-            style={{
-              width: (mobileW * 90) / 100,
-              fontSize: 14,
-              backgroundColor: '#fff',
-            }}
-            outlineColor={Colors?.OrGray}
-            activeOutlineColor={Colors?.gray}
-            label="Enable after this number of bookings"
-            // onChangeText={text => setText(text)}
-            mode="outlined"
-            placeholder="Number of bookings"
-          />
-        </View>
-        <View style={{marginTop: (mobileH * 3) / 100}}>
-          <TextInput
-            style={{
-              width: (mobileW * 90) / 100,
-              fontSize: 14,
-              backgroundColor: '#fff',
-            }}
-            outlineColor={Colors?.OrGray}
-            activeOutlineColor={Colors?.gray}
-            label="Gift Amount"
-            // onChangeText={text => setText(text)}
-            mode="outlined"
-            placeholder="Enter gift amount"
-          />
-        </View>
-        <View style={{marginTop: (mobileH * 3) / 100}}>
-          <TextInput
-            style={{
-              width: (mobileW * 90) / 100,
-              fontSize: 14,
-              backgroundColor: '#fff',
-            }}
-            outlineColor={Colors?.OrGray}
-            activeOutlineColor={Colors?.gray}
-            label="Birthdat Message"
-            // onChangeText={text => setText(text)}
-            mode="outlined"
-            placeholder="Enter birthday message"
-          />
-        </View>
-        <View style={styles.straightLine} />
-        <Text
-          style={[
-            styles.selectTitle,
-            {alignSelf: 'flex-start', left: (mobileW * 3) / 100},
-          ]}>
-          Gift Cards Sent
-        </Text>
-        <FlatList
-          data={paymentMethods}
-          renderItem={(item, index) => renderPaymentMethod(item)}
-          keyExtractor={item => item.id}
-          contentContainerStyle={{paddingBottom: (mobileW * 12) / 100}}
-        />
-      </ScrollView>
-      <View
-        style={{
-          width: '95%',
-          position: 'absolute',
-          alignSelf: 'center',
-          bottom: 15,
-        }}>
-        <CommonButton onPress={()=>{navigation.navigate('SensGiftCard')}} title={'Send a Gift Card'}/>
       </View>
-    </View>
     </SafeAreaView>
   );
 }
@@ -287,8 +291,9 @@ const styles = StyleSheet.create({
     borderRadius: (mobileW * 3) / 100,
     elevation: 1,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
     marginTop: (mobileW * 2) / 100,
   },
   imageBackView: {
@@ -332,7 +337,7 @@ const styles = StyleSheet.create({
     marginVertical: (mobileW * 3) / 100,
   },
   selectTitle: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '600',
     color: '#000',
   },
@@ -391,44 +396,51 @@ const styles = StyleSheet.create({
     left: 12,
   },
   paymentMethodContainer: {
-    // flexDirection: 'row',
     justifyContent: 'space-between',
-    // alignItems: 'center',
     paddingVertical: (mobileW * 5) / 100,
     backgroundColor: '#ffffff',
     marginTop: (mobileW * 3) / 100,
     borderRadius: (mobileW * 2.5) / 100,
     paddingHorizontal: (mobileW * 3) / 100,
     elevation: 3,
-    shadowColor: '#000', // For iOS shadow
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
     width: (mobileW * 90) / 100,
     marginVertical: (mobileW * 3) / 100,
+    borderColor: Colors.borderColor,
+    borderWidth: 1,
   },
   methodDetails: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   cardIcons: {
-    width: (mobileW * 12) / 100,
-    height: (mobileW * 12) / 100,
+    width: (mobileW * 11) / 100,
+    height: (mobileW * 11) / 100,
     borderRadius: (mobileW * 6) / 100,
   },
   methodText: {
-    fontSize: 14,
-    color: '#000',
-    paddingVertical: (mobileW * 0.5) / 100,
+    fontSize: 12,
+    color: Colors.textLight,
+    fontWeight: '400',
+    paddingVertical: (mobileW * 0.8) / 100,
   },
   nameText: {
-    fontSize: 16,
-    color: '#000',
+    fontSize: 14,
+    color: Colors.textDark,
     fontWeight: '700',
   },
   bdayText: {
-    fontSize: 15,
-    color: '#000',
+    fontSize: 16,
+    color: Colors.textDark,
     paddingVertical: (mobileW * 0.5) / 100,
-    fontWeight: '600',
+    fontWeight: '700',
+  },
+  sentGiftCart: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: Colors.textDark,
   },
 });

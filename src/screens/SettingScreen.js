@@ -149,6 +149,10 @@ const styles = StyleSheet.create({
         padding: 10,
         width: (mobileW * 90) / 100,
         elevation: 5,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
     },
     radiusText: {
         fontSize: 14,

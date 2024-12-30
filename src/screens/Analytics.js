@@ -10,14 +10,13 @@ import {
   SafeAreaView,
 } from 'react-native';
 import React, {useState} from 'react';
-import { mobileW } from '../components/utils';
-import { Images } from '../assets/images';
+import {mobileW} from '../components/utils';
+import {Images} from '../assets/images';
 import SelectServiceModal from '../components/Modal.js/SelectServiceModal';
 import AppHeader from '../components/AppHeader';
-import { Colors } from '../theme/colors';
+import {Colors} from '../theme/colors';
 import {BarChart} from 'react-native-gifted-charts';
 import CustomButton from '../components/CustomButton';
-
 
 const data = [
   {value: 4000, label: 'Mar', frontColor: Colors.semiPurpleLight},
@@ -89,8 +88,6 @@ export default function Analytics({navigation}) {
   const [selectedYear, setselectedYear] = useState(1);
   const [isServiceSelectorVisible, setServiceSelectorVisible] = useState(false);
 
-  const renderItems = item => {};
-
   const renderReview = item => {
     return (
       <View style={styles.reviewBox}>
@@ -98,7 +95,10 @@ export default function Analytics({navigation}) {
           <Image source={Images?.image11} style={styles.assistantImage} />
           <Text
             style={{
-              width: (mobileW * 40) / 100,
+              width: (mobileW * 42) / 100,
+              fontWeight:'500',
+              fontSize:14,
+              color:'#301E39'
             }}>
             Hello User
           </Text>
@@ -107,7 +107,9 @@ export default function Analytics({navigation}) {
             <Text style={styles.rating}>{'  4.8'}</Text>
           </View>
         </View>
-        <Text style={{marginTop: (mobileW * 3) / 100}}>
+        <Text style={{marginTop: (mobileW * 3) / 100,color:'#554F67',
+          fontSize:13,fontWeight:'400'
+        }}>
           Quisque rutrum aenean imperdiet etiam ultricies nisi vel augue
           curabitur ullamcorper ultricies nisi nam eget dui etiam rhoncus
           maecenas.
@@ -118,13 +120,19 @@ export default function Analytics({navigation}) {
 
   const renderPurpData = items => {
     const index = items.index;
-    const item = items.item;    
+    const item = items.item;
     return (
       <View style={styles.purpDataView}>
-        <Text style={[styles.assistantName,{width:mobileW*25/100}]}>
+        <Text style={[styles.assistantName, {width: (mobileW * 25) / 100}]}>
           {index + 1 + '. ' + item.name}
         </Text>
-        <Text style={[styles.assistantName, {right: 10,width:mobileW*25/100}]}>{'$'+item.price}</Text>
+        <Text
+          style={[
+            styles.assistantName,
+            {right: 10, width: (mobileW * 25) / 100},
+          ]}>
+          {'$' + item.price}
+        </Text>
         <Text style={styles.assistantName}>{item.service}</Text>
       </View>
     );
@@ -132,179 +140,182 @@ export default function Analytics({navigation}) {
 
   return (
     <SafeAreaView style={styles.container}>
-    <View style={styles.container}>
-      {/* Header */}
-      <AppHeader title={'Analytics'} />
-      <SelectServiceModal
-        visible={isServiceSelectorVisible}
-        onClose={() => setServiceSelectorVisible(false)}
-        // onSelectService={handleServiceSelect}
-        services={services}
-      />
-      <ScrollView>
-        <View
-          style={{
-            paddingHorizontal: (mobileW * 2) / 100,
-            paddingVertical: (mobileW * 4) / 100,
-          }}>
-          <FlatList
-            data={yearData}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            renderItem={item => {
-              return (
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  onPress={() => setselectedYear(item.item.id)}
-                  style={{
-                    paddingHorizontal: (mobileW * 5) / 100,
-                    paddingVertical: (mobileW * 3) / 100,
-                    backgroundColor:
-                      item.item.id === selectedYear
-                        ? Colors.primary
-                        : Colors.white,
-                     alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: (mobileW * 3) / 100,
-                    marginRight: (mobileW * 2) / 100,
-                    borderWidth: 0.6,
-                    borderColor: Colors.OrGray,
-                  }}>
-                  <Text
-                    style={{
-                      fontSize: (mobileW * 3) / 100,
-                      fontWeight: '500',
-                      color:
-                        item.item.id == selectedYear
-                          ? Colors.white
-                          : Colors.black,
-                    }}>
-                    {item.item.year}
-                  </Text>
-                </TouchableOpacity>
-              );
-            }}
-          />
-        </View>
-        <View
-          style={{
-            width: (mobileW * 95) / 100,
-            alignSelf: 'center',
-            marginTop: (mobileW * 3) / 100,
-          }}>
-          <BarChart
-            data={data}
-            barWidth={(mobileW * 8) / 100} // Width of each bar
-            barBorderRadius={5} // Rounded corners for bars
-            // yAxisThickness={1} // Thickness of the y-axis line
-            // xAxisThickness={1} // Thickness of the x-axis line
-            yAxisTextStyle={{color: '#6B7280', fontSize: 12}} // Y-axis label styles
-            xAxisLabelTextStyle={{color: '#374151', fontSize: 12}} // X-axis label styles
-            initialSpacing={20} // Space before the first bar
-            hideRules // Hide grid lines
-            yAxisLabelPrefix="$" // Prefix for y-axis values
-            height={250} // Height of the chart
-            noOfSections={6} // Number of horizontal sections
-            width={(mobileW * 80) / 100}
-          />
-        </View>
-        <View
-          style={{
-            width: (mobileW * 90) / 100,
-            alignSelf: 'center',
-            paddingBottom: (mobileW * 3) / 100,
-          }}>
-          <CustomButton
+      <View style={styles.container}>
+        {/* Header */}
+        <AppHeader title={'Analytics'} />
+        <SelectServiceModal
+          visible={isServiceSelectorVisible}
+          onClose={() => setServiceSelectorVisible(false)}
+          // onSelectService={handleServiceSelect}
+          services={services}
+        />
+        <ScrollView>
+          <View
             style={{
-              backgroundColor: Colors.semiPurpleLight,
-              marginTop: (mobileW * 3) / 100,
-            }}
-            textStyle={{color: Colors.primary}}
-            title={'View Weekly Breakdown'}
-          />
-          <View style={styles.straightLine} />
-          <View style={styles.assistantInfo}>
-            <Text style={styles.assistantName}>{'Customers'}</Text>
-            <View style={styles.ratingRow}>
-              <Text style={styles.rating}>43,434</Text>
-            </View>
-          </View>
-          <View style={styles.assistantInfo}>
-            <Text style={styles.assistantName}>{'Racurring'}</Text>
-            <View style={styles.ratingRow}>
-              <Text style={styles.rating}>8,125</Text>
-            </View>
-          </View>
-          <View style={styles.assistantInfo}>
-            <Text style={styles.assistantName}>{'Rating'}</Text>
-            <View style={styles.ratingRow}>
-              <Image source={Images?.activeStar} style={styles.starIcon} />
-              <Text style={styles.rating}>
-                {'  4.8'} ({'218 Reviews'} Reviews)
-              </Text>
-            </View>
-          </View>
-          <View style={{paddingVertical: (mobileW * 5) / 100}}>
+              paddingHorizontal: (mobileW * 2) / 100,
+              paddingVertical: (mobileW * 4) / 100,
+            }}>
             <FlatList
               data={yearData}
               horizontal
               showsHorizontalScrollIndicator={false}
-              renderItem={item => renderReview(item)}
+              renderItem={item => {
+                return (
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => setselectedYear(item.item.id)}
+                    style={{
+                      paddingHorizontal: (mobileW * 5) / 100,
+                      paddingVertical: (mobileW * 3) / 100,
+                      backgroundColor:
+                        item.item.id === selectedYear
+                          ? Colors.primary
+                          : Colors.white,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: (mobileW * 3) / 100,
+                      marginRight: (mobileW * 2) / 100,
+                      borderWidth: 0.6,
+                      borderColor: Colors.OrGray,
+                    }}>
+                    <Text
+                      style={{
+                        fontSize: (mobileW * 3) / 100,
+                        fontWeight: '500',
+                        color:
+                          item.item.id == selectedYear
+                            ? Colors.white
+                            : Colors.black,
+                      }}>
+                      {item.item.year}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              }}
             />
           </View>
-          <CustomButton
+          <View
             style={{
-              backgroundColor: Colors.semiPurpleLight,
+              width: (mobileW * 95) / 100,
+              alignSelf: 'center',
               marginTop: (mobileW * 3) / 100,
-            }}
-            textStyle={{color: Colors.primary}}
-            title={'View All Reviews'}
-          />
-        </View>
-        <View style={styles.straightLine} />
-
-        <View
-          style={{
-            marginLeft: (mobileW * 5) / 100,
-            marginBottom: (mobileW * 4) / 100,
-          }}>
-          <Text style={styles.payMethod}>Top Services</Text>
-        </View>
-        <View style={{}}>
-          <View style={styles.purpleView}>
-            <Text style={[styles.serviceName, {left: (mobileW * 4) / 100}]}>
-              {'Service Name'}
-            </Text>
-            <Text style={styles.serviceName}>{'Revenue'}</Text>
-            <Text style={styles.serviceName}>{'Services'}</Text>
+            }}>
+            <BarChart
+              data={data}
+              barWidth={(mobileW * 8) / 100} // Width of each bar
+              barBorderRadius={5} // Rounded corners for bars
+              yAxisThickness={1} // Thickness of the y-axis line
+              xAxisThickness={1} // Thickness of the x-axis line
+              yAxisTextStyle={{color: '#6B7280', fontSize: 12}} // Y-axis label styles
+              xAxisLabelTextStyle={{color: '#374151', fontSize: 12}} // X-axis label styles
+              initialSpacing={20} // Space before the first bar
+              hideRules // Hide grid lines
+              yAxisLabelFormatter={value => `${value}`} // Custom formatter for Y-axis labels
+              height={250} // Height of the chart
+              noOfSections={5} // Number of horizontal sections
+              stepValue={2000} // Step value for Y-axis
+              maxValue={10000} // Maximum value on the Y-axis
+              minValue={0} // Minimum value on the Y-axis
+              width={(mobileW * 80) / 100}
+            />
           </View>
-          {/* purpData */}
-          <FlatList
-            data={purpData}
-            showsHorizontalScrollIndicator={false}
-            renderItem={item => renderPurpData(item)}
-            contentContainerStyle={{marginTop: (mobileW * 3) / 100}}
-          />
-        </View>
-        <View
-          style={{
-            width: (mobileW * 90) / 100,
-            alignSelf: 'center',
-            paddingBottom: (mobileW * 10) / 100,
-            marginTop: (mobileW * 3) / 100,
-          }}>
-          <CustomButton
+          <View
             style={{
-              backgroundColor: Colors.semiPurpleLight,
+              width: (mobileW * 90) / 100,
+              alignSelf: 'center',
+              paddingBottom: (mobileW * 3) / 100,
+            }}>
+            <CustomButton
+              style={{
+                backgroundColor: Colors.semiPurpleLight,
+                marginTop: (mobileW * 3) / 100,
+              }}
+              textStyle={{color: Colors.primary,fontWeight:'600',fontSize:15}}
+              title={'View Weekly Breakdown'}
+            />
+            <View style={styles.straightLine} />
+            <View style={styles.assistantInfo}>
+              <Text style={styles.assistantName}>{'Customers'}</Text>
+              <View style={styles.ratingRow}>
+                <Text style={styles.rating}>43,434</Text>
+              </View>
+            </View>
+            <View style={styles.assistantInfo}>
+              <Text style={styles.assistantName}>{'Racurring'}</Text>
+              <View style={styles.ratingRow}>
+                <Text style={styles.rating}>8,125</Text>
+              </View>
+            </View>
+            <View style={styles.assistantInfo}>
+              <Text style={styles.assistantName}>{'Rating'}</Text>
+              <View style={styles.ratingRow}>
+                <Image source={Images?.activeStar} style={styles.starIcon} />
+                <Text style={styles.rating}>
+                  {'  4.8'} ({'218 Reviews'} Reviews)
+                </Text>
+              </View>
+            </View>
+            <View style={{paddingVertical: (mobileW * 5) / 100}}>
+              <FlatList
+                data={yearData}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                renderItem={item => renderReview(item)}
+              />
+            </View>
+            <CustomButton
+              style={{
+                backgroundColor: Colors.semiPurpleLight,
+                marginTop: (mobileW * 3) / 100,
+              }}
+              textStyle={{color: Colors.primary,fontWeight:'600',fontSize:15}}
+              title={'View All Reviews'}
+            />
+          </View>
+          <View style={styles.straightLine} />
+
+          <View
+            style={{
+              marginLeft: (mobileW * 5) / 100,
+              marginBottom: (mobileW * 4) / 100,
+            }}>
+            <Text style={styles.payMethod}>Top Services</Text>
+          </View>
+          <View style={{}}>
+            <View style={styles.purpleView}>
+              <Text style={[styles.serviceName, {left: (mobileW * 4) / 100}]}>
+                {'Service Name'}
+              </Text>
+              <Text style={styles.serviceName}>{'Revenue'}</Text>
+              <Text style={styles.serviceName}>{'Services'}</Text>
+            </View>
+            {/* purpData */}
+            <FlatList
+              data={purpData}
+              showsHorizontalScrollIndicator={false}
+              renderItem={item => renderPurpData(item)}
+              contentContainerStyle={{marginTop: (mobileW * 3) / 100}}
+            />
+          </View>
+          <View
+            style={{
+              width: (mobileW * 90) / 100,
+              alignSelf: 'center',
+              paddingBottom: (mobileW * 10) / 100,
               marginTop: (mobileW * 3) / 100,
-            }}
-            onPress={() => setServiceSelectorVisible(true)}
-            textStyle={{color: Colors.primary}}
-            title={' View All Services'}
-          />
-        </View>
-      </ScrollView>
-    </View>
+            }}>
+            <CustomButton
+              style={{
+                backgroundColor: Colors.semiPurpleLight,
+                marginTop: (mobileW * 3) / 100,
+              }}
+              onPress={() => setServiceSelectorVisible(true)}
+              textStyle={{color: Colors.primary,fontWeight:'600',fontSize:15}}
+              title={' View All Services'}
+            />
+          </View>
+        </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
@@ -336,22 +347,22 @@ const styles = StyleSheet.create({
     marginVertical: (mobileW * 5) / 100,
   },
   assistantName: {
-    fontSize: (mobileW * 3.6) / 100,
-    fontWeight: '500',
-    color: '#333',
+    fontSize: 14,
+    fontWeight: '400',
+    color: '#301E39',
   },
   serviceName: {
-    fontSize: (mobileW * 3.7) / 100,
-    fontWeight: '600',
-    color: '#333',
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#301E39',
   },
   ratingRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   rating: {
-    fontSize: (mobileW * 3.6) / 100,
-    color: Colors.black,
+    fontSize: 14,
+    color: '#301E39',
     fontWeight: '500',
   },
   starIcon: {
@@ -365,8 +376,8 @@ const styles = StyleSheet.create({
     paddingVertical: (mobileW * 1) / 100,
   },
   assistantImage: {
-    width: (mobileW * 11) / 100,
-    height: (mobileW * 11) / 100,
+    width: (mobileW * 10) / 100,
+    height: (mobileW * 10) / 100,
     borderRadius: (mobileW * 5.5) / 100,
   },
   reviewBox: {
@@ -377,6 +388,10 @@ const styles = StyleSheet.create({
     borderRadius: (mobileW * 3) / 100,
     borderColor: Colors.OrGray,
     elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
     borderWidth: 0.4,
     marginRight: (mobileW * 4) / 100,
   },
@@ -386,9 +401,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   payMethod: {
-    fontSize: (mobileW * 4) / 100,
-    fontWeight: '500',
-    color: Colors.black,
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#0D0E11',
     marginTop: (mobileW * 3) / 100,
   },
   purpleView: {

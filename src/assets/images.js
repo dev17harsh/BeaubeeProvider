@@ -120,5 +120,15 @@ export const Images = {
   MinusWithLightBack:require('./images/MinusWithLightBack.png'),
   SettingMap : require('./images/SettingMap.png'),
   CrossIcon : require('./images/CrossIcon.png'),
-  TimeSquare : require('./images/TimeSquare.png')
+  TimeSquare : require('./images/TimeSquare.png'),
+  person1: require('./images/dummyImages/person1.png'),
+  person2: require('./images/dummyImages/person2.png'),
+  person3: require('./images/dummyImages/person3.png'),
+  person4: require('./images/dummyImages/person4.png'),
+  person5: require('./images/dummyImages/person5.png'),
+  deleteButton:require('./images/deleteButton.png'),
+  chatWithBack: require('./images/chatWithBack.png'),
+  crossWithBack:require('./images/crossWithBack.png'),
+  mail:require('./images/mail.png'),
+  Calling:require('./images/Calling.png'),
 };

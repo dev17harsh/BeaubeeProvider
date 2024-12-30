@@ -66,7 +66,9 @@ const ServiceSelector = ({
               <View style={styles.serviceCard}>
                 <View style={styles.serviceHeader}>
                   <Text style={styles.serviceTitle}>{item.title}</Text>
-                  <Text style={styles.servicePrice}>{item.price}</Text>
+                  <Text style={styles.servicePrice}>
+                    {'From ' + item.price}
+                  </Text>
                 </View>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                   <Image source={Images?.Like} style={styles.forwardIcon} />
@@ -91,7 +93,6 @@ const ServiceSelector = ({
                   <Image source={Images?.downError} style={styles.downIcon} />
                 </View>
                 <View style={styles.straightLine} />
-
               </View>
             )}
           />
@@ -150,21 +151,27 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   serviceTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#301E39',
   },
   servicePrice: {
     color: Colors.primary,
-    fontWeight: 'bold',
+    fontWeight: '600',
+    fontSize: 15,
   },
   serviceRating: {
-    color: '#888',
+    color: '#554F67',
     marginVertical: 5,
     left: 10,
+    fontSize: 13,
+    fontWeight: '400',
   },
   serviceDuration: {
-    color: '#888',
+    color: '#554F67',
     marginBottom: 10,
+    fontSize: 13,
+    fontWeight: '400',
   },
   selectButton: {
     backgroundColor: Colors.semiPurpleLight,
@@ -175,7 +182,8 @@ const styles = StyleSheet.create({
   },
   selectButtonText: {
     color: Colors.primary,
-    fontWeight: 'bold',
+    fontWeight: '600',
+    fontSize: 15,
   },
   closeButton: {
     alignSelf: 'center',

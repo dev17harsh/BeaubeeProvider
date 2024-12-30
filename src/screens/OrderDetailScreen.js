@@ -216,9 +216,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 16,
     elevation: 3,
-    shadowColor: '#000', // For iOS shadow
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   row: {
     flexDirection: 'row',
@@ -256,9 +257,10 @@ const styles = StyleSheet.create({
     borderRadius: (mobileW * 2) / 100,
     elevation: 3,
     marginTop: (mobileW * 5) / 100,
-    shadowColor: '#000', // For iOS shadow
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   mapImage: {
     width: (mobileW * 90) / 100,
@@ -337,9 +339,10 @@ const styles = StyleSheet.create({
     borderRadius: (mobileW * 2.5) / 100,
     paddingHorizontal: (mobileW * 3) / 100,
     elevation: 3,
-    shadowColor: '#000', // For iOS shadow
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   methodDetails: {
     flexDirection: 'row',

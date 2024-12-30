@@ -16,8 +16,9 @@ import {mobileH, mobileW} from '../components/utils';
 import {Images} from '../assets/images';
 import CommonButton from '../components/CommonButton';
 import {Colors} from '../theme/colors';
-import {launchImageLibrary} from 'react-native-image-picker';
 import Storage from '../components/Storage';
+import SelectPackageModal from '../components/Modal.js/SelectPackageModal';
+import {Dropdown} from 'react-native-element-dropdown';
 
 const tabs = ['Hair', 'Makeup', 'Skincare', 'Nails'];
 const services = [
@@ -103,7 +104,7 @@ const services = [
   },
 ];
 
-const PostLook = ({navigation}) => {
+const AddPrepaid = ({navigation}) => {
   const [selectedImageUri, setSelectedImageUri] = useState(null);
   const [isModalProfessionalVisible, setModalProfessionalVisible] =
     useState(false);
@@ -113,19 +114,13 @@ const PostLook = ({navigation}) => {
 
   const [isServiceSelectorVisible, setServiceSelectorVisible] = useState(false);
   const [chosenService, setChosenService] = useState(null);
-
+  const [isFocus, setIsFocus] = useState(false);
+  const [value, setValue] = useState(null);
+  const [isSelected, setIsSelected] = useState('card');
   // Callback to handle selected service data from ServiceSelector
   const handleServiceSelection = service => {
     setChosenService(service);
     console.log('Chosen Service:', service);
-  };
-
-  const handleSelectImage = async () => {
-    try {
-      openImagePicker();
-    } catch (error) {
-      console.log('Image picker error:', error);
-    }
   };
 
   const storeDataToState = data => {
@@ -134,97 +129,63 @@ const PostLook = ({navigation}) => {
   };
 
   const handleServiceSelect = service => {
-    console.log('service:', service);
-
     setChosenService(service);
   };
 
-  const openImagePicker = () => {
-    const options = {
-      mediaType: 'photo', // 'photo', 'video', or 'mixed' to show both
-      quality: 1,
-      selectionLimit: 1, // Allows selecting one item at a time
-    };
+  const data = [
+    {label: 'Option 1', value: '1'},
+    {label: 'Option 2', value: '2'},
+    {label: 'Option 3', value: '3'},
+    {label: 'Option 4', value: '4'},
+  ];
 
-    launchImageLibrary(options, response => {
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.error) {
-        console.log('ImagePicker Error: ', response.error);
-      } else {
-        const asset = response.assets[0];
-        console.log('asset', asset);
-        setSelectedImageUri(asset?.uri);
-      }
-    });
-  };
-
-  useEffect(() => {
-    data();
-  }, []);
-
-  const data = async () => {
-    let servicesArray = await Storage.get('post_data');
-    console.log('servicesArrayservicesArray', servicesArray);
-  };
-
-  const addNewService = async (newImage, isVideo = false) => {
-    if (newImage === null) {
-      Alert.alert('Image not found', 'Please select an image.');
-      return;
-    }
-    let servicesArray = await Storage.get('post_data');
-    if (!servicesArray || !Array.isArray(servicesArray)) {
-      servicesArray = [];
-    }
-    const lastId =
-      servicesArray.length > 0 ? servicesArray[servicesArray.length - 1].id : 0;
-    const newService = {
-      id: lastId + 1,
-      image: newImage,
-      isVideo: isVideo,
-      isLocal: true,
-    };
-    servicesArray.unshift(newService);
-    await Storage.set('post_data', servicesArray);
-    navigation.goBack();
+  const dropDown = () => {
+    return (
+      <Dropdown
+        style={[styles.dropdown, isFocus && {borderColor: 'blue'}]}
+        placeholderStyle={styles.placeholderStyle}
+        selectedTextStyle={styles.selectedTextStyle}
+        inputSearchStyle={styles.inputSearchStyle}
+        iconStyle={styles.iconStyle}
+        data={data}
+        maxHeight={300}
+        labelField="label"
+        valueField="value"
+        placeholder={!isFocus ? 'Select' : '...'}
+        value={value}
+        onFocus={() => setIsFocus(true)}
+        onBlur={() => setIsFocus(false)}
+        onChange={item => {
+          setValue(item.value);
+          setIsFocus(false);
+        }}
+      />
+    );
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <AppHeader title={'Post a Look!'} />
+      <AppHeader title={'Add Prepaid'} />
       <ScrollView showsVerticalScrollIndicator={false}>
         <ListProfessionalModal
           visible={isModalProfessionalVisible}
           onClose={handleCloseModal}
           onSelect={e => storeDataToState(e)}
         />
-        <ServiceSelector
+        <SelectPackageModal
           visible={isServiceSelectorVisible}
           onClose={() => setServiceSelectorVisible(false)}
-          onSelectService={handleServiceSelect}
+          onSelect={handleServiceSelect}
           tabs={tabs}
           services={services}
         />
         {/* Upload Section */}
-        <View style={{paddingHorizontal: (mobileW * 5) / 100}}>
-          {selectedImageUri == null ? (
-            <View style={styles.uploadContainer}>
-              <TouchableOpacity
-                onPress={() => handleSelectImage()}
-                style={styles.uploadButton}>
-                {/* Replace with an actual icon if available */}
-                <Image source={Images?.Upload} style={styles?.serviceIcon} />
-              </TouchableOpacity>
-
-              <Text style={styles.uploadText}>Upload a picture or a video</Text>
-            </View>
-          ) : (
-            <Image
-              source={{uri: selectedImageUri}}
-              style={styles?.uploadContainer}
-            />
-          )}
+        <View
+          style={{
+            paddingHorizontal: (mobileW * 5) / 100,
+            marginTop: (mobileW * 5) / 100,
+          }}>
+          <Text style={styles.headerLabel}>Customer</Text>
           {ProfessionalData == null ? (
             <TouchableOpacity
               onPress={() => handleOpenModal()}
@@ -236,7 +197,7 @@ const PostLook = ({navigation}) => {
                 style={styles.icon}
               />
               <View style={styles.txtView}>
-                <Text style={styles.itemLabel}>Select Professional</Text>
+                <Text style={styles.itemLabel}>Select Customer</Text>
               </View>
               <Image source={Images?.forwardIcon} style={styles.forwardIcon} />
             </TouchableOpacity>
@@ -254,10 +215,12 @@ const PostLook = ({navigation}) => {
                 <Text style={styles.emailLabel}>{ProfessionalData.email}</Text>
               </View>
               <TouchableOpacity onPress={() => handleOpenModal()}>
-                <Image source={Images?.EditPen} style={styles.forwardIcon} />
+                <Image source={Images?.EditPen} style={styles.forwardIcon1} />
               </TouchableOpacity>
             </View>
           )}
+          <View style={styles.straightLine} />
+          <Text style={styles.headerLabel}>Package</Text>
           {chosenService == null ? (
             <TouchableOpacity
               onPress={() => setServiceSelectorVisible(true)}
@@ -275,45 +238,87 @@ const PostLook = ({navigation}) => {
             </TouchableOpacity>
           ) : (
             <View activeOpacity={0.8} style={styles.serviceContainer}>
-              <View
-                style={{
-                  backgroundColor: 'red',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  paddingHorizontal: 8,
-                  alignSelf: 'flex-start',
-                  paddingVertical: 8,
-                  borderRadius: (mobileW * 10) / 100,
-                  backgroundColor: Colors.semiPurpleLight,
-                  borderWidth: 1,
-                  borderColor: Colors.borderColor,
-                }}>
-                <Image
-                  source={chosenService?.image}
-                  resizeMode="contain"
-                  style={styles.serviceImage}
-                />
+              <Image
+                source={chosenService?.image}
+                resizeMode="contain"
+                style={styles.serviceImage}
+              />
+              <View style={[styles.txtView, {left: 8}]}>
+                <Text style={styles.titleService}>{chosenService.name}</Text>
               </View>
-              <View style={styles.txtView}>
-                <Text style={styles.catName}>{chosenService.category}</Text>
-                <Text style={styles.titleService}>{chosenService.title}</Text>
-                <Text style={styles.duration}>
-                  {'Duration: ' + chosenService.duration}
-                </Text>
-                <Text style={styles.servicePrice}>{chosenService.price}</Text>
-              </View>
-              <TouchableOpacity onPress={() => setServiceSelectorVisible(true)}>
-                <Image source={Images?.EditPen} style={styles.forwardIcon} />
+              <TouchableOpacity
+                style={[styles.txtView]}
+                onPress={() => setServiceSelectorVisible(true)}>
+                <Image source={Images?.EditPen} style={styles.forwardIcon1} />
               </TouchableOpacity>
             </View>
           )}
+
+          <View style={styles.straightLine} />
+          <Text style={styles.headerLabel}>Number of treatment</Text>
+          {dropDown()}
+          <View style={styles.straightLine} />
+          <Text style={styles.headerLabel}>Payment Method</Text>
+          <TouchableOpacity
+            onPress={() => setIsSelected('card')}
+            style={styles.cartStyleView}>
+            <Image
+              source={
+                isSelected === 'card'
+                  ? Images.selectedButton
+                  : Images.unSelectedButton
+              }
+              style={styles.plusIcon}
+            />
+            <Text style={styles.cardLabel}>
+              Customer’s saved payment method
+            </Text>
+          </TouchableOpacity>
+
+          {/* Pay cash in store */}
+          {isSelected === 'card' && (
+            <View style={styles.paymentMethodContainer}>
+              <View style={styles.methodDetails}>
+                <Image
+                  resizeMode="contain"
+                  source={Images?.cardPayment}
+                  style={styles.cardIcons}
+                />
+                <Text style={styles.methodText}>{'********** 5334'}</Text>
+              </View>
+            </View>
+          )}
+          <TouchableOpacity
+            onPress={() => setIsSelected('cash')}
+            style={styles.cartStyleView}>
+            <Image
+              source={
+                isSelected === 'cash'
+                  ? Images.selectedButton
+                  : Images.unSelectedButton
+              }
+              style={styles.plusIcon}
+            />
+            <Text style={styles.cardLabel}>Pay cash in store</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setIsSelected('other')}
+            style={styles.cartStyleView}>
+            <Image
+              source={
+                isSelected === 'other'
+                  ? Images.selectedButton
+                  : Images.unSelectedButton
+              }
+              style={styles.plusIcon}
+            />
+            <Text style={styles.cardLabel}>Other</Text>
+          </TouchableOpacity>
           <View style={{height: 20}} />
           {/* Post Button */}
           <CommonButton
-            onPress={() => {
-              addNewService(selectedImageUri, false);
-            }}
-            title={'Post'}
+            onPress={() => navigation.goBack()}
+            title={'Done'}
           />
           <View style={{height: 50}} />
         </View>
@@ -416,12 +421,12 @@ const styles = StyleSheet.create({
     marginTop: (mobileW * 4.5) / 100,
     paddingVertical: (mobileW * 4) / 100,
     borderRadius: (mobileW * 3.5) / 100,
-    elevation: 1,
+    elevation: 2,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 5,
     justifyContent: 'space-between',
-    borderWidth: 1,
+    borderWidth: 0.5,
     borderColor: Colors.borderColor,
   },
   serviceContainer: {
@@ -436,12 +441,13 @@ const styles = StyleSheet.create({
     marginTop: (mobileW * 4.5) / 100,
     paddingVertical: (mobileW * 4) / 100,
     borderRadius: (mobileW * 3) / 100,
-    elevation: 1,
+    elevation: 2,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 5,
     justifyContent: 'space-between',
-    // paddingHorizontal: (mobileW * 5) / 100,
+    borderWidth: 0.5,
+    borderColor: Colors.borderColor,
   },
   imageBackView: {
     backgroundColor: '#F5F0FF',
@@ -461,15 +467,22 @@ const styles = StyleSheet.create({
     borderRadius: (mobileW * 6) / 100,
   },
   serviceImage: {
-    width: (mobileW * 6) / 100,
-    height: (mobileW * 6) / 100,
+    width: (mobileW * 12) / 100,
+    height: (mobileW * 12) / 100,
+    borderRadius: (mobileW * 1.5) / 100,
   },
   forwardIcon: {
     width: (mobileW * 4) / 100,
     height: (mobileW * 4) / 100,
   },
+  forwardIcon1: {
+    width: (mobileW * 4.5) / 100,
+    height: (mobileW * 4.5) / 100,
+    tintColor: Colors.primary,
+  },
   txtView: {
     width: (mobileW * 66) / 100,
+    justifyContent: 'center',
   },
   itemLabel: {
     fontSize: 15,
@@ -495,8 +508,8 @@ const styles = StyleSheet.create({
     fontSize: (mobileW * 4) / 100,
   },
   titleService: {
-    fontSize: (mobileW * 4) / 100,
-    color: Colors.black,
+    fontSize: 15,
+    color: '#301E39',
     fontWeight: '600',
     paddingVertical: (mobileW * 0.5) / 100,
   },
@@ -512,6 +525,96 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     paddingVertical: (mobileW * 0.5) / 100,
   },
+  headerLabel: {
+    fontSize: 16,
+    color: '#333333',
+    flex: 1,
+    fontWeight: '500',
+  },
+  cardLabel: {
+    fontSize: 14.5,
+    color: '#301e39',
+    flex: 1,
+    fontWeight: '400',
+    left: 10,
+  },
+  straightLine: {
+    width: '100%',
+    height: 1,
+    alignSelf: 'center',
+    backgroundColor: '#E7E7E7',
+    marginVertical: (mobileW * 5) / 100,
+    marginTop: (mobileW * 7) / 100,
+  },
+  placeholderStyle: {
+    fontSize: 16,
+    color: Colors.black,
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+    color: 'black',
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: 16,
+  },
+  selectedText: {
+    marginTop: 16,
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  listContainer: {
+    padding: 16,
+  },
+  dropdown: {
+    height: (mobileW * 12) / 100,
+    borderColor: '#D8DAE7',
+    borderWidth: (mobileW * 0.25) / 100,
+    borderRadius: (mobileW * 2) / 100,
+    paddingHorizontal: (mobileW * 4) / 100,
+    width: (mobileW * 90) / 100,
+    marginTop: (mobileW * 5) / 100,
+  },
+  paymentMethodContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: (mobileW * 5) / 100,
+    backgroundColor: '#ffffff',
+    marginTop: (mobileW * 3) / 100,
+    borderRadius: (mobileW * 2.5) / 100,
+    paddingHorizontal: (mobileW * 3) / 100,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    borderWidth: 1,
+    borderColor: Colors.borderColor,
+  },
+  methodDetails: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  cardIcons: {
+    width: (mobileW * 9) / 100,
+    height: (mobileW * 9) / 100,
+  },
+  methodText: {
+    marginLeft: 10,
+    fontSize: 16,
+    color: '#000',
+  },
+  plusIcon: {
+    width: (mobileW * 4) / 100,
+    height: (mobileW * 4) / 100,
+  },
+  cartStyleView: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: (mobileW * 4) / 100,
+  },
 });
 
-export default PostLook;
+export default AddPrepaid;

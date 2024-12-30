@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   insideConatiner: {
-    padding: DimensionsConfig.screenHeight * 0.02,
+    padding: DimensionsConfig.screenHeight * 0.015,
   },
   serviceItem: {
     flexDirection: 'row',
@@ -298,10 +298,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   editIcon: {
-    height: DimensionsConfig.screenHeight * 0.024,
-    width: DimensionsConfig.screenHeight * 0.024,
+    height: DimensionsConfig.screenHeight * 0.026,
+    width: DimensionsConfig.screenHeight * 0.026,
     resizeMode: 'contain'
   }
 })

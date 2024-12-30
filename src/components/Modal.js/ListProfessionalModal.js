@@ -9,16 +9,22 @@ import {
   Dimensions,
   Image,
 } from 'react-native';
+import {Colors} from '../../theme/colors';
 import {DimensionsConfig} from '../../theme/dimensions';
 import {Images} from '../../assets/images';
-import {Colors} from '../../theme/colors';
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
 
-const SelectCustomer = ({visible, onClose, onSelect}) => {
+const ListProfessionalModal = ({visible, onClose}) => {
   const [selectedOption, setSelectedOption] = useState('highToLow');
-  const [selectedId, setSelectedId] = useState(null);
+  const [selectedItem, setselectedItem] = useState(null);
 
+  const selectedItemsSte = data => {
+    setselectedItem(data);
+    onClose();
+  };
+
+  // selectedItem
   const data = [
     {
       id: '1',
@@ -26,7 +32,6 @@ const SelectCustomer = ({visible, onClose, onSelect}) => {
       rating: 5.0,
       reviews: 121,
       image: Images.Image1,
-      email: 'Johnathanmorrison@gmail.com',
     },
     {
       id: '2',
@@ -34,7 +39,6 @@ const SelectCustomer = ({visible, onClose, onSelect}) => {
       rating: 5.0,
       reviews: 100,
       image: Images.Image2,
-      email: 'Mariakevin@gmail.com',
     },
     {
       id: '3',
@@ -42,7 +46,6 @@ const SelectCustomer = ({visible, onClose, onSelect}) => {
       rating: 5.0,
       reviews: 99,
       image: Images.image11,
-      email: 'Lindajohnson@gmail.com',
     },
     {
       id: '4',
@@ -50,7 +53,6 @@ const SelectCustomer = ({visible, onClose, onSelect}) => {
       rating: 5.0,
       reviews: 80,
       image: Images.image22,
-      email: 'KevinFrank@gmail@gmail.com',
     },
     {
       id: '5',
@@ -58,7 +60,6 @@ const SelectCustomer = ({visible, onClose, onSelect}) => {
       rating: 5.0,
       reviews: 60,
       image: Images.image33,
-      email: 'Dwaynejackson@gmail@gmail.com',
     },
     {
       id: '6',
@@ -66,7 +67,6 @@ const SelectCustomer = ({visible, onClose, onSelect}) => {
       rating: 5.0,
       reviews: 45,
       image: Images.image44,
-      email: 'Tomcameron@gmail@gmail.com',
     },
     {
       id: '7',
@@ -74,36 +74,26 @@ const SelectCustomer = ({visible, onClose, onSelect}) => {
       rating: 5.0,
       reviews: 40,
       image: Images.image55,
-      email: 'Conorcharlie@gmail@gmail.com',
     },
   ];
 
-  const handleItemPress = item => {
-    const newSelectedId = item.id === selectedId ? null : item.id;
-    setSelectedId(newSelectedId);
-    onClose();
-    if (onSelect) {
-      onSelect(newSelectedId ? item : null); 
-    }
-  };
-
-  const renderItem = ({item}) => {
-    const isSelected = item.id === selectedId;
-    return (
-      <TouchableOpacity
-        style={styles.itemContainer}
-        onPress={() => handleItemPress(item)}>
-        <Image source={item.image} style={styles.profileImage} />
-        <View style={styles.textContainer}>
-          <Text style={styles.nameText}>{item.name}</Text>
+  const renderItem = ({item}) => (
+    <TouchableOpacity
+      style={styles.itemContainer}
+      onPress={() => {
+        selectedItemsSte(item);
+      }}>
+      <Image source={item.image} style={styles.profileImage} />
+      <View style={styles.textContainer}>
+        <Text style={styles.nameText}>{item.name}</Text>
+        <View style={styles.ratingContainer}>
+          <Image source={Images?.starIcon} style={styles.plusIcon} />
+          <Text style={styles.ratingText}> {item.rating + '.0'}</Text>
+          <Text style={styles.reviewsText}>({item.reviews} Reviews)</Text>
         </View>
-        <Image
-          source={isSelected ? Images.selectedButton : Images.unSelectedButton}
-          style={styles.plusIcon}
-        />
-      </TouchableOpacity>
-    );
-  };
+      </View>
+    </TouchableOpacity>
+  );
 
   return (
     <Modal transparent={true} visible={visible} animationType="slide">
@@ -114,10 +104,9 @@ const SelectCustomer = ({visible, onClose, onSelect}) => {
           hitSlop={100}
           style={styles?.CloserView}
         />
-        <Text style={styles.title}>Select Customer</Text>
+        <Text style={styles.title}>Select Professional</Text>
         <FlatList
           data={data}
-          showsVerticalScrollIndicator={false}
           keyExtractor={item => item.id}
           renderItem={renderItem}
           contentContainerStyle={styles.listContent}
@@ -127,7 +116,7 @@ const SelectCustomer = ({visible, onClose, onSelect}) => {
   );
 };
 
-export default SelectCustomer;
+export default ListProfessionalModal;
 
 const styles = StyleSheet.create({
   modalOverlay: {
@@ -137,7 +126,7 @@ const styles = StyleSheet.create({
   modalContent: {
     position: 'absolute',
     bottom: 0,
-    height: '85%',
+    height: '70%',
     width: '100%',
     backgroundColor: Colors.white,
     borderTopLeftRadius: 20,
@@ -150,35 +139,28 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.black,
     marginBottom: 15,
-    paddingHorizontal: (mobileW * 3) / 100,
+    // textAlign: 'center',
   },
   itemContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
-    borderWidth: 1,
-    borderColor: '#F6EFF9',
-    backgroundColor: Colors.white,
-    alignSelf: 'center',
-    width: (mobileW * 90) / 100,
-    // elevation: 2,
-    marginTop: (mobileW * 4) / 100,
-    paddingHorizontal: (mobileW * 3) / 100,
-    borderRadius: (mobileW * 2) / 100,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
   },
   profileImage: {
-    width: (mobileW * 12) / 100,
-    height: (mobileW * 12) / 100,
-    borderRadius: (mobileW * 7) / 100,
+    width: (mobileW * 15) / 100,
+    height: (mobileW * 15) / 100,
+    borderRadius: (mobileW * 7.5) / 100,
     marginRight: 16,
   },
   textContainer: {
     flex: 1,
   },
   nameText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#301E39',
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
   },
   ratingContainer: {
     flexDirection: 'row',
@@ -200,7 +182,7 @@ const styles = StyleSheet.create({
     height: (mobileW * 5) / 100,
   },
   CloserView: {
-    height: DimensionsConfig?.screenHeight * 0.004,
+    height: DimensionsConfig?.screenHeight * 0.008,
     width: DimensionsConfig?.screenWidth * 0.14,
     borderRadius: 10,
     backgroundColor: '#9E98AC',

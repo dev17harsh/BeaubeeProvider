@@ -90,10 +90,9 @@ const SelectBookingModal = ({visible, onClose, onSelect}) => {
   const handleItemPress = item => {
     const newSelectedId = item.id === selectedId ? null : item.id;
     setSelectedId(newSelectedId);
-
-    // Return selected item data to the parent component
+    onClose();
     if (onSelect) {
-      onSelect(newSelectedId ? item : null); // Pass selected item or null if deselected
+      onSelect(newSelectedId ? item : null);
     }
   };
 
@@ -153,22 +152,6 @@ const SelectBookingModal = ({visible, onClose, onSelect}) => {
       </TouchableOpacity>
     );
   };
-
-  //   const renderItem = ({item}) => {
-  //     const isSelected = item.id === selectedId;
-  //     return (
-  //       <TouchableOpacity
-  //         style={styles.itemContainer}
-  //         onPress={() => handleItemPress(item)}>
-  //         <Image source={item.image} style={styles.profileImage} />
-  //         <View style={styles.textContainer}>
-  //           <Text style={styles.nameText}>{item.name}</Text>
-  //         </View>
-
-  //       </TouchableOpacity>
-  //     );
-  //   };
-
   return (
     <Modal transparent={true} visible={visible} animationType="slide">
       <TouchableOpacity style={styles.modalOverlay} onPress={onClose} />
@@ -226,6 +209,10 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     width: (mobileW * 90) / 100,
     elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
     marginTop: (mobileW * 4) / 100,
     paddingHorizontal: (mobileW * 3) / 100,
     borderRadius: (mobileW * 2) / 100,
@@ -264,7 +251,7 @@ const styles = StyleSheet.create({
     height: (mobileW * 5) / 100,
   },
   CloserView: {
-    height: DimensionsConfig?.screenHeight * 0.008,
+    height: DimensionsConfig?.screenHeight * 0.004,
     width: DimensionsConfig?.screenWidth * 0.14,
     borderRadius: 10,
     backgroundColor: '#9E98AC',

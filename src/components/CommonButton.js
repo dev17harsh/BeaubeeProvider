@@ -26,9 +26,9 @@ const styles = StyleSheet.create({
     marginTop: (mobileW * 4) / 100,
   },
   rescheduleText: {
-    fontSize: 16,
+    fontSize: 14,
     color: Colors.white,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
 });
 

@@ -169,19 +169,19 @@ const SensGiftCard = ({navigation}) => {
             mode="outlined"
             placeholder="Enter Note"
           />
-          <View style={{
-            marginTop: (mobileW * 5) / 100,
-            width: '100%'
-          }}>
-           <Text style={styles.paymentMethodText}>Payment Method</Text>
-           </View>
+          <View
+            style={{
+              marginTop: (mobileW * 5) / 100,
+              width: '100%',
+            }}>
+            <Text style={styles.paymentMethodText}>Payment Method</Text>
+          </View>
           <FlatList
             data={paymentMethods}
             renderItem={renderPaymentMethod}
             keyExtractor={item => item.id}
             contentContainerStyle={{
               paddingBottom: 10,
-              
             }}
           />
           <TouchableOpacity
@@ -197,7 +197,7 @@ const SensGiftCard = ({navigation}) => {
               width: (mobileW * 90) / 100,
               marginTop: (mobileW * 3) / 100,
             }}>
-            <CommonButton title={'Post'} />
+            <CommonButton onPress={()=>navigation.navigate('Profile')} title={'Post'} />
           </View>
         </View>
       </ScrollView>
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
   },
 
   itemContainer: {
-    marginRight: 7,
+    marginRight: 10,
     // borderColor:'yellow'
   },
   cardIcons: {
@@ -225,8 +225,9 @@ const styles = StyleSheet.create({
     borderColor: Colors.white,
     elevation: 3,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   selectTitle: {
     fontSize: 18,
@@ -248,20 +249,23 @@ const styles = StyleSheet.create({
     borderRadius: (mobileW * 3) / 100,
     elevation: 1,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
     marginTop: (mobileW * 2) / 100,
+    borderWidth: 1,
+    borderColor: Colors.borderColor,
   },
   icon: {
     width: (mobileW * 11) / 100,
     height: (mobileW * 11) / 100,
   },
   itemLabel: {
-    fontSize: (mobileW * 4) / 100,
-    color: '#333333',
+    fontSize: 14,
+    color: Colors.textDark,
     marginLeft: 10,
     flex: 1,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   forwardDicicon: {
     width: (mobileW * 4) / 100,
@@ -294,6 +298,8 @@ const styles = StyleSheet.create({
     borderColor: '#F6EFF9',
     width: (mobileW * 90) / 100,
     borderRadius: (mobileW * 3) / 100,
+    borderWidth: 1,
+    borderColor: Colors.borderColor,
   },
   methodDetails: {
     flexDirection: 'row',
@@ -301,12 +307,13 @@ const styles = StyleSheet.create({
   },
   methodText: {
     marginLeft: 10,
-    fontSize: 16,
+    fontSize: 14,
+    fontWeight:'600',
     color: '#000',
   },
   cardIconsPayment: {
-    width: (mobileW * 9) / 100,
-    height: (mobileW * 9) / 100,
+    width: (mobileW * 8) / 100,
+    height: (mobileW * 8) / 100,
   },
   forwardIcon: {
     width: (mobileW * 4) / 100,
@@ -329,12 +336,12 @@ const styles = StyleSheet.create({
     width: (mobileW * 5) / 100,
     height: (mobileW * 5) / 100,
   },
-  paymentMethodText:{
-    color:'#301E39',
+  paymentMethodText: {
+    color: Colors.textDark,
     fontSize: 18,
-    fontWeight: "700",
+    fontWeight: '700',
     marginLeft: 10,
-  }
+  },
 });
 
 export default SensGiftCard;

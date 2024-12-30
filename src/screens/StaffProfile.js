@@ -174,8 +174,8 @@ const styles = StyleSheet.create({
     borderRadius: (mobileW * 2) / 100,
   },
   profileImage: {
-    width: (mobileW * 15) / 100,
-    height: (mobileW * 15) / 100,
+    width: (mobileW * 13) / 100,
+    height: (mobileW * 13) / 100,
     borderRadius: (mobileW * 7.5) / 100,
     marginRight: 16,
   },
@@ -183,9 +183,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   nameText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#301E39',
   },
   ratingContainer: {
     flexDirection: 'row',
@@ -193,21 +193,22 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   ratingText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: Colors.black, // Star color
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#301E39',
     marginRight: 8,
   },
   reviewsText: {
-    fontSize: 14,
-    color: '#888',
+    fontSize: 13,
+    color: '#554F67',
+    fontWeight:'400'
   },
   plusIcon: {
     width: (mobileW * 4) / 100,
     height: (mobileW * 4) / 100,
   },
   CloserView: {
-    height: DimensionsConfig?.screenHeight * 0.008,
+    height: DimensionsConfig?.screenHeight * 0.004,
     width: DimensionsConfig?.screenWidth * 0.14,
     borderRadius: 10,
     backgroundColor: '#9E98AC',
@@ -235,5 +236,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
 },
 });

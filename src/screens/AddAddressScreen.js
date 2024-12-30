@@ -9,23 +9,22 @@ import {
   SafeAreaView,
 } from 'react-native';
 import React from 'react';
-import { TextInput as TextInputPaper } from 'react-native-paper';
-import { Images } from '../assets/images';
+import {TextInput as TextInputPaper} from 'react-native-paper';
+import {Images} from '../assets/images';
 import InputField from '../components/InputField';
-import { DimensionsConfig } from '../theme/dimensions';
-import { Colors } from '../theme/colors';
+import {DimensionsConfig} from '../theme/dimensions';
+import {Colors} from '../theme/colors';
 import AppHeader from '../components/AppHeader';
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
-export default function AddAddressScreen({ navigation }) {
+export default function AddAddressScreen({navigation}) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.container}>
         {/* Header */}
-        <AppHeader
-          title={"Address Details"}
-        />
-        <ScrollView contentContainerStyle={{ paddingBottom: (mobileW * 5) / 100 }}>
+        <AppHeader title={'Address Details'} />
+        <ScrollView
+          contentContainerStyle={{paddingBottom: (mobileW * 5) / 100}}>
           <View
             style={{
               alignSelf: 'center',
@@ -33,6 +32,10 @@ export default function AddAddressScreen({ navigation }) {
               justifyContent: 'center',
               borderRadius: (mobileW * 2) / 100,
               elevation: 3,
+              shadowColor: '#000',
+              shadowOffset: {width: 0, height: 2},
+              shadowOpacity: 0.3,
+              shadowRadius: 4,
               marginTop: (mobileW * 5) / 100,
             }}>
             <Image
@@ -58,14 +61,15 @@ export default function AddAddressScreen({ navigation }) {
                 borderBottomRightRadius: (mobileW * 2.3) / 100,
               }}>
               <View>
-                <Text style={{ fontSize: (mobileW * 4) / 100, color: '#000' }}>
+                <Text style={{fontSize: 15, color: '#0D0E11', fontWeight: '600'}}>
                   Location Name
                 </Text>
                 <Text
                   style={{
-                    fontSize: (mobileW * 2.8) / 100,
-                    color: '#000',
+                    fontSize: 13,
+                    color: '#554F67',
                     marginTop: (mobileW * 1) / 100,
+                    fontWeight:'400'
                   }}>
                   Scheme no. 78 Vijay nagar indore
                 </Text>
@@ -82,7 +86,11 @@ export default function AddAddressScreen({ navigation }) {
               justifyContent: 'space-between',
             }}>
             <TextInputPaper
-              style={{ width: (mobileW * 43) / 100, fontSize: 14, backgroundColor: '#fff' }}
+              style={{
+                width: (mobileW * 43) / 100,
+                fontSize: 14,
+                backgroundColor: '#fff',
+              }}
               outlineColor={Colors?.primary}
               activeOutlineColor={Colors?.primary}
               label="Flat/Villa No."
@@ -92,7 +100,11 @@ export default function AddAddressScreen({ navigation }) {
               mode="outlined"
             />
             <TextInputPaper
-              style={{ width: (mobileW * 43) / 100, fontSize: 14, backgroundColor: '#fff' }}
+              style={{
+                width: (mobileW * 43) / 100,
+                fontSize: 14,
+                backgroundColor: '#fff',
+              }}
               outlineColor={Colors?.primary}
               activeOutlineColor={Colors?.primary}
               label="Building/Villa"
@@ -111,7 +123,11 @@ export default function AddAddressScreen({ navigation }) {
               justifyContent: 'space-between',
             }}>
             <TextInputPaper
-              style={{ width: (mobileW * 43) / 100, fontSize: 14, backgroundColor: '#fff' }}
+              style={{
+                width: (mobileW * 43) / 100,
+                fontSize: 14,
+                backgroundColor: '#fff',
+              }}
               outlineColor={Colors?.primary}
               activeOutlineColor={Colors?.primary}
               label="Street"
@@ -120,7 +136,11 @@ export default function AddAddressScreen({ navigation }) {
               placeholder="Street name here"
             />
             <TextInputPaper
-              style={{ width: (mobileW * 43) / 100, fontSize: 14, backgroundColor: '#fff' }}
+              style={{
+                width: (mobileW * 43) / 100,
+                fontSize: 14,
+                backgroundColor: '#fff',
+              }}
               label="Area"
               outlineColor={Colors?.primary}
               activeOutlineColor={Colors?.primary}
@@ -137,8 +157,8 @@ export default function AddAddressScreen({ navigation }) {
             }}>
             <InputField
               placeholder="Directions"
-            // value={'email'}
-            //   onChangeText={setEmail}
+              // value={'email'}
+              //   onChangeText={setEmail}
             />
           </View>
 
@@ -190,7 +210,6 @@ export default function AddAddressScreen({ navigation }) {
               </Text>
             </TouchableOpacity>
           </View> */}
-
         </ScrollView>
         <TouchableOpacity
           onPress={() => navigation.navigate('AddBusinessTimingScreen')}
@@ -245,7 +264,6 @@ const styles = StyleSheet.create({
     marginTop: (mobileH * 15) / 100,
     position: 'absolute',
     bottom: (mobileH * 2) / 100,
-
   },
   selectionButtonTxt: {
     fontSize: (mobileW * 4) / 100,
