@@ -13,6 +13,7 @@ import { Images } from '../assets/images';
 import AppHeader from '../components/AppHeader';
 import { mobileH, mobileW } from '../components/utils';
 import { Colors } from '../theme/colors';
+import CustomButton from '../components/CustomButton';
 
 const tabs = ['Hair', 'Makeup', 'Skincare', 'Nails'];
 const services = [
