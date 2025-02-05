@@ -1,40 +1,158 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, CheckBox, Alert, ImageBackground, FlatList, ScrollView } from 'react-native';
 import { Colors } from '../theme/colors';
 import { DimensionsConfig } from '../theme/dimensions';
 import { Images } from '../assets/images';
 import InputField from '../components/InputField';
+import { useDispatch, useSelector } from 'react-redux';
+import { GetBusinessType } from '../redux/action/GetBusinessTypeAction';
+import { signupUserAction, signupUserRemoveAction } from '../redux/action/SignUpAction';
+import ToastMessage from '../components/ToastMessage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CommonActions } from '@react-navigation/native';
 
 const SignUpScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const businessTypeData = useSelector((state) => state.getBusinessTypeData);
+  const signUpData = useSelector((state) => state.signUpData);
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [businessName, setBusinessName] = useState('');
   const [isChecked, setChecked] = useState(false);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [selectedValue, setSelectedValue] = useState(null);
+  const [businessTypes, setBusinessTypes] = useState([])
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastData, setToastData] = useState({
+    message: '',
+    color: ''
+  });
+
+  useEffect(() => {
+    dispatch(GetBusinessType())
+  }, [])
+
+  
+  useEffect(() => {
+    if (signUpData?.response?.message == 'success') {
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [
+            {
+              name: 'AddProfilePictureScreen',
+            },
+          ],
+        })
+      );
+      AsyncStorage.setItem('token', signUpData?.response?.result?.business_id)
+      dispatch(
+        signupUserRemoveAction({})
+      )
+    }
+  }, [signUpData])
+
+  useEffect(() => {
+    if (businessTypeData?.response?.result) {
+      // console.log('businessTypeData ===>' , businessTypeData?.response?.result)
+      const newArray = businessTypeData?.response?.result.map((item, index) => ({
+        label: item?.name,
+        value: item?.name
+      }));
+      setBusinessTypes(newArray)
+    }
+  }, [businessTypeData])
 
   const handleSelect = (value) => {
     setSelectedValue(value);
     setDropdownOpen(false); // Close dropdown after selection
   };
 
-  const handleSignUp = () => {
-    // if (!isChecked) {
-    //   Alert.alert('Please accept Terms and Conditions');
-    //   return;
-    // }
-    navigation.navigate('AddProfilePictureScreen')
+  const showToast = () => {
+    setToastVisible(true);
+  };
+
+  const handleSignUp = async () => {
+
+    const passwordRegex = /^(?=.*[!@#$%^&*()_\-+=\[\]{};:'",.<>?/\\|`~])(?=.*[A-Za-z0-9])[A-Za-z0-9!@#$%^&*()_\-+=\[\]{};:'",.<>?/\\|`~]{8,25}$/;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if(selectedValue == null){
+      showToast()
+      setToastData({
+        message: 'Please Select Business Type',
+        color: Colors?.red
+      })
+    }else if (businessName == '') {
+      showToast()
+      setToastData({
+        message: 'Enter User Name',
+        color: Colors?.red
+      })
+    } else if(email == ''){
+      showToast()
+      setToastData({
+        message: 'Please Entered Email',
+        color: Colors?.red
+      })
+    } else if (email && !emailRegex.test(email)) {
+      showToast()
+      setToastData({
+        message: 'Invalid email address',
+        color: Colors?.red
+      })
+    }else if(password == ''){
+      showToast()
+      setToastData({
+        message: 'Please Entered Password',
+        color: Colors?.red
+      })
+    } else if (password && !passwordRegex.test(password)) {
+      showToast()
+      setToastData({
+        message: 'Password must be 8-25 characters, include at least one special character, and no emojis.',
+        color: Colors?.red
+      })
+    } else {
+
+      const formData = new FormData();
+      formData.append('type', selectedValue);
+      formData.append('business_name', businessName);
+      formData.append('email', email);
+      formData.append('password', password);
+      console.log('formData', formData)
+
+      await dispatch(signupUserAction(formData));
+    }
+    // navigation.navigate('AddProfilePictureScreen')
     // Alert.alert('SignUp Successful');
   };
 
-  const items = [
-    { label: 'Type 1', value: 'Type 1' },
-    { label: 'Type 2', value: 'Type 2' },
-    { label: 'Type 3', value: 'Type 3' },
-  ];
+  const handleBusinessNameChange = (text) => {
+    const filteredText = text
+      .replace(/[^a-zA-Z]/g, ' ')
+      .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u27BF]/g, ''); // Removes emojis
+    setBusinessName(filteredText);
+  };
+
+  const handleEmailChange = (text) => {
+    setEmail(text);
+  };
+
+  const handlePasswordChange = (text) => {
+    setPassword(text);
+  };
+
 
   return (
     <View style={styles.container}>
+      <ToastMessage
+        visible={toastVisible}
+        message={toastData.message}
+        onClose={() => setToastVisible(false)}
+        toastStyle={{
+          backgroundColor: toastData.color
+        }}
+      />
       <ImageBackground source={Images?.ScreenBackground} style={styles.ImageView} />
       <View style={{
         flex: 1,
@@ -50,7 +168,7 @@ const SignUpScreen = ({ navigation }) => {
         </View>
         <View style={[styles.formContainer, { flex: 1 }]}>
           <ScrollView
-          nestedScrollEnabled={true}
+            nestedScrollEnabled={true}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
               alignItems: 'center',
@@ -59,7 +177,7 @@ const SignUpScreen = ({ navigation }) => {
             }}>
             <Text style={styles.header}>Sign Up</Text>
             <View style={styles.dropDowncontainer} >
-              <Text style={styles.dropDownlabel}>Select Type</Text>
+              <Text style={styles.dropDownlabel}>{selectedValue != null ? selectedValue : 'Select Type'}</Text>
               <TouchableOpacity onPress={() => setDropdownOpen(!isDropdownOpen)}>
                 <Image source={Images?.DownArrowIcon} style={[styles?.dropIcon]} />
               </TouchableOpacity>
@@ -69,7 +187,7 @@ const SignUpScreen = ({ navigation }) => {
             {isDropdownOpen && (
               <View style={styles.optionsContainer}>
                 <FlatList
-                  data={items}
+                  data={businessTypes}
                   showsVerticalScrollIndicator={false}
                   keyExtractor={(item) => item.value}
                   renderItem={({ item }) => (
@@ -87,20 +205,21 @@ const SignUpScreen = ({ navigation }) => {
             <InputField
               placeholder="Business Name"
               value={businessName}
-              onChangeText={setBusinessName}
+              onChangeText={handleBusinessNameChange}
             />
             <View style={styles?.spacingBtwInput} />
             <InputField
               placeholder="Email Address"
               value={email}
-              onChangeText={setEmail}
+              onChangeText={handleEmailChange}
+              keyboardType='email-address'
             />
             <View style={styles?.spacingBtwInput} />
             <InputField
               placeholder="Password"
               isPassword={true}
               value={password}
-              onChangeText={setPassword}
+              onChangeText={handlePasswordChange}
             />
             <View style={styles?.spacingBtwInput} />
             <View style={styles.checkboxContainer}>
@@ -112,7 +231,7 @@ const SignUpScreen = ({ navigation }) => {
               <Text style={styles.checkboxText}>I agree to <Text style={styles.link}>Terms and Conditions</Text></Text>
             </View>
 
-            <TouchableOpacity onPress={handleSignUp} style={styles.signUpButton}>
+            <TouchableOpacity  disabled={!isChecked} onPress={handleSignUp} style={[styles.signUpButton, !isChecked && { backgroundColor: Colors?.OrGray }]}>
               <Text style={styles.signUpButtonText}>Sign Up</Text>
             </TouchableOpacity>
 
@@ -277,6 +396,7 @@ const styles = StyleSheet.create({
   dropDownlabel: {
     color: Colors.gray,
     fontSize: 14,
+    width: '80%'
     // marginBottom: 4,
   },
   dropDownInput: {
@@ -303,8 +423,8 @@ const styles = StyleSheet.create({
     borderBottomColor: '#EEE6F1',
   },
   optionText: {
-    color: '#4A4A4A',
-    fontSize: 16,
+    color: '301E39',
+    fontSize: 14,
   },
   dropIcon: {
     width: DimensionsConfig.screenHeight * 0.025,

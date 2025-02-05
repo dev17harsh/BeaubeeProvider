@@ -131,4 +131,5 @@ export const Images = {
   crossWithBack:require('./images/crossWithBack.png'),
   mail:require('./images/mail.png'),
   Calling:require('./images/Calling.png'),
+  rightCheck: require('./images/rightCheck.png'),
 };

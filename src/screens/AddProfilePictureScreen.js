@@ -1,15 +1,40 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet, Dimensions, StatusBar, SafeAreaView } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { Colors } from '../theme/colors';
 import { Images } from '../assets/images';
 import { DimensionsConfig } from '../theme/dimensions';
+import { useDispatch, useSelector } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { signupUserAction, signupUserRemoveAction } from '../redux/action/SignUpAction';
+import { CommonActions } from '@react-navigation/native';
 
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
 
 const AddProfilePictureScreen = ({navigation}) => {
+    const dispatch = useDispatch();
+    const signUpData = useSelector((state) => state.signUpData);
     const [profileImage, setProfileImage] = useState(null);
+    const [imageData, setimageData] = useState([]);
+
+    useEffect(() => {
+        if (signUpData?.response?.message == 'success') {
+            navigation.dispatch(
+                CommonActions.reset({
+                  index: 0, // Position of the new route in the stack
+                  routes: [
+                    {
+                      name: 'AddressMapScreen',
+                    },
+                  ],
+                })
+              );
+            dispatch(
+                signupUserRemoveAction()
+            )
+        }
+    }, [signUpData])
 
     const openImagePicker = () => {
         let options = {
@@ -21,10 +46,39 @@ const AddProfilePictureScreen = ({navigation}) => {
 
         launchImageLibrary(options, response => {
             if (response?.assets && response.assets.length > 0) {
+                setimageData(response?.assets)
                 setProfileImage(response.assets[0].uri);
             }
         });
     };
+
+    const createFileFromPickerData = (imagePickerResponse) => {
+        if (imagePickerResponse && imagePickerResponse.length > 0) {
+            const fileData = imagePickerResponse[0]; // Assuming you have a single image
+            const { uri, fileName, type } = fileData;
+
+            // Creating a file object for FormData
+            const file = {
+                uri: Platform.OS === 'android' ? uri : uri.replace('file://', ''), // Remove 'file://' on iOS
+                name: fileName,
+                type: type,
+            };
+
+            return file;
+        }
+        return null;
+    };
+
+    const onPressNext = async () => {
+        const userId = await AsyncStorage.getItem('token')
+        const imageFile = await createFileFromPickerData(imageData)
+        const formData = new FormData();
+        formData.append('business_id', userId);
+        formData.append('profile', imageFile);
+        console.log('formData', formData)
+
+        await dispatch(signupUserAction(formData));
+    }
 
     return (
         <SafeAreaView style={styles.container}>
@@ -64,13 +118,29 @@ const AddProfilePictureScreen = ({navigation}) => {
 
             </View>
             <View>
-            <TouchableOpacity style={styles.nextButton} onPress={()=>{
-                navigation.navigate('AddressMapScreen')
-            }}>
+            <TouchableOpacity 
+            disabled={imageData.length === 0} style={[styles.nextButton, imageData.length === 0 && { backgroundColor: Colors?.OrGray }]} onPress={() => {
+                onPressNext()
+            }}
+            >
                 <Text style={styles.nextButtonText}>Next</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity>
+            <TouchableOpacity
+             onPress={()=>{
+                navigation.dispatch(
+                    CommonActions.reset({
+                      index: 0, 
+                      routes: [
+                        {
+                          name: 'AddressMapScreen',
+                          params: { type: 'Add' },
+                        },
+                      ],
+                    })
+                  );
+            }}
+            >
                 <Text style={styles.skipText}>Skip</Text>
             </TouchableOpacity>
             </View>

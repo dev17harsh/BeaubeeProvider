@@ -48,6 +48,8 @@ import BookService from '../screens/BookService';
 import Availability from '../screens/Availability';
 import AddPrepaid from '../screens/AddPrepaid';
 import CustomerProfile from '../screens/CustomerProfile';
+import ForgetPasswordEmailScreen from '../screens/ForgetPasswordEmailScreen';
+import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 // import Availability from '../screens/Availability';
 
 const Stack = createNativeStackNavigator();
@@ -72,7 +74,7 @@ const Routes = () => {
     <NavigationContainer>
       <Stack.Navigator
         initialRouteName="Splash"
-        screenOptions={{
+        screenOptions={{ 
           animation: 'slide_from_right',
           headerShown: false,
         }}>
@@ -281,6 +283,16 @@ const Routes = () => {
         <Stack.Screen
           name="CustomerProfile"
           component={CustomerProfile}
+          headerShown={false}
+        />
+         <Stack.Screen
+          name="ForgetPasswordEmailScreen"
+          component={ForgetPasswordEmailScreen}
+          headerShown={false}
+        />
+         <Stack.Screen
+          name="ResetPasswordScreen"
+          component={ResetPasswordScreen}
           headerShown={false}
         />
 

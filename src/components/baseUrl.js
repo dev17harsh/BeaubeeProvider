@@ -1,0 +1,1 @@
+export const BaseUrl = "https://codezens.com/beaubee/api"

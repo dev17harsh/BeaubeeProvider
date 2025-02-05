@@ -4,7 +4,7 @@ import { Colors } from '../theme/colors';
 import { DimensionsConfig } from '../theme/dimensions';
 import { Images } from '../assets/images'; // Make sure to import your eye icons from the images file
 
-const InputField = ({ placeholder, value, onChangeText, isPassword , customStyle}) => {
+const InputField = ({ placeholder, value, onChangeText, isPassword, customStyle, keyboardType = 'default' }) => {
   const [secureTextEntry, setSecureTextEntry] = useState(isPassword); // State to manage password visibility
 
   const togglePasswordVisibility = () => {
@@ -12,7 +12,7 @@ const InputField = ({ placeholder, value, onChangeText, isPassword , customStyle
   };
 
   return (
-    <View style={[styles.inputContainer , customStyle]}>
+    <View style={[styles.inputContainer, customStyle]}>
       <TextInput
         placeholder={placeholder}
         secureTextEntry={secureTextEntry} // This will toggle based on the state
@@ -20,10 +20,11 @@ const InputField = ({ placeholder, value, onChangeText, isPassword , customStyle
         value={value}
         onChangeText={onChangeText}
         placeholderTextColor={Colors.gray}
+        keyboardType={keyboardType}
       />
       {isPassword && (
         <TouchableOpacity onPress={togglePasswordVisibility} style={styles.eyeIconContainer}>
-          <Image 
+          <Image
             source={secureTextEntry ? Images.EyeIcon : Images.EyeOffIcon} // Toggle the icon based on secureTextEntry state
             style={styles.eyeIcon}
           />

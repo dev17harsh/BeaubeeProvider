@@ -8,23 +8,71 @@ import {
   ScrollView,
   SafeAreaView,
 } from 'react-native';
-import React from 'react';
-import {TextInput as TextInputPaper} from 'react-native-paper';
-import {Images} from '../assets/images';
+import React, { useEffect, useState } from 'react';
+import { TextInput as TextInputPaper } from 'react-native-paper';
+import { Images } from '../assets/images';
 import InputField from '../components/InputField';
-import {DimensionsConfig} from '../theme/dimensions';
-import {Colors} from '../theme/colors';
+import { DimensionsConfig } from '../theme/dimensions';
+import { Colors } from '../theme/colors';
 import AppHeader from '../components/AppHeader';
+import { useDispatch, useSelector } from 'react-redux';
+import { signupUserAction, signupUserRemoveAction } from '../redux/action/SignUpAction';
+import { CommonActions } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
-export default function AddAddressScreen({navigation}) {
+export default function AddAddressScreen({ navigation }) {
+  const dispatch = useDispatch();
+  const signUpData = useSelector((state) => state.signUpData);
+  const [flatNoText, setFlatNoText] = useState('');
+  const [buildingName, setBuildingName] = useState('');
+  const [streetText, setStreetText] = useState('');
+  const [areaText, setAreaText] = useState('');
+  const [directionsText, setDirectionsText] = useState('');
+
+  useEffect(() => {
+    if (signUpData?.response?.message == 'success') {
+      // navigation.dispatch(
+      //   CommonActions.reset({
+      //     index: 0,
+      //     routes: [
+      //       {
+      //         name: 'AddBusinessTimingScreen',
+      //       },
+      //     ],
+      //   })
+      // );
+      navigation.navigate('AddBusinessTimingScreen')
+      dispatch(
+        signupUserRemoveAction({})
+      )
+    }
+  }, [signUpData])
+
+
+  const onPressNext = async () => {
+    const userId = await AsyncStorage.getItem('token')
+    const formData = new FormData();
+    formData.append('business_id', userId);
+    formData.append('address', "Schema no 78 Vijay Nagar Indore");
+    formData.append('flat', flatNoText);
+    formData.append('building', buildingName);
+    formData.append('flat', flatNoText);
+    formData.append('street', streetText);
+    formData.append('area', areaText);
+    formData.append('lat', '40.722776');
+    formData.append('lng', '-72.005974');
+    console.log('formData', formData)
+
+    await dispatch(signupUserAction(formData));
+  }
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.container}>
         {/* Header */}
         <AppHeader title={'Address Details'} />
         <ScrollView
-          contentContainerStyle={{paddingBottom: (mobileW * 5) / 100}}>
+          contentContainerStyle={{ paddingBottom: (mobileW * 5) / 100 }}>
           <View
             style={{
               alignSelf: 'center',
@@ -33,7 +81,7 @@ export default function AddAddressScreen({navigation}) {
               borderRadius: (mobileW * 2) / 100,
               elevation: 3,
               shadowColor: '#000',
-              shadowOffset: {width: 0, height: 2},
+              shadowOffset: { width: 0, height: 2 },
               shadowOpacity: 0.3,
               shadowRadius: 4,
               marginTop: (mobileW * 5) / 100,
@@ -61,7 +109,7 @@ export default function AddAddressScreen({navigation}) {
                 borderBottomRightRadius: (mobileW * 2.3) / 100,
               }}>
               <View>
-                <Text style={{fontSize: 15, color: '#0D0E11', fontWeight: '600'}}>
+                <Text style={{ fontSize: 15, color: '#0D0E11', fontWeight: '600' }}>
                   Location Name
                 </Text>
                 <Text
@@ -69,7 +117,7 @@ export default function AddAddressScreen({navigation}) {
                     fontSize: 13,
                     color: '#554F67',
                     marginTop: (mobileW * 1) / 100,
-                    fontWeight:'400'
+                    fontWeight: '400'
                   }}>
                   Scheme no. 78 Vijay nagar indore
                 </Text>
@@ -94,9 +142,9 @@ export default function AddAddressScreen({navigation}) {
               outlineColor={Colors?.primary}
               activeOutlineColor={Colors?.primary}
               label="Flat/Villa No."
-              // value="Flat/Villa No."
+              value={flatNoText}
               placeholder="Flat add here"
-              // onChangeText={text => setText(text)}
+              onChangeText={text => setFlatNoText(text)}
               mode="outlined"
             />
             <TextInputPaper
@@ -108,7 +156,8 @@ export default function AddAddressScreen({navigation}) {
               outlineColor={Colors?.primary}
               activeOutlineColor={Colors?.primary}
               label="Building/Villa"
-              // onChangeText={text => setText(text)}
+              value={buildingName}
+              onChangeText={text => setBuildingName(text)}
               placeholder="Building name here"
               mode="outlined"
             />
@@ -131,7 +180,8 @@ export default function AddAddressScreen({navigation}) {
               outlineColor={Colors?.primary}
               activeOutlineColor={Colors?.primary}
               label="Street"
-              // onChangeText={text => setText(text)}
+              value={streetText}
+              onChangeText={text => setStreetText(text)}
               mode="outlined"
               placeholder="Street name here"
             />
@@ -144,7 +194,8 @@ export default function AddAddressScreen({navigation}) {
               label="Area"
               outlineColor={Colors?.primary}
               activeOutlineColor={Colors?.primary}
-              // onChangeText={text => setText(text)}
+              value={areaText}
+              onChangeText={text => setAreaText(text)}
               placeholder="Area name here"
               mode="outlined"
             />
@@ -157,8 +208,8 @@ export default function AddAddressScreen({navigation}) {
             }}>
             <InputField
               placeholder="Directions"
-              // value={'email'}
-              //   onChangeText={setEmail}
+              value={directionsText}
+              onChangeText={setDirectionsText}
             />
           </View>
 
@@ -212,8 +263,10 @@ export default function AddAddressScreen({navigation}) {
           </View> */}
         </ScrollView>
         <TouchableOpacity
-          onPress={() => navigation.navigate('AddBusinessTimingScreen')}
-          style={styles.selectLocationButton}>
+          disabled={flatNoText == '' && buildingName == '' && streetText == '' && areaText == '' ? true : false}
+          onPress={onPressNext}
+          // onPress={() => navigation.navigate('AddBusinessTimingScreen')}
+          style={[styles.selectLocationButton, flatNoText == '' && buildingName == '' && streetText == '' && areaText == '' && { backgroundColor: Colors?.OrGray }]}>
           <Text style={styles.selectionButtonTxt}>Next</Text>
         </TouchableOpacity>
       </View>

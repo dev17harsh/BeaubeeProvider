@@ -1,24 +1,111 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, View, TouchableOpacity, ImageBackground, ScrollView, Platform, StatusBar } from 'react-native';
 import { Colors } from '../theme/colors';
 import { DimensionsConfig } from '../theme/dimensions';
 import InputField from '../components/InputField'; // Import InputField component
 import { Images } from '../assets/images';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginUser, UserLoginDataClean } from '../redux/action/LoginAction';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import ToastMessage from '../components/ToastMessage';
+import { CommonActions } from '@react-navigation/native';
 
 const LoginScreen = ({ navigation }) => {
+    const dispatch = useDispatch();
+    const loginData = useSelector((state) => state.authData);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [toastVisible, setToastVisible] = useState(false);
+    const [toastData, setToastData] = useState({
+        message: '',
+        color: ''
+    });
 
-    const handleLogin = () => {
+    const showToast = () => {
+        setToastVisible(true);
+    };
+
+    useEffect(() => {
+        console.log('loginData?.response', loginData?.response)
+        if (loginData?.response?.message == 'success') {
+            navigation.dispatch(
+                CommonActions.reset({
+                    index: 0,
+                    routes: [
+                        {
+                            name: 'MainApp',
+                        },
+                    ],
+                })
+            );
+            AsyncStorage.setItem('token', loginData?.response?.result?.business_id)
+            dispatch(
+                UserLoginDataClean({})
+            )
+        } else if (loginData?.response?.message == 'unsuccess') {
+            showToast()
+            setToastData({
+                message: loginData?.response?.result,
+                color: Colors?.red
+            })
+            dispatch(
+                UserLoginDataClean({})
+            )
+        }
+    }, [loginData])
+
+    const handleLogin = async () => {
         // Add your login functionality here
+        const passwordRegex = /^(?=.*[!@#$%^&*()_\-+=\[\]{};:'",.<>?/\\|`~])(?=.*[A-Za-z0-9])[A-Za-z0-9!@#$%^&*()_\-+=\[\]{};:'",.<>?/\\|`~]{8,25}$/;
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         console.log('Login pressed');
-        navigation.navigate('MainApp')
+        if (email == '') {
+            showToast()
+            setToastData({
+                message: 'Please Entered Email',
+                color: Colors?.red
+            })
+        } else if (email && !emailRegex.test(email)) {
+            showToast()
+            setToastData({
+                message: 'Invalid email address',
+                color: Colors?.red
+            })
+        } else if (password == '') {
+            showToast()
+            setToastData({
+                message: 'Please Entered Password',
+                color: Colors?.red
+            })
+        } else if (password && !passwordRegex.test(password)) {
+            showToast()
+            setToastData({
+                message: 'Password must be 8-25 characters, include at least one special character, and no emojis.',
+                color: Colors?.red
+            })
+        } else {
+            const formData = new FormData();
+            formData.append('email', email);
+            formData.append('password', password);
+            console.log('login data  ===>' , formData)
+            await dispatch(loginUser(formData));
+
+        }
+        // navigation.navigate('MainApp')
     };
 
     return (
         <View style={styles?.container}>
-        <StatusBar backgroundColor={Colors?.primary} barStyle={'light-content'} />
-        <ImageBackground source={Images?.ScreenBackground} style={styles.ImageView} />
+            <ToastMessage
+                visible={toastVisible}
+                message={toastData.message}
+                onClose={() => setToastVisible(false)}
+                toastStyle={{
+                    backgroundColor: toastData.color
+                }}
+            />
+            <StatusBar backgroundColor={Colors?.primary} barStyle={'light-content'} />
+            <ImageBackground source={Images?.ScreenBackground} style={styles.ImageView} />
             <View style={{
                 flex: 1,
                 position: 'absolute'
@@ -39,7 +126,7 @@ const LoginScreen = ({ navigation }) => {
                         borderTopLeftRadius: 25,
                         borderTopRightRadius: 25,
                         paddingHorizontal: 25,
-                        paddingVertical : 10,
+                        paddingVertical: 10,
                         alignItems: 'center',
                     }}
                 >
@@ -49,6 +136,7 @@ const LoginScreen = ({ navigation }) => {
                         placeholder="Email Address"
                         value={email}
                         onChangeText={setEmail}
+                        keyboardType='email-address'
                     />
                     <View style={styles?.spacingBtwInput} />
                     <InputField
@@ -57,7 +145,9 @@ const LoginScreen = ({ navigation }) => {
                         value={password}
                         onChangeText={setPassword}
                     />
-                    <TouchableOpacity  >
+                    <TouchableOpacity onPress={()=>{
+                        navigation.navigate('ForgetPasswordEmailScreen')
+                    }} >
                         <Text style={styles.forgetText}>Forget Password ?</Text>
                     </TouchableOpacity>
 
@@ -77,7 +167,7 @@ const LoginScreen = ({ navigation }) => {
                     </TouchableOpacity>
                 </View>
             </View>
-            </View>
+        </View>
     );
 };
 
@@ -93,7 +183,7 @@ const styles = StyleSheet.create({
         width: '100%',
         resizeMode: 'contain',
         position: 'relative',
-      },
+    },
     logo: {
         height: DimensionsConfig.logoHeight,
         width: DimensionsConfig.logoWidth,

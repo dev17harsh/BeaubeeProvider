@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -11,8 +11,14 @@ import {
   ScrollView,
   SafeAreaView,
 } from 'react-native';
-import {Images} from '../assets/images';
-import {DimensionsConfig} from '../theme/dimensions';
+import { Images } from '../assets/images';
+import { DimensionsConfig } from '../theme/dimensions';
+import AppHeader from '../components/AppHeader';
+import { useDispatch, useSelector } from 'react-redux';
+import { GetCategoryAction } from '../redux/action/GetCategoryAction';
+import { AddNewServiceAction, AddNewServiceDataClean } from '../redux/action/AddNewServiceAction';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { GetSelectedServicesAction } from '../redux/action/GetSelectedServicesAction';
 
 const service = [
   {
@@ -35,16 +41,62 @@ const service = [
   },
 ];
 
-const ServiceScreen = ({navigation}) => {
+const ServiceScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const getCategoryData = useSelector((state) => state.getCategoryData);
+  const getSelectedServiceData = useSelector((state) => state.getSelectedServiceData);
+  const addNewServiceData = useSelector((state) => state.addNewServiceData);
+  const [allCategories, setAllCategories] = useState([])
   const [modalVisible, setModalVisible] = useState(false);
-  const [services, setServices] = useState([
-    {id: 1, name: 'Hair', selected: true},
-    {id: 2, name: 'Makeup', selected: false},
-    {id: 3, name: 'Skincare', selected: true},
-    {id: 4, name: 'Nails', selected: true},
-    {id: 5, name: 'Hair Removal', selected: false},
-    {id: 6, name: 'Tanning', selected: false},
-  ]);
+  const [selectedServices, setSelectedServices] = useState([]);
+
+  useEffect(() => {
+    if (getCategoryData?.response?.result) {
+      const updatedCategories = mergeSelectedServices(
+        getCategoryData?.response?.result,
+        getSelectedServiceData?.response?.result
+      );
+
+      setAllCategories(updatedCategories);
+    }
+  }, [getCategoryData, getSelectedServiceData]);
+
+  useEffect(() => {
+    if (addNewServiceData?.response?.message == 'success') {
+      GetSelectedServices()
+      dispatch(AddNewServiceDataClean())
+    }
+  }, [addNewServiceData]);
+
+  const mergeSelectedServices = (categories, selectedServices) => {
+    const selectedIds = new Set(selectedServices?.map(service => service.category));
+
+    return categories?.map(category => ({
+      ...category,
+      selected: selectedIds.has(category.name),
+    }));
+  };
+
+
+  useEffect(() => {
+    if (getSelectedServiceData?.response?.result) {
+      setSelectedServices(getSelectedServiceData?.response?.result)
+    }
+  }, [getSelectedServiceData])
+
+  useEffect(() => {
+    GetSelectedServices()
+
+  }, [])
+
+  const GetSelectedServices = async () => {
+    const userId = await AsyncStorage.getItem('token')
+    const params = {
+      business_id: userId
+    }
+    dispatch(GetSelectedServicesAction(params))
+    dispatch(GetCategoryAction())
+  }
 
   const AddRemoveService = () => {
     return (
@@ -62,7 +114,7 @@ const ServiceScreen = ({navigation}) => {
             />
             <Text style={styles.modalHeader}>Add/Remove Services</Text>
             <ScrollView>
-              {services.map(service => (
+              {allCategories.map(service => (
                 <View key={service.id} style={styles.checkboxContainer}>
                   <TouchableOpacity
                     onPress={() => toggleServiceSelection(service.id)}>
@@ -87,64 +139,90 @@ const ServiceScreen = ({navigation}) => {
     );
   };
 
-  const toggleServiceSelection = id => {
-    setServices(prevServices =>
+  const toggleServiceSelection = async (id) => {
+    const userId = await AsyncStorage.getItem('token')
+    let selectedServices = []
+    setAllCategories(prevServices =>
       prevServices.map(service =>
-        service.id === id ? {...service, selected: !service.selected} : service,
+        service.id === id ? { ...service, selected: !service.selected } : service,
       ),
     );
+    selectedServices = allCategories
+      .filter((service) => service?.selected)
+      .map((service) => service.id);
+
+    const isAlreadySelected = selectedServices.includes(id);
+
+    if (isAlreadySelected) {
+      selectedServices = await selectedServices.filter((serviceId) => serviceId !== id);
+    } else {
+      selectedServices.push(id);
+    }
+
+    const params = {
+      business_id: userId,
+      category_id: selectedServices
+    }
+    dispatch(AddNewServiceAction(params))
   };
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.container}>
-        <Text style={styles.header}>Services</Text>
-        <FlatList
-          data={service}
-          keyExtractor={item => item.id}
-          renderItem={({item}) => (
-            <View style={styles.serviceItem}>
-              <View style={styles.serviceInfo}>
-                <View
-                  style={{
-                    height: DimensionsConfig.screenHeight * 0.06,
-                    width: DimensionsConfig.screenHeight * 0.06,
-                    backgroundColor: '#F6EFF9',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: (DimensionsConfig.screenHeight * 0.06) / 2,
-                    marginRight: DimensionsConfig.screenHeight * 0.01,
+        {/* <Text style={styles.header}>Services</Text> */}
+        <AppHeader title={'Services'} />
+        <View style={{
+          flex: 1,
+          paddingHorizontal: DimensionsConfig.screenHeight * 0.012,
+          paddingTop: DimensionsConfig.screenHeight * 0.025,
+        }}>
+          <FlatList
+            data={selectedServices}
+            keyExtractor={item => item.id}
+            renderItem={({ item }) => (
+              <View style={styles.serviceItem}>
+                <View style={styles.serviceInfo}>
+                  <View
+                    style={{
+                      height: DimensionsConfig.screenHeight * 0.06,
+                      width: DimensionsConfig.screenHeight * 0.06,
+                      backgroundColor: '#F6EFF9',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: (DimensionsConfig.screenHeight * 0.06) / 2,
+                      marginRight: DimensionsConfig.screenHeight * 0.01,
+                    }}>
+                    <Image
+                      source={{ uri: item?.category_image }}
+                      style={{
+                        height: DimensionsConfig.screenHeight * 0.028,
+                        width: DimensionsConfig.screenHeight * 0.028,
+                        resizeMode: 'contain',
+                      }}
+                    />
+                  </View>
+                  <View>
+                    <Text style={styles.title}>{item.category}</Text>
+                    <Text style={[styles.description]}>{item.total_services} services listed</Text>
+                  </View>
+                </View>
+                <TouchableOpacity
+                  onPress={() => {
+                    navigation.navigate('AddUpdateServiceScreen');
                   }}>
                   <Image
-                    source={item?.icon}
+                    source={Images?.VerticalThreeDot}
                     style={{
-                      height: DimensionsConfig.screenHeight * 0.028,
-                      width: DimensionsConfig.screenHeight * 0.028,
+                      height: DimensionsConfig.screenHeight * 0.018,
+                      width: DimensionsConfig.screenHeight * 0.018,
                       resizeMode: 'contain',
                     }}
                   />
-                </View>
-                <View>
-                  <Text style={styles.title}>{item.title}</Text>
-                  <Text style={styles.description}>{item.description}</Text>
-                </View>
+                  {/* <Icon name="more-vert" size={24} color="#A020F0" />? */}
+                </TouchableOpacity>
               </View>
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.navigate('AddUpdateServiceScreen');
-                }}>
-                <Image
-                  source={Images?.VerticalThreeDot}
-                  style={{
-                    height: DimensionsConfig.screenHeight * 0.018,
-                    width: DimensionsConfig.screenHeight * 0.018,
-                    resizeMode: 'contain',
-                  }}
-                />
-                {/* <Icon name="more-vert" size={24} color="#A020F0" />? */}
-              </TouchableOpacity>
-            </View>
-          )}
-        />
+            )}
+          />
+        </View>
         <TouchableOpacity
           style={styles.fab}
           onPress={() => {
@@ -169,8 +247,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    paddingHorizontal: DimensionsConfig.screenHeight * 0.012,
-    paddingTop: DimensionsConfig.screenHeight * 0.025,
+    // paddingHorizontal: DimensionsConfig.screenHeight * 0.012,
+    // paddingTop: DimensionsConfig.screenHeight * 0.025,
   },
   header: {
     fontSize: 18,
@@ -190,10 +268,10 @@ const styles = StyleSheet.create({
     marginBottom: DimensionsConfig.screenHeight * 0.02,
     // elevation: 1,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     // shadowRadius: 4,
-    borderRadius:15,
+    borderRadius: 15,
   },
   serviceInfo: {
     flexDirection: 'row',
@@ -224,7 +302,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     elevation: 5,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },

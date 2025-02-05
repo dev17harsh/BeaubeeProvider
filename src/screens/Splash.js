@@ -3,22 +3,35 @@ import React, { useEffect } from 'react';
 import { Colors } from '../theme/colors';
 import { Images } from '../assets/images';
 import { DimensionsConfig } from '../theme/dimensions';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Splash = ({ navigation }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Login' }],
-      });
+      checkNavigation()
     }, 3000);
 
     return () => clearTimeout(timer);
   }, [navigation]);
 
+  const checkNavigation = async () => {
+    const userId = await AsyncStorage.getItem('token')
+    if (userId) {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'MainApp' }],
+      });
+    } else {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Login' }],
+      });
+    }
+  }
+
   return (
     <View style={styles.container}>
-         <StatusBar backgroundColor={Colors?.primary} barStyle={'light-content'} />
+      <StatusBar backgroundColor={Colors?.primary} barStyle={'light-content'} />
       <Image source={Images.logoWhite} style={styles.icon} />
     </View>
   );

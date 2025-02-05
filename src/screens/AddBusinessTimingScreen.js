@@ -7,13 +7,16 @@ import {
     ScrollView,
     TouchableOpacity,
     SafeAreaView,
- } from 'react-native'
-import React, { useState } from 'react'
+} from 'react-native'
+import React, { useEffect, useState } from 'react'
 import AppHeader from '../components/AppHeader'
 import { Colors } from '../theme/colors';
 import { Picker } from '@react-native-picker/picker';
 import CustomSwitch from '../components/CustomSwitch';
 import { DimensionsConfig } from '../theme/dimensions';
+import { useDispatch, useSelector } from 'react-redux';
+import { signupUserAction, signupUserRemoveAction } from '../redux/action/SignUpAction';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
 
@@ -34,106 +37,133 @@ const generateTimeOptions = () => {
 
 const timeOptions = generateTimeOptions();
 
-const AddBusinessTimingScreen = ({navigation}) => {
+const AddBusinessTimingScreen = ({ navigation }) => {
+    const dispatch = useDispatch();
+    const signUpData = useSelector((state) => state.signUpData);
     const [schedule, setSchedule] = useState(
         daysOfWeek.map(day => ({
             day,
-            isOpen: day !== 'Saturday' && day !== 'Sunday',
-            openingTime: '12:00 PM',
-            closingTime: '12:30 PM',
+            status: day !== 'Saturday' && day !== 'Sunday',
+            "time_range": {
+                "start": "10:00:00",
+                "end": "12:00:00"
+            },
         }))
     );
 
+
+
+    useEffect(() => {
+        if (signUpData?.response?.message == 'success') {
+            navigation.navigate('AddServicesScreen')
+            dispatch(
+                signupUserRemoveAction({})
+            )
+        }
+    }, [signUpData])
+
+
     const toggleOpen = (index) => {
         const newSchedule = [...schedule];
-        newSchedule[index].isOpen = !newSchedule[index].isOpen;
+        newSchedule[index].status = !newSchedule[index].status;
         setSchedule(newSchedule);
     };
 
     const updateTime = (index, type, value) => {
         const newSchedule = [...schedule];
         if (type === 'openingTime') {
-            newSchedule[index].openingTime = value;
+            newSchedule[index].time_range.start = value;
             // If opening time is set later than closing time, adjust closing time to be at least 30 mins later
-            if (timeOptions.indexOf(value) >= timeOptions.indexOf(newSchedule[index].closingTime)) {
+            if (timeOptions.indexOf(value) >= timeOptions.indexOf(newSchedule[index].time_range.end)) {
                 const newClosingTimeIndex = timeOptions.indexOf(value) + 1;
-                newSchedule[index].closingTime = timeOptions[newClosingTimeIndex] || timeOptions[timeOptions.length - 1];
+                newSchedule[index].time_range.end = timeOptions[newClosingTimeIndex] || timeOptions[timeOptions.length - 1];
             }
         } else {
-            newSchedule[index].closingTime = value;
+            newSchedule[index].time_range.end = value;
         }
         setSchedule(newSchedule);
     };
 
-    const renderTimePicker = (time, onChange, options) => (
+    const onPressSubmit = async () => {
+        const userId = await AsyncStorage.getItem('token')
+        const formData = new FormData();
+        formData.append('business_id', userId);
+        formData.append('timing', schedule);
+        console.log('formData', formData)
+
+        await dispatch(signupUserAction(formData));
+    }
+
+    const renderTimePicker = (time, onChange, options, status) => (
         <View style={styles.pickerContainer}>
-        <Picker
-            selectedValue={time}
-            style={styles.timePicker}
-            onValueChange={onChange}
-            mode="dropdown"
-        >
-            {options.map((timeOption) => (
-                <Picker.Item label={timeOption} value={timeOption} key={timeOption} />
-            ))}
-        </Picker>
-    </View>
+            <Picker
+                selectedValue={time}
+                style={[styles.timePicker, !status && { color: Colors.OrGray }]}
+                onValueChange={onChange}
+                mode="dropdown"
+                enabled={status}
+            >
+                {options.map((timeOption) => (
+                    <Picker.Item label={timeOption} value={timeOption} key={timeOption} />
+                ))}
+            </Picker>
+        </View>
     );
 
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.container}>
-            {/* Header */}
-            <AppHeader
-                title={"Timings"}
-            />
-            <ScrollView contentContainerStyle={{ paddingBottom: (mobileW * 18) / 100 }}>
-                <View style={styles.subContainer}>
-                    {schedule.map((item, index) => {
-                        // Filter closing time options based on selected opening time
-                        const validClosingOptions = timeOptions.slice(timeOptions.indexOf(item.openingTime) + 1);
+                {/* Header */}
+                <AppHeader
+                    title={"Timings"}
+                />
+                <ScrollView contentContainerStyle={{ paddingBottom: (mobileW * 18) / 100 }}>
+                    <View style={styles.subContainer}>
+                        {schedule.map((item, index) => {
+                            // Filter closing time options based on selected opening time
+                            const validClosingOptions = timeOptions.slice(timeOptions.indexOf(item.openingTime) + 1);
 
-                        return (
-                            <View key={item.day} style={styles.dayContainer}>
-                                <View style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    marginBottom: 10
-                                }}>
-                                <Text style={styles.dayText}>{item.day}</Text>
-                                <Text style={styles.openText}>{item.isOpen ? "Open" : "Closed"}</Text>
-                                {/* <Switch
+                            return (
+                                <View key={item.day} style={styles.dayContainer}>
+                                    <View style={{
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        marginBottom: 10
+                                    }}>
+                                        <Text style={styles.dayText}>{item.day}</Text>
+                                        <Text style={styles.openText}>{item.status ? "Open" : "Closed"}</Text>
+                                        {/* <Switch
                                     value={item.isOpen}
                                     onValueChange={() => toggleOpen(index)}
                                     thumbColor={item.isOpen ? "#6A0DAD" : "#f4f3f4"}
                                     trackColor={{ false: "#767577", true: "#D8BFD8" }}
                                 /> */}
-                                <CustomSwitch 
-                                isEnabled={item?.isOpen}
-                                toggleSwitch={() => toggleOpen(index)}
-                                />
-                                </View>
-                                <View style={styles.timeContainer}>
-                                    {/* {item.isOpen ? (
+                                        <CustomSwitch
+                                            isEnabled={item?.status}
+                                            toggleSwitch={() => toggleOpen(index)}
+                                        />
+                                    </View>
+                                    <View style={styles.timeContainer}>
+                                        {/* {item.isOpen ? (
                                         <> */}
-                                            {renderTimePicker(item.openingTime, (value) => updateTime(index, 'openingTime', value), timeOptions)}
-                                            <Text style={styles.toText}>To</Text>
-                                            {renderTimePicker(item.closingTime, (value) => updateTime(index, 'closingTime', value), validClosingOptions)}
+                                        {renderTimePicker(item.time_range.start, (value) => updateTime(index, 'openingTime', value), timeOptions, item?.status)}
+                                        <Text style={styles.toText}>To</Text>
+                                        {renderTimePicker(item.time_range.start, (value) => updateTime(index, 'closingTime', value), validClosingOptions, item?.status)}
                                         {/* </>
                                     ) : (
                                         <Text style={styles.closedText}>Closed</Text>
                                     )} */}
+                                    </View>
                                 </View>
-                            </View>
-                        );
-                    })}
-                </View>
-            </ScrollView>
-            <TouchableOpacity
-                onPress={() => navigation.navigate('AddServicesScreen')}
-                style={styles.selectLocationButton}>
-                <Text style={styles.selectionButtonTxt}>Save Location</Text>
-            </TouchableOpacity>
+                            );
+                        })}
+                    </View>
+                </ScrollView>
+                <TouchableOpacity
+                    onPress={() => onPressSubmit()}
+                    style={styles.selectLocationButton}>
+                    <Text style={styles.selectionButtonTxt}>Save Location</Text>
+                </TouchableOpacity>
             </View>
         </SafeAreaView>
     )
@@ -199,9 +229,9 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#EEE6F1',
         marginHorizontal: 5,
-        height:mobileW * 0.13,
-        alignItems:'center',
-        justifyContent:'center'
+        height: mobileW * 0.13,
+        alignItems: 'center',
+        justifyContent: 'center'
     },
     timePicker: {
         width: '100%',
