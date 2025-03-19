@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Modal,
   View,
@@ -10,16 +10,44 @@ import {
   Image,
   SafeAreaView,
 } from 'react-native';
-import {DimensionsConfig} from '../theme/dimensions';
-import {Images} from '../assets/images';
-import {Colors} from '../theme/colors';
+import { DimensionsConfig } from '../theme/dimensions';
+import { Images } from '../assets/images';
+import { Colors } from '../theme/colors';
 import AppHeader from '../components/AppHeader';
+import { useDispatch, useSelector } from 'react-redux';
+import { GetStaffAction } from '../redux/action/GetStaffAction';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useIsFocused } from '@react-navigation/native';
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
 
-const StaffProfile = ({navigation}) => {
+const StaffProfile = ({ navigation }) => {
+  const isFocused = useIsFocused()
+  const dispatch = useDispatch();
+  const getStaffData = useSelector((state) => state.getStaffData);
   const [selectedOption, setSelectedOption] = useState('highToLow');
   const [selectedId, setSelectedId] = useState(null);
+  const [staffData, setStaffData] = useState([])
+
+
+  useEffect(() => {
+    if (getStaffData?.response?.message == 'success') {
+      // console.log(getStaffData.response)
+      setStaffData(getStaffData?.response?.result)
+    }
+  }, [getStaffData])
+
+  useEffect(() => {
+    getData()
+  }, [isFocused])
+
+
+  const getData = async () => {
+    const userId = await AsyncStorage.getItem('token')
+    dispatch(GetStaffAction({
+      business_id: userId
+    }))
+  }
 
   const data = [
     {
@@ -90,14 +118,14 @@ const StaffProfile = ({navigation}) => {
     }
   };
 
-  const renderItem = ({item}) => {
+  const renderItem = ({ item }) => {
     const isSelected = item.id === selectedId;
     return (
       <TouchableOpacity
         activeOpacity={0.8}
         style={styles.itemContainer}
         onPress={() => navigation.navigate('StaffDetails')}>
-        <Image source={item.image} style={styles.profileImage} />
+        <Image source={{ uri: item.profile }} style={styles.profileImage} />
         <View style={styles.textContainer}>
           <Text style={styles.nameText}>{item.name}</Text>
           <View
@@ -108,10 +136,10 @@ const StaffProfile = ({navigation}) => {
             }}>
             <Image source={Images?.starIcon} style={styles?.backIcon} />
             <Text style={styles?.ratingText}>
-              {item?.rating + '.0 '}
-              <Text style={[styles.ratingText, styles.reviewTxt]}>
+              {item?.average_rating}
+              {/* <Text style={[styles.ratingText, styles.reviewTxt]}>
                 ({item?.reviews + ' Ratings'})
-              </Text>
+              </Text> */}
             </Text>
           </View>
         </View>
@@ -122,25 +150,25 @@ const StaffProfile = ({navigation}) => {
 
   return (
     <SafeAreaView style={styles.modalOverlay}>
-    <View style={styles.modalOverlay}>
-      <AppHeader title={'Staff Profiles'} />
-      <FlatList
-        data={data}
-        showsVerticalScrollIndicator={false}
-        keyExtractor={item => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={styles.listContent}
-      />
+      <View style={styles.modalOverlay}>
+        <AppHeader title={'Staff Profiles'} />
+        <FlatList
+          data={staffData}
+          showsVerticalScrollIndicator={false}
+          keyExtractor={item => item.staff_id}
+          renderItem={renderItem}
+          contentContainerStyle={styles.listContent}
+        />
         <TouchableOpacity style={styles.fab} onPress={() => {
-                navigation.navigate('AddProfesssional')
-            }}>
-                <Image source={Images?.PlusWhite} style={{
-                    height: DimensionsConfig.screenHeight * 0.028,
-                    width: DimensionsConfig.screenHeight * 0.028,
-                    resizeMode: 'contain'
-                }} />
-            </TouchableOpacity>
-    </View>
+          navigation.navigate('AddProfesssional')
+        }}>
+          <Image source={Images?.PlusWhite} style={{
+            height: DimensionsConfig.screenHeight * 0.028,
+            width: DimensionsConfig.screenHeight * 0.028,
+            resizeMode: 'contain'
+          }} />
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
@@ -201,7 +229,7 @@ const styles = StyleSheet.create({
   reviewsText: {
     fontSize: 13,
     color: '#554F67',
-    fontWeight:'400'
+    fontWeight: '400'
   },
   plusIcon: {
     width: (mobileW * 4) / 100,
@@ -240,5 +268,5 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
-},
+  },
 });

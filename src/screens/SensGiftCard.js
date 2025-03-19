@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,18 +10,24 @@ import {
   ScrollView,
 } from 'react-native';
 import AppHeader from '../components/AppHeader';
-import {mobileH, mobileW} from '../components/utils';
-import {Images} from '../assets/images';
-import {Colors} from '../theme/colors';
-import {TextInput as TextInputPaper} from 'react-native-paper';
+import { mobileH, mobileW } from '../components/utils';
+import { Images } from '../assets/images';
+import { Colors } from '../theme/colors';
+import { TextInput as TextInputPaper } from 'react-native-paper';
 import CommonButton from '../components/CommonButton';
 import SelectGiftCardModal from '../components/Modal.js/SelectGiftCardModal';
+import { useDispatch, useSelector } from 'react-redux';
+import { useIsFocused } from '@react-navigation/native';
+import { GetGiftCardBackgroundAction } from '../redux/action/GetGiftCardBackgroundAction';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SendGiftAction, SendGiftRemoveAction } from '../redux/action/SendGiftAction';
+import ToastMessage from '../components/ToastMessage';
 
 const data = [
-  {image: Images.backImage1},
-  {image: Images.backImage2},
-  {image: Images.backImage1},
-  {image: Images.backImage2},
+  { image: Images.backImage1 },
+  { image: Images.backImage2 },
+  { image: Images.backImage1 },
+  { image: Images.backImage2 },
 ];
 
 const paymentMethods = [
@@ -52,24 +58,76 @@ const paymentMethods = [
   },
 ];
 
-const SensGiftCard = ({navigation}) => {
+const SensGiftCard = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const isFocused = useIsFocused()
+  const getGiftCardBackgroundData = useSelector((state) => state.getGiftCardBackgroundData);
+  const sendGiftsData = useSelector((state) => state.sendGiftsData);
+  const [giftCardBackgroundData, setGiftCardBackgroundData] = useState([]);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
-  const [isModalProfessionalVisible, setModalProfessionalVisible] =
-    useState(false);
+  const [isModalProfessionalVisible, setModalProfessionalVisible] = useState(false);
+  const [amount, setAmount] = useState('');
+  const [title, setTitle] = useState('');
+  const [Note, setNote] = useState('');
+
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastData, setToastData] = useState({
+    message: '',
+    color: ''
+  });
+
+  useEffect(() => {
+    // console.log('getGiftCardBackgroundData?.response?.result' , getGiftCardBackgroundData?.response?.result)
+    if (getGiftCardBackgroundData?.response?.result) {
+      setGiftCardBackgroundData(getGiftCardBackgroundData?.response?.result)
+    }
+  }, [getGiftCardBackgroundData])
+
+  useEffect(() => {
+    if (sendGiftsData?.response?.message == 'success') {
+      navigation.goBack()
+      dispatch(
+        SendGiftRemoveAction({})
+      )
+    }
+  }, [sendGiftsData])
+
+
+  useEffect(() => {
+    dispatch(GetGiftCardBackgroundAction())
+  }, [isFocused])
+
+
   const handleOpenModal = () => setModalProfessionalVisible(true);
   const handleCloseModal = () => setModalProfessionalVisible(false);
+  const showToast = () => {
+    setToastVisible(true);
+  };
 
-  const renderItem = ({item}) => (
-    <View style={styles.itemContainer}>
+
+  const handleAmountChange = (text) => {
+    // Remove any non-numeric characters except for the decimal point
+    let numericValue = text.replace(/[^0-9.]/g, '');
+
+    // Update the state with the formatted value
+    setAmount(numericValue ? `$${numericValue}` : '');
+  };
+
+  const renderItem = ({ item }) => (
+    <TouchableOpacity style={styles.itemContainer} onPress={() => {
+      setSelectedImage(item?.id)
+    }}>
       <Image
         resizeMode="contain"
-        source={item?.image}
-        style={styles.cardIcons}
+        source={{ uri: item?.image }}
+        style={[styles.cardIcons, selectedImage == item.id && { borderColor: Colors.primary }]}
       />
-    </View>
+    </TouchableOpacity>
   );
 
-  const renderPaymentMethod = ({item}) => {
+  const renderPaymentMethod = ({ item }) => {
     const isSelected = item.id === selectedId;
     return (
       <TouchableOpacity
@@ -99,14 +157,69 @@ const SensGiftCard = ({navigation}) => {
     );
   };
 
+  const onPressPost = async () => {
+    const userId = await AsyncStorage.getItem('token')
+    // console.log('selectedCustomer?.user_id', selectedCustomer?.user_id, selectedImage)
+    if (selectedImage == null) {
+      showToast()
+      setToastData({
+        message: 'Please Select Card Image',
+        color: Colors?.red
+      })
+    } else if (!selectedCustomer?.user_id) {
+      showToast()
+      setToastData({
+        message: 'Please Select Customer',
+        color: Colors?.red
+      })
+    } else if (title == '') {
+      showToast()
+      setToastData({
+        message: 'Please Entered Title',
+        color: Colors?.red
+      })
+    } else if (amount == '') {
+      showToast()
+      setToastData({
+        message: 'Please Entered Amount',
+        color: Colors?.red
+      })
+    } else if (Note == '') {
+      showToast()
+      setToastData({
+        message: 'Please Entered Note',
+        color: Colors?.red
+      })
+    } else {
+      const formData = new FormData();
+      formData.append('business_id', userId);
+      formData.append('customer_id', selectedCustomer?.user_id ? selectedCustomer?.user_id : '');
+      formData.append('card_background_id', selectedImage);
+      formData.append('title', title);
+      formData.append('message', Note);
+      formData.append('amount', amount);
+      dispatch(SendGiftAction(formData))
+    }
+  }
+
   return (
     <SafeAreaView style={styles.container}>
+      <ToastMessage
+        visible={toastVisible}
+        message={toastData.message}
+        onClose={() => setToastVisible(false)}
+        toastStyle={{
+          backgroundColor: toastData.color
+        }}
+      />
       {/* Header */}
       <AppHeader title={'Send Gift Card'} />
       <SelectGiftCardModal
         visible={isModalProfessionalVisible}
         onClose={handleCloseModal}
-        // onSelect={e => storeDataToState(e)}
+        onSelect={e => {
+          setSelectedCustomer(e)
+        }}
       />
       {/* Content */}
       <ScrollView
@@ -118,23 +231,44 @@ const SensGiftCard = ({navigation}) => {
         <Text style={styles.selectTitle}>Customer Background</Text>
         <FlatList
           horizontal
-          data={data}
+          data={giftCardBackgroundData}
           keyExtractor={item => item.id}
           renderItem={renderItem}
-          contentContainerStyle={{paddingVertical: (mobileW * 4) / 100}}
+          contentContainerStyle={{ paddingVertical: (mobileW * 4) / 100 }}
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
         />
         <Text style={styles.selectTitle}>Details</Text>
-
-        <TouchableOpacity
-          onPress={() => handleOpenModal()}
-          activeOpacity={0.8}
-          style={styles.containerSelctCustomer}>
-          <Image source={Images?.businessprofile} style={styles.icon} />
-          <Text style={styles.itemLabel}>Select Customer</Text>
-          <Image source={Images?.forwardIcon} style={styles.forwardDicicon} />
-        </TouchableOpacity>
+        {selectedCustomer == null ? (
+          <TouchableOpacity
+            onPress={() => handleOpenModal()}
+            activeOpacity={0.8}
+            style={styles.containerSelctCustomer}>
+            <Image source={Images?.businessprofile} style={styles.icon} />
+            <Text style={styles.itemLabel}>Select Customer</Text>
+            <Image source={Images?.forwardIcon} style={styles.forwardDicicon} />
+          </TouchableOpacity>
+        ) : (
+          <View
+            style={[styles.containerSelctCustomer]}>
+            <Image
+              source={{ uri: selectedCustomer.user_image }}
+              resizeMode='cover'
+              style={[styles.icon, { borderRadius: (mobileW * 5.5) / 100, }]}
+            />
+            <View style={{ width: '75%', marginLeft: 10 }}>
+              <Text style={[styles.itemLabel, { marginLeft: 0 }]}>{selectedCustomer?.customer_name}</Text>
+              <Text style={{
+                color: '#9E98AC',
+                fontSize: 12,
+                fontWeight: '400'
+              }}>{selectedCustomer.email}</Text>
+            </View>
+            <TouchableOpacity onPress={() => handleOpenModal()}>
+              <Image source={Images?.EditPen} style={styles.forwardIcon} />
+            </TouchableOpacity>
+          </View>
+        )}
         <View
           style={{
             alignItems: 'center',
@@ -146,7 +280,9 @@ const SensGiftCard = ({navigation}) => {
             outlineColor={Colors?.OrGray}
             activeOutlineColor={Colors?.gray}
             label="Amount"
-            // onChangeText={text => setText(text)}
+            value={amount}
+            onChangeText={handleAmountChange}
+            keyboardType="numeric" // Ensures only numeric input
             mode="outlined"
             placeholder="Enter Amount"
           />
@@ -155,7 +291,8 @@ const SensGiftCard = ({navigation}) => {
             outlineColor={Colors?.OrGray}
             activeOutlineColor={Colors?.gray}
             label="Title"
-            // onChangeText={text => setText(text)}
+            value={title}
+            onChangeText={text => setTitle(text)}
             mode="outlined"
             placeholder="Enter Title"
           />
@@ -165,7 +302,8 @@ const SensGiftCard = ({navigation}) => {
             activeOutlineColor={Colors?.gray}
             label="Note"
             multiline
-            // onChangeText={text => setText(text)}
+            value={Note}
+            onChangeText={text => setNote(text)}
             mode="outlined"
             placeholder="Enter Note"
           />
@@ -197,7 +335,7 @@ const SensGiftCard = ({navigation}) => {
               width: (mobileW * 90) / 100,
               marginTop: (mobileW * 3) / 100,
             }}>
-            <CommonButton onPress={()=>navigation.navigate('Profile')} title={'Post'} />
+            <CommonButton onPress={() => { onPressPost() }} title={'Post'} />
           </View>
         </View>
       </ScrollView>
@@ -220,12 +358,12 @@ const styles = StyleSheet.create({
     height: (mobileW * 29) / 100,
     borderRadius: (mobileW * 4) / 100,
     resizeMode: 'cover',
-    backgroundColor: 'red',
+    // backgroundColor: 'red',
     borderWidth: (mobileW * 1.5) / 100,
     borderColor: Colors.white,
     elevation: 3,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },
@@ -249,7 +387,7 @@ const styles = StyleSheet.create({
     borderRadius: (mobileW * 3) / 100,
     elevation: 1,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
     marginTop: (mobileW * 2) / 100,
@@ -308,7 +446,7 @@ const styles = StyleSheet.create({
   methodText: {
     marginLeft: 10,
     fontSize: 14,
-    fontWeight:'600',
+    fontWeight: '600',
     color: '#000',
   },
   cardIconsPayment: {

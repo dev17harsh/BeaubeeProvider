@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Modal,
   View,
@@ -10,16 +10,51 @@ import {
   Image,
   SafeAreaView,
 } from 'react-native';
-import {DimensionsConfig} from '../theme/dimensions';
-import {Images} from '../assets/images';
-import {Colors} from '../theme/colors';
+import { DimensionsConfig } from '../theme/dimensions';
+import { Images } from '../assets/images';
+import { Colors } from '../theme/colors';
 import AppHeader from '../components/AppHeader';
+import { useDispatch, useSelector } from 'react-redux';
+import { useIsFocused } from '@react-navigation/native';
+import { GetCustomerDetailsAction } from '../redux/action/GetCustomerDetailsAction';
+import { UpdateCustomerStatusAction, UpdateCustomerStatusRemoveAction } from '../redux/action/UpdateCustomerStatusAction';
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
 
-const BlockClients = ({visible, onClose, onSelect}) => {
+const BlockClients = ({ visible, onClose, onSelect }) => {
+  const dispatch = useDispatch();
+  const isFocused = useIsFocused()
+  const getCustomerDetailsData = useSelector((state) => state.getCustomerDetailsData);
+  const updateCustomerStatusData = useSelector((state) => state.updateCustomerStatusData);
+  const [customerData, setCustomerData] = useState([]);
   const [selectedOption, setSelectedOption] = useState('highToLow');
   const [selectedId, setSelectedId] = useState(null);
+  const [selectedTab, setSelectedTab] = useState('Blocked');
+
+
+  useEffect(() => {
+    // console.log('getCustomerDetailsData?.response?.result' , getCustomerDetailsData?.response?.result)
+    if (getCustomerDetailsData?.response?.result) {
+      setCustomerData(getCustomerDetailsData?.response?.result)
+    }
+  }, [getCustomerDetailsData])
+
+
+   useEffect(() => {
+      if (updateCustomerStatusData?.response?.message == 'success') {
+        dispatch(GetCustomerDetailsAction(selectedTab))
+
+        dispatch(
+          UpdateCustomerStatusRemoveAction({})
+        )
+      }
+    }, [updateCustomerStatusData])
+
+  useEffect(() => {
+    if (isFocused) {
+      dispatch(GetCustomerDetailsAction('Blocked'))
+    }
+  }, [isFocused])
 
   const data = [
     {
@@ -115,7 +150,7 @@ const BlockClients = ({visible, onClose, onSelect}) => {
     }
   };
 
-  const renderItem = ({item}) => {
+  const renderItem = ({ item }) => {
     return (
       <TouchableOpacity
         activeOpacity={0.8}
@@ -127,32 +162,37 @@ const BlockClients = ({visible, onClose, onSelect}) => {
           },
         ]}
         onPress={() => handleItemPress(item)}>
-        <Image source={item.image} style={styles.profileImage} />
+        <Image source={{ uri: item?.user_image }} style={styles.profileImage} />
         <View style={styles.textContainer}>
-          <Text style={styles.nameText}>{item.name}</Text>
+          <Text style={styles.nameText}>{item.customer_name}</Text>
           <Text style={styles.emailText}>{item.email}</Text>
         </View>
-        <View
+        <TouchableOpacity
           style={{
             paddingHorizontal: (mobileW * 4) / 100,
             paddingVertical: (mobileW * 2.5) / 100,
             backgroundColor: Colors.white,
             backgroundColor: item.isBlock ? Colors.white : '#FCE9E9',
             borderRadius: (mobileW * 3) / 100,
-          }}>
+          }}
+          onPress={() => {
+            dispatch(UpdateCustomerStatusAction({ user_id: item?.user_id, status: item.customer_status == 'Unblock' ? 'Block' : 'Unblock' }))
+          }}
+        >
           <Text
             style={[
               styles.nameText,
-              {color: item.isBlock ? Colors.primary : Colors.red},
-            ]}>
-            {item.isBlock ? 'Unblock' : 'Block'}
+              { color: item.customer_status != 'Unblock' ? Colors.primary : Colors.red },
+            ]}
+          >
+            {item.customer_status != 'Unblock' ? 'Unblock' : 'Block'}
           </Text>
-        </View>
+        </TouchableOpacity>
       </TouchableOpacity>
     );
   };
 
-  const [selectedTab, setSelectedTab] = useState('Blocked');
+
 
   // Filter the data based on selected tab
   const filteredData =
@@ -164,6 +204,7 @@ const BlockClients = ({visible, onClose, onSelect}) => {
         <TouchableOpacity
           onPress={() => {
             setSelectedTab('Blocked');
+            dispatch(GetCustomerDetailsAction('Blocked'))
           }}
           style={[styles.tab, selectedTab === 'Blocked' && styles.activeTab]}>
           <Text
@@ -177,6 +218,7 @@ const BlockClients = ({visible, onClose, onSelect}) => {
         <TouchableOpacity
           onPress={() => {
             setSelectedTab('All');
+            dispatch(GetCustomerDetailsAction('All'))
           }}
           style={[styles.tab, selectedTab === 'All' && styles.activeTab]}>
           <Text
@@ -192,10 +234,10 @@ const BlockClients = ({visible, onClose, onSelect}) => {
   };
 
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: Colors.white}}>
-      <View style={{flex: 1, backgroundColor: Colors.white}}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.white }}>
+      <View style={{ flex: 1, backgroundColor: Colors.white }}>
         <AppHeader title={'Block Clients'} />
-        <View style={{paddingHorizontal: (mobileW * 3) / 100}}>
+        <View style={{ paddingHorizontal: (mobileW * 3) / 100 }}>
           {tabsView()}
         </View>
         <TouchableOpacity
@@ -210,11 +252,11 @@ const BlockClients = ({visible, onClose, onSelect}) => {
             <Text style={styles.searchPlaceholder}>Search Client</Text>
           </View>
         </TouchableOpacity>
-        <View style={{marginBottom: (mobileW * 36) / 100}}>
+        <View style={{ marginBottom: (mobileW * 36) / 100 }}>
           <FlatList
-            data={filteredData}
+            data={customerData}
             showsVerticalScrollIndicator={false}
-            keyExtractor={item => item.id}
+            keyExtractor={item => item.user_id}
             renderItem={renderItem}
             style={styles.listContent}
           />
@@ -353,7 +395,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: (mobileW * 4) / 100,
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },

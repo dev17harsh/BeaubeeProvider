@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -13,14 +13,26 @@ import {Images} from '../assets/images';
 import AppHeader from '../components/AppHeader';
 import {Colors} from '../theme/colors';
 import {DimensionsConfig} from '../theme/dimensions';
+import { useDispatch, useSelector } from 'react-redux';
+import { GetUserDetailAction } from '../redux/action/GetUserDetailAction';
 
 const AddTimingLocation = ({navigation}) => {
-  const [locations, setLocations] = useState([
-    {id: 1, title: 'Location 1', description: 'Some address line goes here'},
-    {id: 2, title: 'Location 2', description: 'Some address line goes here'},
-    {id: 3, title: 'Location 3', description: 'Some address line goes here'},
-  ]);
+  const dispatch = useDispatch();
+    const UserDetailData = useSelector((state) => state.getUserDetailData);
+  const [locations, setLocations] = useState([]);
 
+
+
+   useEffect(() => {
+      dispatch(GetUserDetailAction())
+    }, [])
+  
+    useEffect(() => {
+      console.log('UserDetailData?.respons', UserDetailData?.response?.result?.business_locations)
+      if (UserDetailData?.response?.result) {
+        setLocations(UserDetailData?.response?.result?.business_locations)
+      }
+    }, [UserDetailData])
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.container}>
@@ -30,7 +42,7 @@ const AddTimingLocation = ({navigation}) => {
           {/* FlatList for displaying locations */}
           <FlatList
             data={locations}
-            keyExtractor={item => item.id.toString()}
+            keyExtractor={item => item?.business_location_id?.toString()}
             renderItem={({item}) => (
               <View style={styles.serviceItem}>
                 <View style={styles.serviceInfo}>
@@ -38,8 +50,8 @@ const AddTimingLocation = ({navigation}) => {
                     <Image source={Images?.locationIcon} style={styles.icon} />
                   </View>
                   <View>
-                    <Text style={styles.title}>{item.title}</Text>
-                    <Text style={styles.description}>{item.description}</Text>
+                    <Text style={styles.title}>{item.address}</Text>
+                    <Text style={styles.description}>{item.area}</Text>
                   </View>
                 </View>
                 <TouchableOpacity>
@@ -55,7 +67,7 @@ const AddTimingLocation = ({navigation}) => {
           <TouchableOpacity
             style={styles.addNewAddress}
             onPress={() => {
-              navigation.navigate('AddressMapScreen');
+              navigation.navigate('AddressMapScreen' , { type: 'profile' });
             }}>
             <Image source={Images?.Add} style={styles.addIcon} />
             <Text style={styles.addNewAddressText}>Add new address</Text>

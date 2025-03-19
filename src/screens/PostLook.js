@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 import {
   Alert,
   Image,
@@ -12,12 +12,15 @@ import {
 import AppHeader from '../components/AppHeader';
 import ListProfessionalModal from '../components/ListProfessionalModal';
 import ServiceSelector from '../components/Modal.js/ServiceSelector';
-import {mobileH, mobileW} from '../components/utils';
-import {Images} from '../assets/images';
+import { mobileH, mobileW } from '../components/utils';
+import { Images } from '../assets/images';
 import CommonButton from '../components/CommonButton';
-import {Colors} from '../theme/colors';
-import {launchImageLibrary} from 'react-native-image-picker';
+import { Colors } from '../theme/colors';
+import { launchImageLibrary } from 'react-native-image-picker';
 import Storage from '../components/Storage';
+import { useDispatch, useSelector } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CreatePostAction, CreatePostRemoveAction } from '../redux/action/CreatePostAction';
 
 const tabs = ['Hair', 'Makeup', 'Skincare', 'Nails'];
 const services = [
@@ -103,7 +106,9 @@ const services = [
   },
 ];
 
-const PostLook = ({navigation}) => {
+const PostLook = ({ navigation }) => {
+  const dispatch = useDispatch();
+    const createPostData = useSelector((state) => state.createPostData);
   const [selectedImageUri, setSelectedImageUri] = useState(null);
   const [isModalProfessionalVisible, setModalProfessionalVisible] =
     useState(false);
@@ -113,12 +118,16 @@ const PostLook = ({navigation}) => {
 
   const [isServiceSelectorVisible, setServiceSelectorVisible] = useState(false);
   const [chosenService, setChosenService] = useState(null);
+  const [chosenCategories, setChosenCatgories] = useState(null);
+   const [selectedImageRes, setSelectedResImage] = useState({});
 
-  // Callback to handle selected service data from ServiceSelector
-  const handleServiceSelection = service => {
-    setChosenService(service);
-    console.log('Chosen Service:', service);
-  };
+
+  useEffect(() => {
+      if (createPostData?.response?.message == 'success') {
+        navigation.goBack()
+        dispatch(CreatePostRemoveAction())
+      }
+    }, [createPostData]);
 
   const handleSelectImage = async () => {
     try {
@@ -130,18 +139,19 @@ const PostLook = ({navigation}) => {
 
   const storeDataToState = data => {
     setProfessionalData(data);
-    console.log('datadatadata', data);
+    // console.log('datadatadata', data);
   };
 
-  const handleServiceSelect = service => {
-    console.log('service:', service);
+  const handleServiceSelect = (data) => {
+    // console.log('service:', data);
 
-    setChosenService(service);
+    setChosenService(data?.service);
+    setChosenCatgories(data?.selectServiceDetail)
   };
 
   const openImagePicker = () => {
     const options = {
-      mediaType: 'photo', // 'photo', 'video', or 'mixed' to show both
+      mediaType: 'mixed', // 'photo', 'video', or 'mixed' to show both
       quality: 1,
       selectionLimit: 1, // Allows selecting one item at a time
     };
@@ -155,40 +165,45 @@ const PostLook = ({navigation}) => {
         const asset = response.assets[0];
         console.log('asset', asset);
         setSelectedImageUri(asset?.uri);
+        setSelectedResImage(response.assets)
       }
     });
   };
 
-  useEffect(() => {
-    data();
-  }, []);
+ 
 
-  const data = async () => {
-    let servicesArray = await Storage.get('post_data');
-    console.log('servicesArrayservicesArray', servicesArray);
-  };
-
-  const addNewService = async (newImage, isVideo = false) => {
-    if (newImage === null) {
-      Alert.alert('Image not found', 'Please select an image.');
-      return;
+  const createFileFromPickerData = (imagePickerResponse) => {
+    if (imagePickerResponse && imagePickerResponse.length > 0) {
+      const fileData = imagePickerResponse[0]; // Assuming single file selection
+      const { uri, fileName, type } = fileData;
+  
+      // Check if it's an image or a video
+      const isVideo = type && type.startsWith('video/');
+  
+      // Creating a file object for FormData
+      const file = {
+        uri: Platform.OS === 'android' ? uri : uri.replace('file://', ''), // Remove 'file://' on iOS
+        name: fileName || (isVideo ? 'video.mp4' : 'image.jpg'), // Default names
+        type: type || (isVideo ? 'video/mp4' : 'image/jpeg'), // Default MIME types
+      };
+  
+      return file;
     }
-    let servicesArray = await Storage.get('post_data');
-    if (!servicesArray || !Array.isArray(servicesArray)) {
-      servicesArray = [];
-    }
-    const lastId =
-      servicesArray.length > 0 ? servicesArray[servicesArray.length - 1].id : 0;
-    const newService = {
-      id: lastId + 1,
-      image: newImage,
-      isVideo: isVideo,
-      isLocal: true,
-    };
-    servicesArray.unshift(newService);
-    await Storage.set('post_data', servicesArray);
-    navigation.goBack();
+    return null;
   };
+  
+console.log("selectedImageRes ======>" , selectedImageRes)
+  const addNewPost = async () =>{
+    const userId = await AsyncStorage.getItem('token')
+    const formData = new FormData();
+    const imageFile = await createFileFromPickerData(selectedImageRes)
+    formData.append('business_id', userId);
+    formData.append('staff_id', ProfessionalData?.staff_id);
+    formData.append('category_id', chosenCategories?.category_id);
+    formData.append('service_id', chosenService?.service_id);
+    formData.append('files', imageFile);
+    dispatch(CreatePostAction(formData))
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -207,7 +222,7 @@ const PostLook = ({navigation}) => {
           services={services}
         />
         {/* Upload Section */}
-        <View style={{paddingHorizontal: (mobileW * 5) / 100}}>
+        <View style={{ paddingHorizontal: (mobileW * 5) / 100 }}>
           {selectedImageUri == null ? (
             <View style={styles.uploadContainer}>
               <TouchableOpacity
@@ -221,7 +236,7 @@ const PostLook = ({navigation}) => {
             </View>
           ) : (
             <Image
-              source={{uri: selectedImageUri}}
+              source={{ uri: selectedImageUri }}
               style={styles?.uploadContainer}
             />
           )}
@@ -243,12 +258,12 @@ const PostLook = ({navigation}) => {
           ) : (
             <View activeOpacity={0.8} style={styles.itemContainer}>
               <Image
-                source={ProfessionalData?.image}
+                source={{ uri: ProfessionalData.profile }}
                 resizeMode="contain"
                 style={styles.personImage}
               />
               <View style={styles.txtView}>
-                <Text style={[styles.itemLabel, {left: 9}]}>
+                <Text style={[styles.itemLabel, { left: 9 }]}>
                   {ProfessionalData.name}
                 </Text>
                 <Text style={styles.emailLabel}>{ProfessionalData.email}</Text>
@@ -289,14 +304,14 @@ const PostLook = ({navigation}) => {
                   borderColor: Colors.borderColor,
                 }}>
                 <Image
-                  source={chosenService?.image}
+                  source={{uri : chosenCategories?.category_image}}
                   resizeMode="contain"
                   style={styles.serviceImage}
                 />
               </View>
               <View style={styles.txtView}>
-                <Text style={styles.catName}>{chosenService.category}</Text>
-                <Text style={styles.titleService}>{chosenService.title}</Text>
+                <Text style={styles.catName}>{chosenCategories.category}</Text>
+                <Text style={styles.titleService}>{chosenService.service}</Text>
                 <Text style={styles.duration}>
                   {'Duration: ' + chosenService.duration}
                 </Text>
@@ -307,15 +322,15 @@ const PostLook = ({navigation}) => {
               </TouchableOpacity>
             </View>
           )}
-          <View style={{height: 20}} />
+          <View style={{ height: 20 }} />
           {/* Post Button */}
           <CommonButton
             onPress={() => {
-              addNewService(selectedImageUri, false);
+              addNewPost()
             }}
             title={'Post'}
           />
-          <View style={{height: 50}} />
+          <View style={{ height: 50 }} />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -361,7 +376,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 10,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 1},
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 1,
   },

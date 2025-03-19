@@ -45,8 +45,8 @@ const AddBusinessTimingScreen = ({ navigation }) => {
             day,
             status: day !== 'Saturday' && day !== 'Sunday',
             "time_range": {
-                "start": "10:00:00",
-                "end": "12:00:00"
+                "start": "12:00 am",
+                "end": "12:00 am"
             },
         }))
     );
@@ -84,11 +84,25 @@ const AddBusinessTimingScreen = ({ navigation }) => {
         setSchedule(newSchedule);
     };
 
+    const transformSchedule = (schedule) => {
+        return {
+            day: schedule.map(item => item.day),
+            status: schedule.map(item => item.status),
+            start: schedule.map(item => item.time_range.start),
+            end: schedule.map(item => item.time_range.end)
+        };
+    }
+
     const onPressSubmit = async () => {
+        // console.log('schedule ===>' , schedule)
         const userId = await AsyncStorage.getItem('token')
+        const values = transformSchedule(schedule)
         const formData = new FormData();
         formData.append('business_id', userId);
-        formData.append('timing', schedule);
+        formData.append('day_of_week', values.day);
+        formData.append('start_time', values.start);
+        formData.append('end_time', values.end);
+        formData.append('business_status', values.status);
         console.log('formData', formData)
 
         await dispatch(signupUserAction(formData));

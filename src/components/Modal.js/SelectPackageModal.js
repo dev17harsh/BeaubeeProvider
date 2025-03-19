@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Modal,
   View,
@@ -9,74 +9,94 @@ import {
   Dimensions,
   Image,
 } from 'react-native';
-import {Images} from '../../assets/images';
-import {Colors} from '../../theme/colors';
-import {DimensionsConfig} from '../../theme/dimensions';
+import { Images } from '../../assets/images';
+import { Colors } from '../../theme/colors';
+import { DimensionsConfig } from '../../theme/dimensions';
+import { GetPrepaidPackageAction } from '../../redux/action/GetPrepaidPackageAction';
+import { useDispatch, useSelector } from 'react-redux';
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
 
-const SelectPackageModal = ({visible, onClose, onSelect}) => {
+const SelectPackageModal = ({ visible, onClose, onSelect }) => {
+  const dispatch = useDispatch();
+  const getPrepaidPackageData = useSelector((state) => state.getPrepaidPackageData);
   const [selectedOption, setSelectedOption] = useState('highToLow');
   const [selectedId, setSelectedId] = useState(null);
+  const [data, setData] = useState([])
 
-  const data = [
-    {
-      id: '1',
-      name: 'Package 1',
-      rating: 5.0,
-      reviews: 121,
-      image: Images.Image1,
-      email: 'Johnathanmorrison@gmail.com',
-    },
-    {
-      id: '2',
-      name: 'Package 2',
-      rating: 5.0,
-      reviews: 100,
-      image: Images.Image2,
-      email: 'Mariakevin@gmail.com',
-    },
-    {
-      id: '3',
-      name: 'Package 3',
-      rating: 5.0,
-      reviews: 99,
-      image: Images.image11,
-      email: 'Lindajohnson@gmail.com',
-    },
-    {
-      id: '4',
-      name: 'Package 4',
-      rating: 5.0,
-      reviews: 80,
-      image: Images.image22,
-      email: 'KevinFrank@gmail@gmail.com',
-    },
-    {
-      id: '5',
-      name: 'Package 5',
-      rating: 5.0,
-      reviews: 60,
-      image: Images.image33,
-      email: 'Dwaynejackson@gmail@gmail.com',
-    },
-    {
-      id: '6',
-      name: 'Package 6',
-      rating: 5.0,
-      reviews: 45,
-      image: Images.image44,
-      email: 'Tomcameron@gmail@gmail.com',
-    },
-    {
-      id: '7',
-      name: 'Package 7',
-      rating: 5.0,
-      reviews: 40,
-      image: Images.image55,
-      email: 'Conorcharlie@gmail@gmail.com',
-    },
-  ];
+
+  useEffect(() => {
+    if (visible) {
+      dispatch(GetPrepaidPackageAction())
+    }
+
+  }, [visible])
+
+  useEffect(() => {
+    if (getPrepaidPackageData?.response?.result) {
+      console.log('getPrepaidPackageData?.response?.result', getPrepaidPackageData?.response?.result)
+      setData(getPrepaidPackageData?.response?.result)
+    }
+  }, [getPrepaidPackageData])
+
+  // const data = [
+  //   {
+  //     id: '1',
+  //     name: 'Package 1',
+  //     rating: 5.0,
+  //     reviews: 121,
+  //     image: Images.Image1,
+  //     email: 'Johnathanmorrison@gmail.com',
+  //   },
+  //   {
+  //     id: '2',
+  //     name: 'Package 2',
+  //     rating: 5.0,
+  //     reviews: 100,
+  //     image: Images.Image2,
+  //     email: 'Mariakevin@gmail.com',
+  //   },
+  //   {
+  //     id: '3',
+  //     name: 'Package 3',
+  //     rating: 5.0,
+  //     reviews: 99,
+  //     image: Images.image11,
+  //     email: 'Lindajohnson@gmail.com',
+  //   },
+  //   {
+  //     id: '4',
+  //     name: 'Package 4',
+  //     rating: 5.0,
+  //     reviews: 80,
+  //     image: Images.image22,
+  //     email: 'KevinFrank@gmail@gmail.com',
+  //   },
+  //   {
+  //     id: '5',
+  //     name: 'Package 5',
+  //     rating: 5.0,
+  //     reviews: 60,
+  //     image: Images.image33,
+  //     email: 'Dwaynejackson@gmail@gmail.com',
+  //   },
+  //   {
+  //     id: '6',
+  //     name: 'Package 6',
+  //     rating: 5.0,
+  //     reviews: 45,
+  //     image: Images.image44,
+  //     email: 'Tomcameron@gmail@gmail.com',
+  //   },
+  //   {
+  //     id: '7',
+  //     name: 'Package 7',
+  //     rating: 5.0,
+  //     reviews: 40,
+  //     image: Images.image55,
+  //     email: 'Conorcharlie@gmail@gmail.com',
+  //   },
+  // ];
 
   const handleItemPress = item => {
     const newSelectedId = item.id === selectedId ? null : item.id;
@@ -89,15 +109,15 @@ const SelectPackageModal = ({visible, onClose, onSelect}) => {
     onClose();
   };
 
-  const renderItem = ({item}) => {
+  const renderItem = ({ item, index }) => {
     const isSelected = item.id === selectedId;
     return (
       <TouchableOpacity
         style={styles.itemContainer}
         onPress={() => handleItemPress(item)}>
-        <Image source={item.image} style={styles.profileImage} />
+        <Image source={Images.image44} style={styles.profileImage} />
         <View style={styles.textContainer}>
-          <Text style={styles.nameText}>{item.name}</Text>
+          <Text style={styles.nameText}>Package {item?.total_price}</Text>
         </View>
         <Image
           source={isSelected ? Images.selectedButton : Images.unSelectedButton}
@@ -167,7 +187,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },

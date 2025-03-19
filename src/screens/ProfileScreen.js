@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -10,18 +10,20 @@ import {
   TextInput,
   SafeAreaView,
 } from 'react-native';
-import {Images} from '../assets/images';
+import { Images } from '../assets/images';
 import CustomSwitch from '../components/CustomSwitch';
-import {Colors} from '../theme/colors';
+import { Colors } from '../theme/colors';
 import BookingModal from '../components/Modal.js/BookingModal';
+import PrepaidOptionModal from '../components/Modal.js/PrepaidOptionModal';
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
-const ProfileScreen = ({navigation}) => {
+const ProfileScreen = ({ navigation }) => {
   const [isEnable, setisEnable] = useState(false);
   const [isEnable1, setisEnable1] = useState(false);
 
   const [pauseBookingModal, setpauseBookingModal] = useState(false);
   const [resumeBookingModal, setresumeBookingModal] = useState(false);
+  const [showPrepaidOptionModal, setshowPrepaidOptionModal] = useState(false);
   const [CloseShop, setCloseShop] = useState(false);
 
   const toggleOpen = () => {
@@ -59,7 +61,7 @@ const ProfileScreen = ({navigation}) => {
           midText={
             'You’ll have to manually turn the bookings on to continue receiving bookings.'
           }
-          buttonBackgroundColor={{backgroundColor: Colors.primary}}
+          buttonBackgroundColor={{ backgroundColor: Colors.primary }}
           visible={resumeBookingModal}
           onClose={bookingResume}
           type={resumeBookingModal}
@@ -82,6 +84,22 @@ const ProfileScreen = ({navigation}) => {
           cancelButtonText={'Pause Bookings'}
         />
 
+        <PrepaidOptionModal
+
+          visible={showPrepaidOptionModal}
+          onClose={() => {
+            setshowPrepaidOptionModal(false)
+          }}
+          onFirstBtn={() => {
+            navigation.navigate('AddPrepaidPack');
+            setshowPrepaidOptionModal(false)
+          }}
+          onSecondBtn={() => {
+            navigation.navigate('AddPrepaid');
+            setshowPrepaidOptionModal(false)
+          }}
+        />
+
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Profile</Text>
@@ -91,7 +109,7 @@ const ProfileScreen = ({navigation}) => {
         </View>
 
         <ScrollView
-          contentContainerStyle={{paddingBottom: (mobileH * 5) / 100}}>
+          contentContainerStyle={{ paddingBottom: (mobileH * 5) / 100 }}>
           {/* Static Profile Options */}
           <View style={styles.topContainer}>
             <View style={styles.topViewContainer}>
@@ -191,7 +209,8 @@ const ProfileScreen = ({navigation}) => {
 
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate('AddPrepaid');
+              // navigation.navigate('AddPrepaid');
+              setshowPrepaidOptionModal(true)
             }}
             activeOpacity={0.8}
             style={styles.itemContainer}>
@@ -319,7 +338,7 @@ const ProfileScreen = ({navigation}) => {
             </View>
             <Image
               source={Images?.forwardIcon}
-              style={[styles.forwardDicicon, {tintColor: '#FFFFFF'}]}
+              style={[styles.forwardDicicon, { tintColor: '#FFFFFF' }]}
             />
           </TouchableOpacity>
         </ScrollView>
@@ -360,7 +379,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: (mobileW * 4) / 100,
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },
@@ -391,7 +410,7 @@ const styles = StyleSheet.create({
     borderRadius: (mobileW * 3) / 100,
     elevation: 1,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
     borderWidth: 1,
@@ -442,7 +461,7 @@ const styles = StyleSheet.create({
     borderRadius: (mobileW * 3) / 100,
     elevation: 1,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
     backgroundColor: '#8D10B5',
@@ -481,7 +500,7 @@ const styles = StyleSheet.create({
     borderRadius: (mobileW * 3) / 100,
     elevation: 1,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
     borderWidth: 1,

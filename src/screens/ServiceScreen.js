@@ -19,6 +19,7 @@ import { GetCategoryAction } from '../redux/action/GetCategoryAction';
 import { AddNewServiceAction, AddNewServiceDataClean } from '../redux/action/AddNewServiceAction';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GetSelectedServicesAction } from '../redux/action/GetSelectedServicesAction';
+import { useIsFocused } from '@react-navigation/native';
 
 const service = [
   {
@@ -43,6 +44,7 @@ const service = [
 
 const ServiceScreen = ({ navigation }) => {
   const dispatch = useDispatch();
+  const isFocused = useIsFocused()
   const getCategoryData = useSelector((state) => state.getCategoryData);
   const getSelectedServiceData = useSelector((state) => state.getSelectedServiceData);
   const addNewServiceData = useSelector((state) => state.addNewServiceData);
@@ -87,7 +89,7 @@ const ServiceScreen = ({ navigation }) => {
   useEffect(() => {
     GetSelectedServices()
 
-  }, [])
+  }, [isFocused])
 
   const GetSelectedServices = async () => {
     const userId = await AsyncStorage.getItem('token')
@@ -207,7 +209,7 @@ const ServiceScreen = ({ navigation }) => {
                 </View>
                 <TouchableOpacity
                   onPress={() => {
-                    navigation.navigate('AddUpdateServiceScreen');
+                    navigation.navigate('AddUpdateServiceScreen' , {data : item});
                   }}>
                   <Image
                     source={Images?.VerticalThreeDot}

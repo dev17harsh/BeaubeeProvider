@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Modal,
   View,
@@ -9,77 +9,106 @@ import {
   Dimensions,
   Image,
 } from 'react-native';
-import {Images} from '../assets/images';
-import {Colors} from '../theme/colors';
-import {DimensionsConfig} from '../theme/dimensions';
+import { Images } from '../assets/images';
+import { Colors } from '../theme/colors';
+import { DimensionsConfig } from '../theme/dimensions';
+import { useDispatch, useSelector } from 'react-redux';
+import { GetStaffAction } from '../redux/action/GetStaffAction';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
 
-const ListProfessionalModal = ({visible, onClose, onSelect}) => {
-  const [selectedOption, setSelectedOption] = useState('highToLow');
+const ListProfessionalModal = ({ visible, onClose, onSelect }) => {
+  const dispatch = useDispatch();
+  const getStaffData = useSelector((state) => state.getStaffData);
   const [selectedId, setSelectedId] = useState(null);
+  const [data, setData] = useState([])
 
-  const data = [
-    {
-      id: '1',
-      name: 'Johnathan Morrison',
-      rating: 5.0,
-      reviews: 121,
-      image: Images.Image1,
-      email:'Johnathanmorrison@gmail.com'
-    },
-    {
-      id: '2',
-      name: 'Maria Kevin',
-      rating: 5.0,
-      reviews: 100,
-      image: Images.Image2,
-      email:'Mariakevin@gmail.com'
-    },
-    {
-      id: '3',
-      name: 'Linda Johnson',
-      rating: 5.0,
-      reviews: 99,
-      image: Images.image11,
-      email:'Lindajohnson@gmail.com'
-    },
-    {
-      id: '4',
-      name: 'Kevin Frank',
-      rating: 5.0,
-      reviews: 80,
-      image: Images.image22,
-      email:'KevinFrank@gmail@gmail.com'
-    },
-    {
-      id: '5',
-      name: 'Dwayne Jackson',
-      rating: 5.0,
-      reviews: 60,
-      image: Images.image33,
-      email:'Dwaynejackson@gmail@gmail.com'
-    },
-    {
-      id: '6',
-      name: 'Tom Cameron',
-      rating: 5.0,
-      reviews: 45,
-      image: Images.image44,
-      email:'Tomcameron@gmail@gmail.com'
-    },
-    {
-      id: '7',
-      name: 'Conor Charlie',
-      rating: 5.0,
-      reviews: 40,
-      image: Images.image55,
-      email:'Conorcharlie@gmail@gmail.com'
-    },
-  ];
+
+  useEffect(() => {
+    if (visible) {
+      getData()
+    }
+
+  }, [visible])
+
+  const getData = async () => {
+    const userId = await AsyncStorage.getItem('token')
+    dispatch(GetStaffAction({
+      business_id: userId
+    }))
+  }
+
+
+  useEffect(() => {
+    if (getStaffData?.response?.result) {
+      console.log('getStaffData?.response?.result' , getStaffData?.response?.result)
+      setData(getStaffData?.response?.result)
+    }
+  }, [getStaffData])
+
+
+  // const data = [
+  //   {
+  //     id: '1',
+  //     name: 'Johnathan Morrison',
+  //     rating: 5.0,
+  //     reviews: 121,
+  //     image: Images.Image1,
+  //     email: 'Johnathanmorrison@gmail.com'
+  //   },
+  //   {
+  //     id: '2',
+  //     name: 'Maria Kevin',
+  //     rating: 5.0,
+  //     reviews: 100,
+  //     image: Images.Image2,
+  //     email: 'Mariakevin@gmail.com'
+  //   },
+  //   {
+  //     id: '3',
+  //     name: 'Linda Johnson',
+  //     rating: 5.0,
+  //     reviews: 99,
+  //     image: Images.image11,
+  //     email: 'Lindajohnson@gmail.com'
+  //   },
+  //   {
+  //     id: '4',
+  //     name: 'Kevin Frank',
+  //     rating: 5.0,
+  //     reviews: 80,
+  //     image: Images.image22,
+  //     email: 'KevinFrank@gmail@gmail.com'
+  //   },
+  //   {
+  //     id: '5',
+  //     name: 'Dwayne Jackson',
+  //     rating: 5.0,
+  //     reviews: 60,
+  //     image: Images.image33,
+  //     email: 'Dwaynejackson@gmail@gmail.com'
+  //   },
+  //   {
+  //     id: '6',
+  //     name: 'Tom Cameron',
+  //     rating: 5.0,
+  //     reviews: 45,
+  //     image: Images.image44,
+  //     email: 'Tomcameron@gmail@gmail.com'
+  //   },
+  //   {
+  //     id: '7',
+  //     name: 'Conor Charlie',
+  //     rating: 5.0,
+  //     reviews: 40,
+  //     image: Images.image55,
+  //     email: 'Conorcharlie@gmail@gmail.com'
+  //   },
+  // ];
 
   const handleItemPress = item => {
-    const newSelectedId = item.id === selectedId ? null : item.id;
+    const newSelectedId = item.staff_id === selectedId ? null : item.staff_id;
     setSelectedId(newSelectedId);
 
     // Return selected item data to the parent component
@@ -88,13 +117,13 @@ const ListProfessionalModal = ({visible, onClose, onSelect}) => {
     }
   };
 
-  const renderItem = ({item}) => {
+  const renderItem = ({ item }) => {
     const isSelected = item.id === selectedId;
     return (
       <TouchableOpacity
         style={styles.itemContainer}
-        onPress={() =>{ handleItemPress(item),onClose()}}>
-        <Image source={item.image} style={styles.profileImage} />
+        onPress={() => { handleItemPress(item), onClose() }}>
+        <Image source={{ uri: item.profile }} style={styles.profileImage} />
         <View style={styles.textContainer}>
           <Text style={styles.nameText}>{item.name}</Text>
         </View>

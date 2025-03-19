@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Modal,
   View,
@@ -10,16 +10,42 @@ import {
   Image,
   SafeAreaView,
 } from 'react-native';
-import {DimensionsConfig} from '../theme/dimensions';
-import {Images} from '../assets/images';
-import {Colors} from '../theme/colors';
+import { DimensionsConfig } from '../theme/dimensions';
+import { Images } from '../assets/images';
+import { Colors } from '../theme/colors';
 import AppHeader from '../components/AppHeader';
+import { useDispatch, useSelector } from 'react-redux';
+import { useIsFocused } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { GetAllServicesAction } from '../redux/action/GetAllServicesAction';
+import { GetPromotionsAction } from '../redux/action/GetPromotionsAction';
+import { UpdatePromoStatusAction, UpdatePromoStatusRemoveAction } from '../redux/action/UpdatePromoStatusAction';
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
 
-const Promotions = ({visible, onClose, onSelect , navigation}) => {
-  const [selectedOption, setSelectedOption] = useState('highToLow');
+const Promotions = ({ visible, onClose, onSelect, navigation }) => {
+  const dispatch = useDispatch();
+  const isFocused = useIsFocused()
+  const getPromotionsData = useSelector((state) => state.getPromotionsData);
+  const updatePromoStatusData = useSelector((state) => state.updatePromoStatusData);
+  // const [selectedOption, setSelectedOption] = useState('highToLow');
   const [selectedId, setSelectedId] = useState(null);
+  const [promoData, setPromoData] = useState([])
+
+
+  useEffect(() => {
+    if (getPromotionsData?.response?.result) {
+      setPromoData(getPromotionsData?.response?.result)
+    }
+  }, [getPromotionsData])
+
+
+  useEffect(() => {
+    if (updatePromoStatusData?.response?.message == 'success') {
+      GetPromotionDatas()
+      dispatch(UpdatePromoStatusRemoveAction())
+    }
+  }, [updatePromoStatusData])
 
   const data = [
     {
@@ -105,6 +131,19 @@ const Promotions = ({visible, onClose, onSelect , navigation}) => {
     },
   ];
 
+  useEffect(() => {
+    GetPromotionDatas()
+  }, [isFocused])
+
+
+  const GetPromotionDatas = async () => {
+    const userId = await AsyncStorage.getItem('token')
+    const params = {
+      business_id: userId
+    }
+    dispatch(GetPromotionsAction(params))
+  }
+
   const handleItemPress = item => {
     const newSelectedId = item.id === selectedId ? null : item.id;
     setSelectedId(newSelectedId);
@@ -115,32 +154,42 @@ const Promotions = ({visible, onClose, onSelect , navigation}) => {
     }
   };
 
-  const renderItem = ({item}) => {
+  const OnPressUpdatePromoStatus = async (item) => {
+    const userId = await AsyncStorage.getItem('token')
+    const params = {
+      business_id: userId,
+      promo_id : item?.id,
+      status : item.button == 'Disable' ? 0 : 1
+    }
+    dispatch(UpdatePromoStatusAction(params))
+  }
+
+  const renderItem = ({ item }) => {
     return (
       <TouchableOpacity
         style={[
           styles.itemContainer,
-          {backgroundColor: item.status ? '#D8DAE7' : Colors.white},
+          { backgroundColor: item.button != 'Disable' ? '#D8DAE7' : Colors.white },
         ]}
-        onPress={() => handleItemPress(item)}>
+        onPress={() => {OnPressUpdatePromoStatus(item)}}>
         <View style={styles.textContainer}>
-          <Text style={styles.nameText}>{item.name}</Text>
-          <Text style={styles.emailText}>{item.email}</Text>
+          <Text style={styles.nameText}>{item?.discount}% Off {item?.promo_type}</Text>
+          {item.status == 'Expired' ? (<Text style={styles.emailText}>{item.status}</Text>) : (<Text style={styles.emailText}>{item.status} until {item?.expiry_date}</Text>)}
         </View>
         <View
           style={{
             paddingHorizontal: (mobileW * 4) / 100,
             paddingVertical: (mobileW * 2.5) / 100,
             backgroundColor: Colors.white,
-            backgroundColor: item.status ? Colors.white : '#FCE9E9',
+            backgroundColor: item.button != 'Disable' ? Colors.white : '#FCE9E9',
             borderRadius: (mobileW * 3) / 100,
           }}>
           <Text
             style={[
               styles.nameText,
-              {color: item.status ? Colors.primary : Colors.red},
+              { color: item.button != 'Disable' ? Colors.primary : Colors.red },
             ]}>
-            {item.status ? 'Reactivate' : 'Disable'}
+            {item.button != 'Disable' ? 'Reactivate' : 'Disable'}
           </Text>
         </View>
       </TouchableOpacity>
@@ -148,25 +197,25 @@ const Promotions = ({visible, onClose, onSelect , navigation}) => {
   };
 
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: Colors.white}}>
-    <View style={{flex: 1, backgroundColor: Colors.white}}>
-      <AppHeader title={'Promotions'} />
-      <View style={{marginBottom: (mobileW * 18) / 100}}>
-        <FlatList
-          data={data}
-          showsVerticalScrollIndicator={false}
-          keyExtractor={item => item.id}
-          renderItem={renderItem}
-          style={styles.listContent}
-        />
+    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.white }}>
+      <View style={{ flex: 1, backgroundColor: Colors.white }}>
+        <AppHeader title={'Promotions'} />
+        <View style={{ marginBottom: (mobileW * 18) / 100 }}>
+          <FlatList
+            data={promoData}
+            showsVerticalScrollIndicator={false}
+            keyExtractor={item => item.id}
+            renderItem={renderItem}
+            style={styles.listContent}
+          />
+        </View>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => { navigation.navigate('NewPromotions') }}
+          style={styles.addButton}>
+          <Image style={styles.calenderIcon} source={Images.PlusWhite} />
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity
-        activeOpacity={0.8}
-          onPress={() => {navigation.navigate('NewPromotions')}}
-        style={styles.addButton}>
-        <Image style={styles.calenderIcon} source={Images.PlusWhite} />
-      </TouchableOpacity>
-    </View>
     </SafeAreaView>
   );
 };

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,62 +10,112 @@ import {
   ImageBackground,
   SafeAreaView,
 } from 'react-native';
-import {Images} from '../assets/images';
+import { Images } from '../assets/images';
 import AppHeader from '../components/AppHeader';
-import {Colors} from '../theme/colors';
+import { Colors } from '../theme/colors';
 import CustomButton from '../components/CustomButton';
-import {mobileH, mobileW} from '../components/utils';
-import {launchImageLibrary} from 'react-native-image-picker';
-import {TextInput as TextInputPaper} from 'react-native-paper';
+import { mobileH, mobileW } from '../components/utils';
+import { launchImageLibrary } from 'react-native-image-picker';
+import { TextInput as TextInputPaper } from 'react-native-paper';
 import BreakDuratinModal from '../components/Modal.js/BreakDurationModal';
+import AvailabilityModal from '../components/Modal.js/AvailabilityModal';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AddStaffAction, AddStaffRemoveAction } from '../redux/action/AddStaffAction';
+import { useDispatch, useSelector } from 'react-redux';
+import { GetCategoryAction } from '../redux/action/GetCategoryAction';
+import ToastMessage from '../components/ToastMessage';
 
 const ScheduleDay = [
-  {day: 'Monday', time: '10:00AM to 09:00PM'},
-  {day: 'Tuesday', time: '10:00AM to 09:00PM'},
-  {day: 'Wednesday', time: '10:00AM to 09:00PM'},
-  {day: 'Thusday', time: '10:00AM to 09:00PM'},
-  {day: 'Friday', time: '10:00AM to 09:00PM'},
-  {day: 'Saturday', time: '10:00AM to 09:00PM'},
-  {day: 'Sunday', time: '10:00AM to 09:00PM'},
+  { day: 'Monday', time: '10:00AM to 09:00PM' },
+  { day: 'Tuesday', time: '10:00AM to 09:00PM' },
+  { day: 'Wednesday', time: '10:00AM to 09:00PM' },
+  { day: 'Thusday', time: '10:00AM to 09:00PM' },
+  { day: 'Friday', time: '10:00AM to 09:00PM' },
+  { day: 'Saturday', time: '10:00AM to 09:00PM' },
+  { day: 'Sunday', time: '10:00AM to 09:00PM' },
 ];
 
 const checkboxOptions = [
-  {title: 'Hair', Image: Images?.Hair},
-  {title: 'SkinCare', Image: Images?.Skincare},
-  {title: 'Makeup', Image: Images?.Makeup},
-  {title: 'Nails', Image: Images?.Nail},
-  {title: 'Taining', Image: Images?.Tanning},
-  {title: 'Hair Removal', Image: Images?.HairRemoval},
+  { title: 'Hair', Image: Images?.Hair },
+  { title: 'SkinCare', Image: Images?.Skincare },
+  { title: 'Makeup', Image: Images?.Makeup },
+  { title: 'Nails', Image: Images?.Nail },
+  { title: 'Taining', Image: Images?.Tanning },
+  { title: 'Hair Removal', Image: Images?.HairRemoval },
 ];
 
-const AddProfesssional = ({navigation}) => {
+const AddProfesssional = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const addStaffData = useSelector((state) => state.addStaffData);
+  const getCategoryData = useSelector((state) => state.getCategoryData);
   const [breakModal, setbreakModal] = useState(false);
   const [availableData, setAvailableData] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
+  const [avaialblityModalVisible, setAvaialblityModalVisible] = useState(false)
   const [selectedCheckbox, setSelectedCheckbox] = useState(null);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [positionDesciption, setPositionDesciption] = useState('');
+  const [email, setEmail] = useState('');
+  const [tier, setTier] = useState('');
+  const [desciption, setDesciption] = useState('');
+  const [schedule, setSchedule] = useState([]);
+  const [profileImageRes, setProfileResImage] = useState({});
+  const [categories, setCategories] = useState([]);
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastData, setToastData] = useState({
+    message: '',
+    color: ''
+  });
+
+
+  useEffect(() => {
+    if (addStaffData?.response?.message == 'success') {
+      navigation.goBack()
+      dispatch(
+        AddStaffRemoveAction({})
+      )
+    }
+  }, [addStaffData])
+
+  useEffect(() => {
+    dispatch(GetCategoryAction())
+  }, [])
+
+  useEffect(() => {
+    if (getCategoryData?.response?.result) {
+      setCategories(getCategoryData?.response?.result)
+    }
+  }, [getCategoryData])
+
 
   const breakVisibleModal = () => {
     setbreakModal(!breakModal);
   };
 
+  const showToast = () => {
+    setToastVisible(true);
+  };
+
   const renderData = items => {
     const item = items.item;
     return (
-      <View
-        style={{
-          flexDirection: 'row',
-          width: '100%',
-          justifyContent: 'space-between',
-          paddingVertical: (mobileW * 2) / 100,
-        }}>
-        <Text
+      item?.isOpen && (
+        <View
           style={{
-            color: Colors.black,
+            flexDirection: 'row',
+            width: '100%',
+            justifyContent: 'space-between',
+            paddingVertical: (mobileW * 2) / 100,
           }}>
-          {item.day}
-        </Text>
-        <Text>{item.time}</Text>
-      </View>
+          <Text
+            style={{
+              color: Colors.black,
+            }}>
+            {item.day}
+          </Text>
+          <Text>{item.openingTime} - {item.closingTime}</Text>
+        </View>)
     );
   };
 
@@ -84,37 +134,152 @@ const AddProfesssional = ({navigation}) => {
     launchImageLibrary(options, response => {
       if (response?.assets && response.assets.length > 0) {
         setProfileImage(response.assets[0].uri);
+        setProfileResImage(response.assets)
       }
     });
   };
 
-  const renderCheckbox = ({item}) => (
+  const renderCheckbox = ({ item }) => (
     <TouchableOpacity
       style={[
         styles.checkbox,
-        selectedCheckbox === item?.title && styles.selectedCheckbox,
+        selectedCheckbox === item?.id && styles.selectedCheckbox,
       ]}
-      onPress={() => handleCheckboxPress(item?.title)}>
+      onPress={() => handleCheckboxPress(item?.id)}>
       <Image
         resizeMode="contain"
-        source={item?.Image}
+        source={{ uri: item?.image }}
         tintColor={
-          selectedCheckbox === item?.title ? Colors?.white : Colors?.primary
+          selectedCheckbox === item?.id ? Colors?.white : Colors?.primary
         }
         style={styles.cardIcons}
       />
       <Text
         style={[
           styles.checkboxText,
-          selectedCheckbox === item?.title && styles.selectedCheckboxText,
+          selectedCheckbox === item?.id && styles.selectedCheckboxText,
         ]}>
-        {item?.title}
+        {item?.name}
       </Text>
     </TouchableOpacity>
   );
 
+  const createFileFromPickerData = (imagePickerResponse) => {
+    if (imagePickerResponse && imagePickerResponse.length > 0) {
+      const fileData = imagePickerResponse[0]; // Assuming you have a single image
+      const { uri, fileName, type } = fileData;
+
+      // Creating a file object for FormData
+      const file = {
+        uri: Platform.OS === 'android' ? uri : uri.replace('file://', ''), // Remove 'file://' on iOS
+        name: fileName,
+        type: type,
+      };
+
+      return file;
+    }
+    return null;
+  };
+
+  const convertTimeTo24HrFormat = (time) => {
+    const [timePart, modifier] = time.split(' ');
+    let [hours, minutes] = timePart.split(':').map(Number);
+
+    if (modifier.toLowerCase() === 'pm' && hours < 12) hours += 12;
+    if (modifier.toLowerCase() === 'am' && hours === 12) hours = 0;
+
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  };
+
+
+  const onPressAddMember = async () => {
+    if (selectedCheckbox == null) {
+      showToast()
+      setToastData({
+        message: 'Please select Category Id',
+        color: Colors?.red
+      })
+    }
+    else if (firstName == '') {
+      showToast()
+      setToastData({
+        message: 'Please Enter Staff First Name',
+        color: Colors?.red
+      })
+    }
+    else if (lastName == '') {
+      showToast()
+      setToastData({
+        message: 'Please Enter Staff Last Name',
+        color: Colors?.red
+      })
+    } else if (email == '') {
+      showToast()
+      setToastData({
+        message: 'Please Enter Staff Email Id',
+        color: Colors?.red
+      })
+    } else if (positionDesciption == '') {
+      showToast()
+      setToastData({
+        message: 'Please Enter Staff Position Desciption',
+        color: Colors?.red
+      })
+    }
+    else if (options.length == 0) {
+      showToast()
+      setToastData({
+        message: 'Please Add some Options',
+        color: Colors?.red
+      })
+    } else {
+      let transformedArray = []
+      if (schedule.length > 0) {
+        transformedArray = schedule.map(item => ({
+          day_of_week: item.day,
+          start_time: convertTimeTo24HrFormat(item.openingTime),
+          end_time: convertTimeTo24HrFormat(item.closingTime),
+          staff_status: item.isOpen.toString()
+        }));
+      }
+      const userId = await AsyncStorage.getItem('token')
+      const formData = new FormData();
+      const profileFile = await createFileFromPickerData(profileImageRes)
+      formData.append('business_id', userId);
+      formData.append('category_id', selectedCheckbox);
+      formData.append('first_name', firstName);
+      formData.append('last_name', lastName);
+      formData.append('email', email);
+      formData.append('profile', profileFile);
+      formData.append('position_description', positionDesciption);
+      formData.append('tier', tier);
+      formData.append('bio', desciption);
+      formData.append('staff_schedules', JSON.stringify(transformedArray));
+
+      console.log('formData', formData, transformedArray)
+      dispatch(AddStaffAction(formData))
+    }
+  }
+
   return (
     <SafeAreaView style={styles.container}>
+      <ToastMessage
+        visible={toastVisible}
+        message={toastData.message}
+        onClose={() => setToastVisible(false)}
+        toastStyle={{
+          backgroundColor: toastData.color
+        }}
+      />
+      <AvailabilityModal
+        isVisible={avaialblityModalVisible}
+        onClose={() => {
+          setAvaialblityModalVisible(false)
+        }}
+        onPressSave={(data) => {
+          setSchedule(data)
+        }}
+      />
       <View style={styles.container}>
         <BreakDuratinModal visible={breakModal} onClose={breakVisibleModal} />
         <AppHeader title={'Add Professsional'} />
@@ -123,7 +288,7 @@ const AddProfesssional = ({navigation}) => {
           {/* Business Image */}
           <View>
             <ImageBackground
-              source={Images?.image22}
+              source={profileImage ? { uri: profileImage } : Images?.image22}
               imageStyle={styles.homeServiceIcon}
               style={styles.homeServiceIcon}
             />
@@ -136,12 +301,11 @@ const AddProfesssional = ({navigation}) => {
               />
             </TouchableOpacity>
           </View>
-          <View style={{alignItems: 'center', marginTop: (mobileW * 3) / 100}}>
-            {/* User Info */}
+          {/* <View style={{alignItems: 'center', marginTop: (mobileW * 3) / 100}}>
             <Text style={styles.name}>Kynthia Johnson</Text>
             <Text style={styles.email}>kynthiajohnson@email.com</Text>
             <Text style={styles.phone}>+123 456 7890</Text>
-          </View>
+          </View> */}
 
           <View
             style={{
@@ -163,7 +327,8 @@ const AddProfesssional = ({navigation}) => {
               label="First Name"
               // value="Flat/Villa No."
               placeholder="Enter first name"
-              // onChangeText={text => setText(text)}
+              onChangeText={text => setFirstName(text)}
+              value={firstName}
               mode="outlined"
             />
             <TextInputPaper
@@ -176,7 +341,8 @@ const AddProfesssional = ({navigation}) => {
               outlineColor={'#EEE6F1'}
               activeOutlineColor={'#EEE6F1'}
               label="Last Name"
-              // onChangeText={text => setText(text)}
+              onChangeText={text => setLastName(text)}
+              value={lastName}
               placeholder="Enter last name"
               mode="outlined"
             />
@@ -198,7 +364,8 @@ const AddProfesssional = ({navigation}) => {
               outlineColor={'#EEE6F1'}
               activeOutlineColor={'#EEE6F1'}
               label="Position Description"
-              // onChangeText={text => setText(text)}
+              onChangeText={text => setPositionDesciption(text)}
+              value={positionDesciption}
               placeholder="Position description goes here"
               mode="outlined"
             />
@@ -213,7 +380,8 @@ const AddProfesssional = ({navigation}) => {
               outlineColor={'#EEE6F1'}
               activeOutlineColor={'#EEE6F1'}
               label="Email"
-              // onChangeText={text => setText(text)}
+              onChangeText={text => setEmail(text)}
+              value={email}
               placeholder="Enter email"
               mode="outlined"
             />
@@ -229,7 +397,8 @@ const AddProfesssional = ({navigation}) => {
               outlineColor={'#EEE6F1'}
               activeOutlineColor={'#EEE6F1'}
               label="Tier"
-              // onChangeText={text => setText(text)}
+              onChangeText={text => setTier(text)}
+              value={tier}
               placeholder="Enter tier"
               mode="outlined"
             />
@@ -238,7 +407,7 @@ const AddProfesssional = ({navigation}) => {
           <View style={styles.straightLine} />
 
           <FlatList
-            data={checkboxOptions}
+            data={categories}
             keyExtractor={(item, index) => index.toString()}
             renderItem={renderCheckbox}
             numColumns={2}
@@ -256,20 +425,42 @@ const AddProfesssional = ({navigation}) => {
                   Tell customer about this professional
                 </Text>
               </View>
-              <Text style={styles.itemDescription}>
+              {/* <Text style={styles.itemDescription}>
                 Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor
                 eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante,
                 dapibus in, viverra quis
-              </Text>
+              </Text> */}
+              <TextInputPaper
+                style={{
+                  width: '100%',
+                  fontSize: 14,
+                  backgroundColor: '#fff',
+                  color: '#301E39',
+                }}
+                outlineColor={'#EEE6F1'}
+                activeOutlineColor={'#EEE6F1'}
+                label="Description"
+                multiline
+                // onChangeText={text => setText(text)}
+                onChangeText={text => setDesciption(text)}
+                value={desciption}
+                placeholder="Enter Description"
+                mode="outlined"
+              />
             </View>
 
             <View style={styles.itemContainerBio}>
-              <View
+              <TouchableOpacity
                 style={{
                   flexDirection: 'row',
                   justifyContent: 'space-between',
                   width: '100%',
-                }}>
+                }}
+                // onPress={() => navigation.navigate('Availability')}
+                onPress={() => {
+                  setAvaialblityModalVisible(true)
+                }}
+              >
                 <View style={[styles.txtView]}>
                   <Text style={styles.itemLabel}>Availability</Text>
                 </View>
@@ -287,11 +478,11 @@ const AddProfesssional = ({navigation}) => {
                     style={styles?.plusWithBack}
                   />
                 </TouchableOpacity>
-              </View>
+              </TouchableOpacity>
               {availableData && (
-                <View style={{marginTop: (mobileW * 3) / 100}}>
+                <View style={{ marginTop: (mobileW * 3) / 100 }}>
                   <FlatList
-                    data={ScheduleDay}
+                    data={schedule}
                     renderItem={item => renderData(item)}
                   />
                 </View>
@@ -305,13 +496,14 @@ const AddProfesssional = ({navigation}) => {
               }}>
               <CustomButton
                 title={'Add Member'}
-                onPress={()=>navigation.navigate('Availability')}
+                // onPress={() => navigation.navigate('Availability')}
+                onPress={() => onPressAddMember()}
                 style={{
                   marginBottom: (mobileW * 3) / 100,
                   marginTop: (mobileW * 5) / 100,
                   backgroundColor: Colors.primary,
                 }}
-                textStyle={{color: Colors.white}}
+                textStyle={{ color: Colors.white }}
               />
             </View>
           </View>
@@ -616,7 +808,7 @@ const styles = StyleSheet.create({
     marginTop: (mobileW * 4) / 100,
     elevation: 1,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },
@@ -633,7 +825,7 @@ const styles = StyleSheet.create({
     marginTop: (mobileW * 4) / 100,
     elevation: 1,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },
@@ -651,7 +843,7 @@ const styles = StyleSheet.create({
     borderRadius: (mobileW * 3) / 100,
     elevation: 1,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },
@@ -746,9 +938,10 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
   },
   checkboxText: {
-    fontSize: 16,
-    color: Colors.primary,
-    marginLeft: 10,
+    fontSize: 14,
+    color: '#301E39',
+    fontWeight: '600',
+    marginLeft: 5,
   },
   selectedCheckboxText: {
     color: '#fff',

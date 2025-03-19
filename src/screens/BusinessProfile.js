@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -11,46 +11,64 @@ import {
   ImageBackground,
   SafeAreaView,
 } from 'react-native';
-import {Images} from '../assets/images';
+import { Images } from '../assets/images';
 import AppHeader from '../components/AppHeader';
-import {Colors} from '../theme/colors';
+import { Colors } from '../theme/colors';
 import BreakDuratinModal from '../components/Modal.js/BreakDurationModal';
+import { useDispatch, useSelector } from 'react-redux';
+import { GetUserDetailAction } from '../redux/action/GetUserDetailAction';
+import { useIsFocused } from '@react-navigation/native';
 // import TimingsModal from '../components/Modal/TimingsModal';
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
-const tabs = ['Hair', 'Makeup', 'Skincare', 'Nails'];
 const professionalsData = [
-  {id: 1, day: 'Monday', time: '06:00-17:00'},
-  {id: 1, day: 'Tuesday', time: '06:00-17:00'},
-  {id: 1, day: 'Wednesday', time: '06:00-17:00'},
-  {id: 1, day: 'Thusday', time: '06:00-17:00'},
-  {id: 1, day: 'Friday', time: '06:00-17:00'},
-  {id: 1, day: 'Saturday', time: '06:00-17:00'},
-  {id: 1, day: 'Sunday', time: '06:00-17:00'},
+  { id: 1, day: 'Monday', time: '06:00-17:00' },
+  { id: 1, day: 'Tuesday', time: '06:00-17:00' },
+  { id: 1, day: 'Wednesday', time: '06:00-17:00' },
+  { id: 1, day: 'Thusday', time: '06:00-17:00' },
+  { id: 1, day: 'Friday', time: '06:00-17:00' },
+  { id: 1, day: 'Saturday', time: '06:00-17:00' },
+  { id: 1, day: 'Sunday', time: '06:00-17:00' },
 ];
 
 const imageArray = [
-  {image: Images.image55},
-  {image: Images.image11},
-  {image: Images.image33},
-  {image: Images.image44},
-  {image: Images.Image1},
-  {image: Images.image22},
+  { image: Images.image55 },
+  { image: Images.image11 },
+  { image: Images.image33 },
+  { image: Images.image44 },
+  { image: Images.Image1 },
+  { image: Images.image22 },
 ];
 
 const timings = [
-  {day: 'Monday', time: '10:00AM - 9:00PM'},
-  {day: 'Tuesday', time: '10:00AM - 9:00PM'},
-  {day: 'Wednesday', time: '10:00AM - 9:00PM'},
-  {day: 'Thursday', time: '10:00AM - 9:00PM'},
-  {day: 'Friday', time: '10:00AM - 9:00PM'},
-  {day: 'Saturday', time: '10:00AM - 9:00PM'},
-  {day: 'Sunday', time: '10:00AM - 9:00PM'},
+  { day: 'Monday', time: '10:00AM - 9:00PM' },
+  { day: 'Tuesday', time: '10:00AM - 9:00PM' },
+  { day: 'Wednesday', time: '10:00AM - 9:00PM' },
+  { day: 'Thursday', time: '10:00AM - 9:00PM' },
+  { day: 'Friday', time: '10:00AM - 9:00PM' },
+  { day: 'Saturday', time: '10:00AM - 9:00PM' },
+  { day: 'Sunday', time: '10:00AM - 9:00PM' },
 ];
 
-const BusinessProfile = ({navigation}) => {
+const BusinessProfile = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const UserDetailData = useSelector((state) => state.getUserDetailData);
+  const isFocused = useIsFocused()
   const [breakModal, setbreakModal] = useState(false);
   const [showDate, setShowDate] = useState(false);
+  const [userDetail, setUserDetail] = useState({});
+
+
+  useEffect(() => {
+    dispatch(GetUserDetailAction())
+  }, [isFocused])
+
+  useEffect(() => {
+    // console.log('UserDetailData?.respons', UserDetailData?.response)
+    if (UserDetailData?.response?.result) {
+      setUserDetail(UserDetailData?.response?.result)
+    }
+  }, [UserDetailData])
 
   const breakVisibleModal = () => {
     setbreakModal(!breakModal);
@@ -65,19 +83,25 @@ const BusinessProfile = ({navigation}) => {
 
         <ScrollView style={styles.Scrollcontainer}>
           {/* Business Image */}
-          <ImageBackground
+          <Image
             resizeMode="cover"
-            source={Images?.image11}
+            source={userDetail?.cover_profile == null ? Images.image22 : { uri: userDetail?.cover_profile }}
             imageStyle={styles?.businessImage}
             style={styles?.businessImage}>
-            <Image source={Images?.image22} style={styles.homeServiceIcon} />
-          </ImageBackground>
+          </Image>
+          {console.log('userDetail' , userDetail)}
+          <Image source={{ uri: userDetail?.profile }} style={[styles.homeServiceIcon]} />
 
-          <View style={{alignItems: 'center', marginTop: (mobileW * 16) / 100}}>
+          <View style={{ alignItems: 'center', marginTop: - (mobileW * 10) / 100 }}>
             {/* User Info */}
-            <Text style={styles.name}>Kynthia Johnson</Text>
-            <Text style={styles.email}>kynthiajohnson@email.com</Text>
-            <Text style={styles.phone}>+123 456 7890</Text>
+            <View style={{
+              alignItems: 'center',
+              marginBottom: (mobileW * 2) / 100
+            }}>
+              {userDetail?.business_name ? (<Text style={styles.name}>{userDetail?.business_name}</Text>) : null}
+              {userDetail?.email ? (<Text style={styles.email}>{userDetail?.email}</Text>) : null}
+              {userDetail?.mobile ? (<Text style={styles.phone}>{userDetail?.mobile}</Text>) : null}
+            </View>
 
             {/* Edit Profile Button */}
             <TouchableOpacity
@@ -87,7 +111,7 @@ const BusinessProfile = ({navigation}) => {
               activeOpacity={0.8}
               style={styles.editButton}>
               <Image source={Images?.Edit} style={styles.icon} />
-              <Text style={styles.editButtonText}>Edit Profile</Text>
+              <Text style={styles.editButtonText}>Edit Account</Text>
             </TouchableOpacity>
           </View>
           {/* Business Details */}
@@ -104,11 +128,11 @@ const BusinessProfile = ({navigation}) => {
                 source={Images?.locationBAck}
                 style={styles.locationIcons}
               />
-              <View style={styles.txtView}>
+              <View style={[styles.txtView]}>
                 <Text style={styles.itemLabel}>Locations</Text>
-                <Text style={styles.itemDescription}>
-                  88 Ballarat Rd. Footscray 304 VIC
-                </Text>
+                {userDetail?.business_locations?.length > 0 ? (<Text style={styles.itemDescription}>
+                  {userDetail?.business_locations[0]?.address}
+                </Text>) : null}
               </View>
               <Image source={Images?.EditBlack} style={styles.forwardDicicon} />
             </TouchableOpacity>
@@ -128,36 +152,39 @@ const BusinessProfile = ({navigation}) => {
                 <TouchableOpacity>
                   <Image
                     source={Images?.EditBlack}
-                    style={[styles.forwardDicicon, {right: 15}]}
+                    style={[styles.forwardDicicon, { right: 15 }]}
                   />
                 </TouchableOpacity>
               </View>
+              {userDetail?.buiness_time?.length > 0 && (
               <View style={styles.dayView}>
-                <FlatList
-                  data={
-                    showDate ? professionalsData : professionalsData.slice(0, 1)
-                  } // Show all items or just the first
-                  renderItem={({item}) => (
-                    <View
-                      style={{
-                        width: (mobileW * 85) / 100,
-                        paddingVertical: (mobileW * 1) / 100,
-                      }}>
-                      <View style={{flexDirection: 'row', width: '100%'}}>
-                        <Text style={styles.dayTxt}>{item.day}</Text>
-                        <Text style={styles.timeTxt}>{item.time}</Text>
+                
+                  <FlatList
+                    data={
+                      showDate ? userDetail?.buiness_time : userDetail?.buiness_time.slice(0, 1)
+                    } // Show all items or just the first
+                    renderItem={({ item }) => (
+                      <View
+                        style={{
+                          width: (mobileW * 85) / 100,
+                          paddingVertical: (mobileW * 1) / 100,
+                        }}>
+                        <View style={{ flexDirection: 'row', width: '82%', justifyContent: 'space-between' }}>
+                          <Text style={styles.dayTxt}>{item.day_of_week}</Text>
+                          <Text style={styles.timeTxt}>{item.start_time} - {item.end_time}</Text>
+                        </View>
                       </View>
-                    </View>
-                  )}
-                />
+                    )}
+                  />
 
                 <TouchableOpacity
                   activeOpacity={0.8}
                   onPress={() => setShowDate(!showDate)}
-                  style={{alignSelf: 'flex-start'}}>
+                  style={{ alignSelf: 'flex-start' }}>
                   <Image source={Images?.Plus} style={styles.plusIcon} />
                 </TouchableOpacity>
               </View>
+              )}
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -252,10 +279,12 @@ const styles = StyleSheet.create({
   homeServiceIcon: {
     width: (mobileW * 24) / 100,
     height: (mobileW * 24) / 100,
-    bottom: (mobileH * -19) / 100,
+    // bottom: (mobileH * -19) / 100,
+    alignSelf: 'center',
+    top: (mobileH * -6) / 100,
     borderWidth: (mobileW * 1) / 100,
     borderColor: Colors.white,
-    borderRadius: (mobileW * 11) / 100,
+    borderRadius: (mobileW * 12) / 100,
   },
   businessName: {
     fontSize: (mobileW * 5) / 100,
@@ -486,7 +515,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '400',
     color: Colors.textLight,
-    marginBottom: 20,
+    marginBottom: 2,
   },
   editButton: {
     flexDirection: 'row',
@@ -521,7 +550,7 @@ const styles = StyleSheet.create({
     borderRadius: (mobileW * 3) / 100,
     elevation: 1,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
     borderWidth: 1,
@@ -541,7 +570,7 @@ const styles = StyleSheet.create({
     borderRadius: (mobileW * 3) / 100,
     elevation: 1,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },
@@ -576,7 +605,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: Colors.black,
     fontWeight: '500',
-    width: '60%',
+    // width: '40%',
   },
   timeTxt: {
     fontSize: 12,

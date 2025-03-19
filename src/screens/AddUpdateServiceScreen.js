@@ -1,9 +1,13 @@
 import { FlatList, Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Colors } from '../theme/colors'
 import AppHeader from '../components/AppHeader'
 import { DimensionsConfig } from '../theme/dimensions'
 import { Images } from '../assets/images'
+import { useDispatch, useSelector } from 'react-redux'
+import { GetServicesDetailAction } from '../redux/action/GetServicesDetailAction'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useIsFocused } from '@react-navigation/native'
 
 const services = [
   {
@@ -60,129 +64,162 @@ const ComibeSave = [
   },
 ];
 
-const AddUpdateServiceScreen = ({ navigation }) => {
-  const [activeTab, setActiveTab] = useState('Services');
+const AddUpdateServiceScreen = ({ navigation, ...props }) => {
+  const dispatch = useDispatch();
+  const isFocused = useIsFocused()
+  const getServicesDetailData = useSelector((state) => state.getServicesDetailData);
+  const [activeTab, setActiveTab] = useState('Service');
+  const [data, setData] = useState([])
+
+  useEffect(() => {
+    fetchData('Service')
+  }, [isFocused])
+
+  const fetchData = async (activeTab) => {
+    const userId = await AsyncStorage.getItem('token')
+    // console.log('props?.route?.params?.data?.id', props?.route?.params?.data?.category_id, activeTab)
+    dispatch(GetServicesDetailAction({
+      business_id: userId,
+      category_id: props?.route?.params?.data?.category_id,
+      // business_id: '8',
+      // category_id: '28',
+      service_type: activeTab
+    }))
+  }
+
+  useEffect(() => {
+    if (getServicesDetailData?.response?.message == 'success') {
+      console.log('getServicesDetailData?.response', getServicesDetailData?.response)
+      setData(getServicesDetailData?.response?.result)
+    }
+  }, [getServicesDetailData]);
   return (
     <SafeAreaView style={styles.container}>
-    <View style={styles.container}>
-      <AppHeader
-        title={"Hair Services"}
-      />
-      <View style={styles?.subContainer}>
-        <View style={styles.tabContainer}>
-          <TouchableOpacity onPress={() => setActiveTab('Services')} style={[styles.tabButton, activeTab == 'Services' && styles.tabInactive]}>
-            <Text style={styles.tabText}>Services</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setActiveTab('Combine')} style={[styles.tabButton, activeTab == 'Combine' && styles.tabInactive]}>
-            <Text style={[styles.tabText]}>Combine & Save</Text>
-          </TouchableOpacity>
+      <View style={styles.container}>
+        <AppHeader
+          title={`${props?.route?.params?.data?.category} Services`}
+        />
+        <View style={styles?.subContainer}>
+          <View style={styles.tabContainer}>
+            <TouchableOpacity onPress={() => {
+              fetchData('Service')
+              setActiveTab('Service')
+            }} style={[styles.tabButton, activeTab == 'Service' && styles.tabInactive]}>
+              <Text style={styles.tabText}>Services</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => {
+              fetchData('Combine')
+              setActiveTab('Combine')
+            }} style={[styles.tabButton, activeTab == 'Combine' && styles.tabInactive]}>
+              <Text style={[styles.tabText]}>Combine & Save</Text>
+            </TouchableOpacity>
+          </View>
+          {activeTab == 'Service' ? (
+            <>
+              {data.length > 0 ? (
+                <View style={{ height: DimensionsConfig?.screenHeight * 0.8 }}>
+                  <View style={styles.insideConatiner}>
+                    <FlatList
+                      data={data}
+                      keyExtractor={(item) => item.id}
+                      renderItem={({ item }) => (
+                        <View style={styles.serviceItem}>
+                          <View style={styles.serviceInfo}>
+                            <Text style={styles.name}>{item.service}</Text>
+                            <Text style={styles.price}>${item.price}</Text>
+                            <Text style={styles.details}>Duration: {item.duration}</Text>
+                            {item.addons ? <Text style={styles.addons}>Add Ons: <Text style={{ fontWeight: '700' }}>{item.addons}</Text></Text> : null}
+                          </View>
+                          <TouchableOpacity style={styles.editButton} onPress={() => {
+                            navigation.navigate('AddEditSubServices', { type: activeTab, data: props?.route?.params?.data })
+                          }}>
+                            <Image source={Images.EditPen} style={styles.editIcon} />
+                          </TouchableOpacity>
+                        </View>
+                      )}
+                    />
+                  </View>
+                  <TouchableOpacity style={styles.fab} onPress={() => {
+                    navigation.navigate('AddEditSubServices', { type: activeTab, data: props?.route?.params?.data })
+                  }} >
+                    <Image source={Images?.PlusWhite} style={{
+                      height: DimensionsConfig.screenHeight * 0.028,
+                      width: DimensionsConfig.screenHeight * 0.028,
+                      resizeMode: 'contain'
+                    }} />
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <View style={{ height: DimensionsConfig?.screenHeight * 0.7, justifyContent: 'center', alignItems: 'center' }}>
+                  <Text style={styles?.AddServiceHeadingTxt}>Add a Hair Service</Text>
+                  <TouchableOpacity style={styles?.AddServiceBtnView} onPress={() => {
+                    navigation.navigate('AddEditSubServices', { type: activeTab, data: props?.route?.params?.data })
+                  }}>
+                    <View style={styles.plusCircle}>
+                      <Image source={Images?.PlusWhite} style={{
+                        height: DimensionsConfig.screenHeight * 0.022,
+                        width: DimensionsConfig.screenHeight * 0.022,
+                        resizeMode: 'contain'
+                      }} />
+                    </View>
+                    <Text style={styles?.AddServidsTxt}>Add a service</Text></TouchableOpacity>
+                </View>)}
+            </>
+          ) : (
+            <>
+              {data.length > 0 ? (
+                <View style={{ height: DimensionsConfig?.screenHeight * 0.8 }}>
+                  <View style={styles.insideConatiner}>
+                    <FlatList
+                      data={data}
+                      keyExtractor={(item) => item.id}
+                      renderItem={({ item }) => (
+                        <View style={styles.serviceItem}>
+                          <View style={styles.serviceInfo}>
+                            <Text style={styles.name}>{item.service}</Text>
+                            <Text style={styles.price}>${item.price}</Text>
+                            <Text style={styles.details}>Duration: {item.duration}</Text>
+                            {item.addons ? <Text style={styles.addons}>Add Ons: <Text style={{ fontWeight: '700' }}>{item.addons}</Text></Text> : null}
+                          </View>
+                          <TouchableOpacity style={styles.editButton} onPress={() => {
+                            navigation.navigate('AddEditSubServices', { type: activeTab, data: props?.route?.params?.data })
+                          }}>
+                            <Image source={Images.EditPen} style={styles.editIcon} />
+                          </TouchableOpacity>
+                        </View>
+                      )}
+                    />
+                  </View>
+                  <TouchableOpacity style={styles.fab} onPress={() => {
+                    navigation.navigate('AddEditSubServices', { type: activeTab, data: props?.route?.params?.data })
+                  }}>
+                    <Image source={Images?.PlusWhite} style={{
+                      height: DimensionsConfig.screenHeight * 0.028,
+                      width: DimensionsConfig.screenHeight * 0.028,
+                      resizeMode: 'contain'
+                    }} />
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <View style={{ height: DimensionsConfig?.screenHeight * 0.7, justifyContent: 'center', alignItems: 'center' }}>
+                  <Text style={styles?.AddServiceHeadingTxt}>{"Add a Combine & Save\n Service"}</Text>
+                  <TouchableOpacity style={styles?.AddServiceBtnView} onPress={() => {
+                    navigation.navigate('AddEditSubServices', { type: activeTab, data: props?.route?.params?.data })
+                  }}>
+                    <View style={styles.plusCircle}>
+                      <Image source={Images?.PlusWhite} style={{
+                        height: DimensionsConfig.screenHeight * 0.022,
+                        width: DimensionsConfig.screenHeight * 0.022,
+                        resizeMode: 'contain'
+                      }} />
+                    </View>
+                    <Text style={styles?.AddServidsTxt}>Add a service</Text></TouchableOpacity>
+                </View>
+              )}
+            </>
+          )}
         </View>
-        {activeTab == 'Services' ? (
-          <>
-            {services.length > 0 ? (
-              <View style={{ height: DimensionsConfig?.screenHeight * 0.8 }}>
-                <View style={styles.insideConatiner}>
-                  <FlatList
-                    data={services}
-                    keyExtractor={(item) => item.id}
-                    renderItem={({ item }) => (
-                      <View style={styles.serviceItem}>
-                        <View style={styles.serviceInfo}>
-                          <Text style={styles.name}>{item.name}</Text>
-                          <Text style={styles.price}>{item.price}</Text>
-                          <Text style={styles.details}>Duration: {item.duration}</Text>
-                          {item.addons ? <Text style={styles.addons}>Add Ons: <Text style={{ fontWeight: '700' }}>{item.addons}</Text></Text> : null}
-                        </View>
-                        <TouchableOpacity style={styles.editButton} onPress={() => {
-                          navigation.navigate('AddEditSubServices')
-                        }}>
-                          <Image source={Images.EditPen} style={styles.editIcon} />
-                        </TouchableOpacity>
-                      </View>
-                    )}
-                  />
-                </View>
-                <TouchableOpacity style={styles.fab} onPress={() => {
-                  navigation.navigate('AddEditSubServices')
-                }} >
-                  <Image source={Images?.PlusWhite} style={{
-                    height: DimensionsConfig.screenHeight * 0.028,
-                    width: DimensionsConfig.screenHeight * 0.028,
-                    resizeMode: 'contain'
-                  }} />
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <View style={{ height: DimensionsConfig?.screenHeight * 0.7, justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={styles?.AddServiceHeadingTxt}>Add a Hair Service</Text>
-                <TouchableOpacity style={styles?.AddServiceBtnView} onPress={() => {
-                  navigation.navigate('AddEditSubServices')
-                }}>
-                  <View style={styles.plusCircle}>
-                    <Image source={Images?.PlusWhite} style={{
-                      height: DimensionsConfig.screenHeight * 0.022,
-                      width: DimensionsConfig.screenHeight * 0.022,
-                      resizeMode: 'contain'
-                    }} />
-                  </View>
-                  <Text style={styles?.AddServidsTxt}>Add a service</Text></TouchableOpacity>
-              </View>)}
-          </>
-        ) : (
-          <>
-            {ComibeSave.length > 0 ? (
-              <View style={{ height: DimensionsConfig?.screenHeight * 0.8 }}>
-                <View style={styles.insideConatiner}>
-                  <FlatList
-                    data={ComibeSave}
-                    keyExtractor={(item) => item.id}
-                    renderItem={({ item }) => (
-                      <View style={styles.serviceItem}>
-                        <View style={styles.serviceInfo}>
-                          <Text style={styles.name}>{item.name}</Text>
-                          <Text style={styles.price}>{item.price}</Text>
-                          <Text style={styles.details}>Duration: {item.duration}</Text>
-                          {item.addons ? <Text style={styles.addons}>Add Ons: <Text style={{ fontWeight: '700' }}>{item.addons}</Text></Text> : null}
-                        </View>
-                        <TouchableOpacity style={styles.editButton} onPress={() => {
-                          navigation.navigate('AddEditSubServices')
-                        }}>
-                          <Image source={Images.EditPen} style={styles.editIcon} />
-                        </TouchableOpacity>
-                      </View>
-                    )}
-                  />
-                </View>
-                <TouchableOpacity style={styles.fab} onPress={() => {
-                  navigation.navigate('AddEditSubServices')
-                }}>
-                  <Image source={Images?.PlusWhite} style={{
-                    height: DimensionsConfig.screenHeight * 0.028,
-                    width: DimensionsConfig.screenHeight * 0.028,
-                    resizeMode: 'contain'
-                  }} />
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <View style={{ height: DimensionsConfig?.screenHeight * 0.7, justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={styles?.AddServiceHeadingTxt}>{"Add a Combine & Save\n Service"}</Text>
-                <TouchableOpacity style={styles?.AddServiceBtnView} onPress={() => {
-                  navigation.navigate('AddEditSubServices')
-                }}>
-                  <View style={styles.plusCircle}>
-                    <Image source={Images?.PlusWhite} style={{
-                      height: DimensionsConfig.screenHeight * 0.022,
-                      width: DimensionsConfig.screenHeight * 0.022,
-                      resizeMode: 'contain'
-                    }} />
-                  </View>
-                  <Text style={styles?.AddServidsTxt}>Add a service</Text></TouchableOpacity>
-              </View>
-            )}
-          </>
-        )}
       </View>
-    </View>
     </SafeAreaView>
   )
 }

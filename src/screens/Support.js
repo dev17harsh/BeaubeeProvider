@@ -8,42 +8,119 @@ import {
   TextInput,
   SafeAreaView,
 } from 'react-native';
-import React, {useState} from 'react';
-import {Images} from '../assets/images';
-import {Colors} from '../theme/colors';
+import React, { useEffect, useState } from 'react';
+import { Images } from '../assets/images';
+import { Colors } from '../theme/colors';
 import AppHeader from '../components/AppHeader';
-import {mobileH, mobileW} from '../components/utils';
+import { mobileH, mobileW } from '../components/utils';
 import CommonButton from '../components/CommonButton';
 import SelectCustomer from '../components/Modal.js/SelectCustomer';
 import SelectBookingModal from '../components/Modal.js/SelectBookingModal';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SubmitReportAction, SubmitReportRemoveAction } from '../redux/action/SubmitReportAction';
+import ToastMessage from '../components/ToastMessage';
+import { useDispatch, useSelector } from 'react-redux';
 const data = [
-  {label: 'Option 1', value: '1'},
-  {label: 'Option 2', value: '2'},
-  {label: 'Option 3', value: '3'},
-  {label: 'Option 4', value: '4'},
+  { label: 'Option 1', value: '1' },
+  { label: 'Option 2', value: '2' },
+  { label: 'Option 3', value: '3' },
+  { label: 'Option 4', value: '4' },
 ];
-export default function Support({navigation}) {
-  const [selectedOption, setSelectedOption] = useState('feebback');
-  const [isModalProfessionalVisible, setModalProfessionalVisible] =
-    useState(false);
+export default function Support({ navigation }) {
+  const dispatch = useDispatch();
+  const submitReportData = useSelector((state) => state.submitReportData);
+  const [selectedOption, setSelectedOption] = useState('Feedback');
+  const [isModalProfessionalVisible, setModalProfessionalVisible] = useState(false);
   const [isPackageModal, setisPackageModal] = useState(false);
-  const [clientBooking, setclientBooking] = useState('client');
+  const [clientBooking, setclientBooking] = useState('Customer');
   const [customerData, setcustomerData] = useState(null);
   const [storeData, setStoreData] = useState(null);
+  const [messageTxt, setMessageTxt] = useState('');
+
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastData, setToastData] = useState({
+    message: '',
+    color: ''
+  });
+
+
+  useEffect(() => {
+    console.log('submitReportData?.response', submitReportData?.response)
+    if (submitReportData?.response?.message == 'success') {
+      showToast()
+      setToastData({
+        message: 'Submit Report Succesfully'
+      })
+      setTimeout(() => {
+
+        navigation.goBack()
+      }, 500);
+      dispatch(
+        SubmitReportRemoveAction({})
+      )
+    }
+  }, [submitReportData])
+
   const handleOpenModal = () => setModalProfessionalVisible(true);
   const handleCloseModal = () => setModalProfessionalVisible(false);
 
   const handlePackageModalOpen = () => setisPackageModal(true);
   const handlePackageModalClose = () => setisPackageModal(false);
 
+  const showToast = () => {
+    setToastVisible(true);
+  };
+
   const storeDataToState = data => {
     setcustomerData(data);
   };
 
   const storeServiceToState = data => {
-    console.log('=>>>>>>>>>', data);
+    // console.log('=>>>>>>>>>', data);
     setStoreData(data);
   };
+
+  const onPressSubmit = async () => {
+    const userId = await AsyncStorage.getItem('token')
+    // console.log('selectedCustomer?.user_id', selectedCustomer?.user_id, selectedImage)
+    if (messageTxt == '') {
+      showToast()
+      setToastData({
+        message: 'Please write some feedback',
+        color: Colors?.red
+      })
+    }
+    else if (selectedOption != 'Feedback') {
+      if (!customerData?.user_id) {
+        showToast()
+        setToastData({
+          message: 'Please Select Client',
+          color: Colors?.red
+        })
+      }
+    }
+    // else if (storeData?.id) {
+    //   showToast()
+    //   setToastData({
+    //     message: 'Please Select Booking',
+    //     color: Colors?.red
+    //   })
+    // }
+    else {
+      const formData = new FormData();
+      formData.append('created_at', userId.toString());
+      formData.append('created_type', 'Vendor');
+      formData.append('report_type', selectedOption);
+      if (selectedOption != 'Feedback') {
+        formData.append('report_subject', clientBooking);
+        formData.append('customer_id', customerData?.user_id ? customerData?.user_id : '');
+        formData.append('booking_id', '');
+      }
+      formData.append('content', messageTxt);
+      console.log("formData ====>", formData)
+      dispatch(SubmitReportAction(formData))
+    }
+  }
 
   const ReportPress = () => {
     return (
@@ -57,11 +134,11 @@ export default function Support({navigation}) {
           }}>
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={() => setclientBooking('client')}
+            onPress={() => setclientBooking('Customer')}
             style={styles.selectedView}>
             <Image
               source={
-                clientBooking === 'client'
+                clientBooking === 'Customer'
                   ? Images.selectedButton
                   : Images.unSelectedButton
               }
@@ -71,11 +148,11 @@ export default function Support({navigation}) {
           </TouchableOpacity>
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={() => setclientBooking('booking')}
-            style={[styles.selectedView, {left: (mobileW * 10) / 100}]}>
+            onPress={() => setclientBooking('Booking')}
+            style={[styles.selectedView, { left: (mobileW * 10) / 100 }]}>
             <Image
               source={
-                clientBooking === 'booking'
+                clientBooking === 'Booking'
                   ? Images.selectedButton
                   : Images.unSelectedButton
               }
@@ -84,7 +161,7 @@ export default function Support({navigation}) {
             <Text style={styles.payMethod}>Booking</Text>
           </TouchableOpacity>
         </View>
-        {clientBooking === 'client' && (
+        {clientBooking === 'Customer' && (
           <>
             {customerData == null ? (
               <TouchableOpacity
@@ -100,23 +177,24 @@ export default function Support({navigation}) {
             ) : (
               <View style={styles.itemContainer}>
                 <Image
-                  source={customerData?.image}
+                  source={{ uri: customerData?.user_image }}
                   style={styles.profileImage}
                 />
                 <View style={styles.textContainer}>
-                  <Text style={styles.nameText}>{customerData?.name}</Text>
-                  <View style={styles.ratingRow}>
-                    <Image
-                      source={Images?.activeStar}
-                      style={styles.starIcon}
-                    />
-                    <Text style={styles.rating}>
-                      {customerData?.rating + '.0'}
-                    </Text>
-                    <Text style={styles.review}>
-                      {''}({customerData?.reviews} Reviews)
-                    </Text>
-                  </View>
+                  <Text style={styles.nameText}>{customerData?.customer_name}</Text>
+                  {customerData?.rating && (
+                    <View style={styles.ratingRow}>
+                      <Image
+                        source={Images?.activeStar}
+                        style={styles.starIcon}
+                      />
+                      <Text style={styles.rating}>
+                        {customerData?.rating + '.0'}
+                      </Text>
+                      <Text style={styles.review}>
+                        {''}({customerData?.reviews} Reviews)
+                      </Text>
+                    </View>)}
                 </View>
                 <TouchableOpacity onPress={() => setcustomerData(null)}>
                   <Image
@@ -128,7 +206,7 @@ export default function Support({navigation}) {
             )}
           </>
         )}
-        {clientBooking === 'booking' && (
+        {clientBooking === 'Booking' && (
           <>
             {storeData === null ? (
               <TouchableOpacity
@@ -209,6 +287,14 @@ export default function Support({navigation}) {
 
   return (
     <SafeAreaView style={styles.container}>
+      <ToastMessage
+        visible={toastVisible}
+        message={toastData.message}
+        onClose={() => setToastVisible(false)}
+        toastStyle={{
+          backgroundColor: toastData.color
+        }}
+      />
       <View style={styles.container}>
         <SelectCustomer
           visible={isModalProfessionalVisible}
@@ -229,7 +315,7 @@ export default function Support({navigation}) {
             marginTop: (mobileW * 4) / 100,
           }}>
           <Text style={styles.selectTitle}>Submit Report or Feedback ?</Text>
-          <Text style={[styles.payMethod, {marginTop: 10}]}>
+          <Text style={[styles.payMethod, { marginTop: 10 }]}>
             Please review alll of the details of your booking
           </Text>
 
@@ -241,11 +327,11 @@ export default function Support({navigation}) {
             }}>
             <TouchableOpacity
               activeOpacity={0.8}
-              onPress={() => setSelectedOption('feebback')}
+              onPress={() => setSelectedOption('Feedback')}
               style={styles.selectedView}>
               <Image
                 source={
-                  selectedOption === 'feebback'
+                  selectedOption === 'Feedback'
                     ? Images.selectedButton
                     : Images.unSelectedButton
                 }
@@ -255,11 +341,11 @@ export default function Support({navigation}) {
             </TouchableOpacity>
             <TouchableOpacity
               activeOpacity={0.8}
-              onPress={() => setSelectedOption('report')}
-              style={[styles.selectedView, {left: (mobileW * 10) / 100}]}>
+              onPress={() => setSelectedOption('Report')}
+              style={[styles.selectedView, { left: (mobileW * 10) / 100 }]}>
               <Image
                 source={
-                  selectedOption === 'report'
+                  selectedOption === 'Report'
                     ? Images.selectedButton
                     : Images.unSelectedButton
                 }
@@ -268,7 +354,7 @@ export default function Support({navigation}) {
               <Text style={styles.payMethod}>Report</Text>
             </TouchableOpacity>
           </View>
-          {selectedOption === 'report' && ReportPress()}
+          {selectedOption === 'Report' && ReportPress()}
           <View>
             <TextInput
               multiline={true}
@@ -276,6 +362,8 @@ export default function Support({navigation}) {
               placeholder="Type here..."
               maxLength={500}
               placeholderTextColor={'#9E98AC'}
+              value={messageTxt}
+              onChangeText={e => setMessageTxt(e)}
               style={{
                 width: (mobileW * 90) / 100,
                 height: (mobileW * 30) / 100,
@@ -298,7 +386,7 @@ export default function Support({navigation}) {
             width: (mobileW * 90) / 100,
             alignSelf: 'center',
           }}>
-          <CommonButton onPress={() => navigation.goBack()} />
+          <CommonButton onPress={() => { onPressSubmit() }} />
         </View>
       </View>
     </SafeAreaView>
@@ -379,7 +467,7 @@ const styles = StyleSheet.create({
   selectTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color:Colors.textDark,
+    color: Colors.textDark,
     left: 12,
   },
   dropdown: {

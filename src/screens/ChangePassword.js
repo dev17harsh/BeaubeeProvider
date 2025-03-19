@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   TextInput,
@@ -10,21 +10,96 @@ import {
   ScrollView,
   SafeAreaView,
 } from 'react-native';
-import {Images} from '../assets/images';
+import { Images } from '../assets/images';
 import AppHeader from '../components/AppHeader';
+import { useDispatch, useSelector } from 'react-redux';
+import { UpdateBusinessPasswordAction, UpdateBusinessPasswordRemoveAction } from '../redux/action/UpdateBusinessPasswordAction';
+import { Colors } from '../theme/colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import ToastMessage from '../components/ToastMessage';
 // import Icon from 'react-native-vector-icons/Ionicons';
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
-const ChangePasswordScreen = ({navigation}) => {
+const ChangePasswordScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const updateBusinessPasswordData = useSelector((state) => state.updateBusinessPasswordData);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [secureEntry1, setSecureEntry1] = useState(true);
   const [secureEntry2, setSecureEntry2] = useState(true);
   const [secureEntry3, setSecureEntry3] = useState(true);
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastData, setToastData] = useState({
+    message: '',
+    color: ''
+  });
+
+
+  const showToast = () => {
+    setToastVisible(true);
+  };
+
+
+  useEffect(() => {
+    if (updateBusinessPasswordData?.response?.message == 'success') {
+      navigation.goBack()
+      dispatch(
+        UpdateBusinessPasswordRemoveAction({})
+      )
+    }
+  }, [updateBusinessPasswordData])
+
+
+  const onPressSave = async () => {
+
+    const passwordRegex = /^(?=.*[!@#$%^&*()_\-+=\[\]{};:'",.<>?/\\|`~])(?=.*[A-Za-z0-9])[A-Za-z0-9!@#$%^&*()_\-+=\[\]{};:'",.<>?/\\|`~]{8,25}$/;
+    if (currentPassword == '') {
+      showToast()
+      setToastData({
+        message: 'Please Entered Current Password',
+        color: Colors?.red
+      })
+    } else if (newPassword == '') {
+      showToast()
+      setToastData({
+        message: 'Please Entered New Password',
+        color: Colors?.red
+      })
+    } else if (newPassword && !passwordRegex.test(newPassword)) {
+      showToast()
+      setToastData({
+        message: 'Password must be 8-25 characters, include at least one special character, and no emojis.',
+        color: Colors?.red
+      })
+    } else if (newPassword === confirmPassword) {
+      showToast()
+      setToastData({
+        message: 'Please Entered Correct Password.',
+        color: Colors?.red
+      })
+    } else {
+      const userId = await AsyncStorage.getItem('token')
+      const formData = new FormData();
+      formData.append('business_id', userId);
+      formData.append('old_password', currentPassword);
+      formData.append('new_password', newPassword);
+      console.log('formData', formData)
+
+      await dispatch(UpdateBusinessPasswordAction(formData));
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
+      <ToastMessage
+        visible={toastVisible}
+        message={toastData.message}
+        onClose={() => setToastVisible(false)}
+        toastStyle={{
+          backgroundColor: toastData.color
+        }}
+      />
       <View style={styles.container}>
         <AppHeader title={'Change Password'} />
         <ScrollView
@@ -86,7 +161,7 @@ const ChangePasswordScreen = ({navigation}) => {
 
           {/* Save Button */}
           <TouchableOpacity
-            onPress={() => navigation.navigate('AddAddress')}
+            onPress={() => onPressSave()}
             style={styles.selectLocationButton}>
             <Text style={styles.selectionButtonTxt}>Save New Password</Text>
           </TouchableOpacity>

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Modal,
   View,
@@ -9,18 +9,36 @@ import {
   Dimensions,
   Image,
 } from 'react-native';
-import {DimensionsConfig} from '../../theme/dimensions';
-import {Images} from '../../assets/images';
-import {Colors} from '../../theme/colors';
+import { DimensionsConfig } from '../../theme/dimensions';
+import { Images } from '../../assets/images';
+import { Colors } from '../../theme/colors';
 import CommonButton from '../CommonButton';
-import {TextInput as TextInputPaper} from 'react-native-paper';
+import { TextInput as TextInputPaper } from 'react-native-paper';
+import { useDispatch, useSelector } from 'react-redux';
+import { GetCustomerDetailsAction } from '../../redux/action/GetCustomerDetailsAction';
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
 
-const SelectGiftCardModal = ({visible, onClose, onSelect}) => {
-  const [selectedOption, setSelectedOption] = useState('highToLow');
+const SelectGiftCardModal = ({ visible, onClose, onSelect }) => {
+  const dispatch = useDispatch();
+  const getCustomerDetailsData = useSelector((state) => state.getCustomerDetailsData);
+  const [customerData, setCustomerData] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
-  const [selectedTab, setSelectedTab] = useState('Existing');
+  const [selectedTab, setSelectedTab] = useState('Exixting');
+
+  useEffect(() => {
+    // console.log('getCustomerDetailsData?.response?.result' , getCustomerDetailsData?.response?.result)
+    if (getCustomerDetailsData?.response?.result) {
+      setCustomerData(getCustomerDetailsData?.response?.result)
+    }
+  }, [getCustomerDetailsData])
+
+  useEffect(() => {
+    if (visible) {
+      dispatch(GetCustomerDetailsAction('All'))
+    }
+  }, [visible])
+
   const tabsView = () => {
     return (
       <View style={styles.tabs}>
@@ -54,84 +72,84 @@ const SelectGiftCardModal = ({visible, onClose, onSelect}) => {
     );
   };
 
-  const data = [
-    {
-      id: '1',
-      name: 'Johnathan Morrison',
-      rating: 5.0,
-      reviews: 121,
-      image: Images.Image1,
-      email: 'Johnathanmorrison@gmail.com',
-    },
-    {
-      id: '2',
-      name: 'Maria Kevin',
-      rating: 5.0,
-      reviews: 100,
-      image: Images.Image2,
-      email: 'Mariakevin@gmail.com',
-    },
-    {
-      id: '3',
-      name: 'Linda Johnson',
-      rating: 5.0,
-      reviews: 99,
-      image: Images.image11,
-      email: 'Lindajohnson@gmail.com',
-    },
-    {
-      id: '4',
-      name: 'Kevin Frank',
-      rating: 5.0,
-      reviews: 80,
-      image: Images.image22,
-      email: 'KevinFrank@gmail@gmail.com',
-    },
-    {
-      id: '5',
-      name: 'Dwayne Jackson',
-      rating: 5.0,
-      reviews: 60,
-      image: Images.image33,
-      email: 'Dwaynejackson@gmail@gmail.com',
-    },
-    {
-      id: '6',
-      name: 'Tom Cameron',
-      rating: 5.0,
-      reviews: 45,
-      image: Images.image44,
-      email: 'Tomcameron@gmail@gmail.com',
-    },
-    {
-      id: '7',
-      name: 'Conor Charlie',
-      rating: 5.0,
-      reviews: 40,
-      image: Images.image55,
-      email: 'Conorcharlie@gmail@gmail.com',
-    },
-  ];
+  // const data = [
+  //   {
+  //     id: '1',
+  //     name: 'Johnathan Morrison',
+  //     rating: 5.0,
+  //     reviews: 121,
+  //     image: Images.Image1,
+  //     email: 'Johnathanmorrison@gmail.com',
+  //   },
+  //   {
+  //     id: '2',
+  //     name: 'Maria Kevin',
+  //     rating: 5.0,
+  //     reviews: 100,
+  //     image: Images.Image2,
+  //     email: 'Mariakevin@gmail.com',
+  //   },
+  //   {
+  //     id: '3',
+  //     name: 'Linda Johnson',
+  //     rating: 5.0,
+  //     reviews: 99,
+  //     image: Images.image11,
+  //     email: 'Lindajohnson@gmail.com',
+  //   },
+  //   {
+  //     id: '4',
+  //     name: 'Kevin Frank',
+  //     rating: 5.0,
+  //     reviews: 80,
+  //     image: Images.image22,
+  //     email: 'KevinFrank@gmail@gmail.com',
+  //   },
+  //   {
+  //     id: '5',
+  //     name: 'Dwayne Jackson',
+  //     rating: 5.0,
+  //     reviews: 60,
+  //     image: Images.image33,
+  //     email: 'Dwaynejackson@gmail@gmail.com',
+  //   },
+  //   {
+  //     id: '6',
+  //     name: 'Tom Cameron',
+  //     rating: 5.0,
+  //     reviews: 45,
+  //     image: Images.image44,
+  //     email: 'Tomcameron@gmail@gmail.com',
+  //   },
+  //   {
+  //     id: '7',
+  //     name: 'Conor Charlie',
+  //     rating: 5.0,
+  //     reviews: 40,
+  //     image: Images.image55,
+  //     email: 'Conorcharlie@gmail@gmail.com',
+  //   },
+  // ];
 
   const handleItemPress = item => {
-    const newSelectedId = item.id === selectedId ? null : item.id;
-    setSelectedId(newSelectedId);
+    // const newSelectedId = item.user_id === selectedId ? null : item.user_id;
+    setSelectedId(item);
 
     // Return selected item data to the parent component
-    if (onSelect) {
-      onSelect(newSelectedId ? item : null); // Pass selected item or null if deselected
-    }
+    // if (onSelect) {
+    //   onSelect(newSelectedId ? item : null); // Pass selected item or null if deselected
+    // }
   };
 
-  const renderItem = ({item}) => {
-    const isSelected = item.id === selectedId;
+  const renderItem = ({ item }) => {
+    const isSelected = item?.user_id === selectedId?.user_id;
     return (
       <TouchableOpacity
         style={styles.itemContainer}
         onPress={() => handleItemPress(item)}>
-        <Image source={item.image} style={styles.profileImage} />
+        <Image source={{ uri: item.user_image }} style={styles.profileImage} />
         <View style={styles.textContainer}>
-          <Text style={styles.nameText}>{item.name}</Text>
+          <Text style={styles.nameText}>{item.customer_name}</Text>
         </View>
         <Image
           source={isSelected ? Images.selectedButton : Images.unSelectedButton}
@@ -200,13 +218,13 @@ const SelectGiftCardModal = ({visible, onClose, onSelect}) => {
           <>
             <Text style={styles.title}>Select Customer</Text>
             <FlatList
-              data={data}
+              data={customerData}
               showsVerticalScrollIndicator={false}
-              keyExtractor={item => item.id}
+              keyExtractor={item => item.user_id}
               renderItem={renderItem}
               contentContainerStyle={styles.listContent}
             />
-            <CommonButton onPress={() => onClose()} title={'Select'} />
+            <CommonButton onPress={() => { onClose(), onSelect(selectedId.user_id ? selectedId : null) }} title={'Select'} />
           </>
         ) : (
           <>{newDataView()}</>

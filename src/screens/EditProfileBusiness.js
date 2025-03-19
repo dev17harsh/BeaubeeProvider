@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -12,44 +12,140 @@ import {
   TextInput,
   SafeAreaView,
 } from 'react-native';
-import {Images} from '../assets/images';
+import { Images } from '../assets/images';
 import AppHeader from '../components/AppHeader';
-import {Colors} from '../theme/colors';
-import {TextInput as TextInputPaper} from 'react-native-paper';
+import { Colors } from '../theme/colors';
+import { TextInput as TextInputPaper } from 'react-native-paper';
 import CustomSwitch from '../components/CustomSwitch';
-import {launchImageLibrary} from 'react-native-image-picker';
+import { launchImageLibrary } from 'react-native-image-picker';
 import CommonButton from '../components/CommonButton';
-import {mobileH, mobileW} from '../components/utils';
+import { mobileH, mobileW } from '../components/utils';
 import BreakDuratinModal from '../components/Modal.js/BreakDurationModal';
+import { useDispatch, useSelector } from 'react-redux';
+import { DimensionsConfig } from '../theme/dimensions';
+import { UpdateBusinessProfileAction, UpdateBusinessProfileRemoveAction } from '../redux/action/UpdateBusinessProfileAction';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { GetUserDetailAction } from '../redux/action/GetUserDetailAction';
+import { useIsFocused } from '@react-navigation/native';
+import { DeleteBusinessImagesAction, DeleteBusinessImagesRemoveAction } from '../redux/action/DeleteBusinessImagesAction';
 
 const data = [
-  {image: Images.AddPhoto},
-  {image: Images.image11},
-  {image: Images.image22},
-  {image: Images.image33},
-  {image: Images.image44},
-  {image: Images.image55},
+  { image: Images.AddPhoto },
 ];
 
-const EditProfileBusiness = ({navigation}) => {
+const EditProfileBusiness = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const isFocused = useIsFocused()
+  const UserDetailData = useSelector((state) => state.getUserDetailData);
+  const UpdateBusinessProfileData = useSelector((state) => state.updateBusinessProfileData);
+  const DeleteBusinessImageData = useSelector((state) => state.DeleteBusinessImageData);
   const [breakModal, setbreakModal] = useState(false);
-  const [isEnable, setisEnable] = useState(false);
+  const [isEnableEmail, setisEnableEmail] = useState(false);
   const [isEnablePhone, setisEnablePhone] = useState(false);
+  const [isEnableFacebook, setisEnableFacebook] = useState(false);
+  const [isEnableInstagram, setisEnableInstagram] = useState(false);
+  const [isEnableWhatsapp, setisEnableWhatsapp] = useState(false);
+  const [isEnableTwitter, setisEnableTwitter] = useState(false);
+  const [isEnableYoutube, setisEnableYoutube] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
+  const [profileImageRes, setProfileResImage] = useState({});
+  const [coverImage, setCoverImage] = useState(null);
+  const [coverImageRes, setCoverResImage] = useState({});
+  const [addPhotoImage, setAddPhotoImage] = useState(null);
+  const [addPhotoImageRes, setAddPhotoResImage] = useState({});
+  const [businessName, setBusinessName] = useState('')
+  const [emailId, setEmailId] = useState('')
+  const [phoneNumber, setPhoneNumber] = useState('')
+  const [facebookUrl, setFacebookUrl] = useState('')
+  const [InstagramUrl, setInstagramUrl] = useState('')
+  const [whatsappUrl, setWhatsappUrl] = useState('')
+  const [twitterUrl, setTwitterUrl] = useState('')
+  const [youtubeUrl, setYoutubeUrl] = useState('')
+  const [photos, setPhotos] = useState([])
+
+  useEffect(() => {
+    dispatch(GetUserDetailAction())
+  }, [isFocused])
+
+  useEffect(() => {
+    // console.log('UserDetailData?.respons', UserDetailData?.response)
+    if (UserDetailData?.response?.result) {
+      // setUserDetail(UserDetailData?.response?.result)
+      setBusinessName(UserDetailData?.response?.result?.business_name)
+      setEmailId(UserDetailData?.response?.result?.email)
+      setPhoneNumber(UserDetailData?.response?.result?.mobile)
+      setProfileImage(UserDetailData?.response?.result?.profile)
+      setCoverImage(UserDetailData?.response?.result?.cover_profile)
+      setisEnableEmail(UserDetailData?.response?.result?.email_status == 'true' ? true : false)
+      setisEnablePhone(UserDetailData?.response?.result?.mobile_status == 'true' ? true : false)
+      setFacebookUrl(UserDetailData?.response?.result?.facebook)
+      setisEnableFacebook(UserDetailData?.response?.result?.facebook_status == 'true' ? true : false)
+      setInstagramUrl(UserDetailData?.response?.result?.insta)
+      setisEnableInstagram(UserDetailData?.response?.result?.insta_status == 'true' ? true : false)
+      setTwitterUrl(UserDetailData?.response?.result?.twitter)
+      setisEnableTwitter(UserDetailData?.response?.result?.twitter_status == 'true' ? true : false)
+      setWhatsappUrl(UserDetailData?.response?.result?.whatsapp)
+      setisEnableWhatsapp(UserDetailData?.response?.result?.whatsapp_status == 'true' ? true : false)
+      setYoutubeUrl(UserDetailData?.response?.result?.youtube)
+      setisEnableYoutube(UserDetailData?.response?.result?.youtube_status == 'true' ? true : false)
+      setPhotos([
+        { image: Images.AddPhoto, business_image_id: 0 },
+        ...UserDetailData?.response?.result?.business_images
+      ])
+
+    }
+  }, [UserDetailData])
+
+  useEffect(()=>{
+    if(DeleteBusinessImageData?.response?.result == 'Business Image Delete Successfully'){
+      console.log('?.response?.result' , DeleteBusinessImageData?.response?.result)
+      dispatch(DeleteBusinessImagesRemoveAction())
+      navigation.goBack()
+      // dispatch(GetUserDetailAction())
+    }
+  },[DeleteBusinessImageData])
+
+  useEffect(() => {
+    if (UpdateBusinessProfileData?.response?.result) {
+      // console.log('UpdateBusinessProfileData?.respons', UpdateBusinessProfileData?.response)
+      dispatch(UpdateBusinessProfileRemoveAction())
+      navigation.goBack()
+    }
+  }, [UpdateBusinessProfileData])
 
   const breakVisibleModal = () => {
     setbreakModal(!breakModal);
   };
 
-  const toggleOpen = () => {
-    setisEnable(!isEnable);
+  const toggleEmail = () => {
+    setisEnableEmail(!isEnableEmail);
   };
 
   const togglePhone = () => {
     setisEnablePhone(!isEnablePhone);
   };
 
-  const openImagePicker = () => {
+  const toggleFaceBook = () => {
+    setisEnableFacebook(!isEnableFacebook);
+  };
+
+  const toggleInstagram = () => {
+    setisEnableInstagram(!isEnableInstagram);
+  };
+
+  const toggleWhatsapp = () => {
+    setisEnableWhatsapp(!isEnableWhatsapp);
+  };
+
+  const toggleTwitter = () => {
+    setisEnableTwitter(!isEnableTwitter);
+  };
+
+  const toggleYoutube = () => {
+    setisEnableYoutube(!isEnableYoutube);
+  };
+
+  const openCoverImagePicker = () => {
     let options = {
       mediaType: 'photo',
       maxWidth: 300,
@@ -59,10 +155,105 @@ const EditProfileBusiness = ({navigation}) => {
 
     launchImageLibrary(options, response => {
       if (response?.assets && response.assets.length > 0) {
+        setCoverResImage(response.assets)
+        setCoverImage(response.assets[0].uri);
+      }
+    });
+  };
+
+  const openProfileImagePicker = () => {
+    let options = {
+      mediaType: 'photo',
+      maxWidth: 300,
+      maxHeight: 300,
+      quality: 1,
+    };
+
+    launchImageLibrary(options, response => {
+      if (response?.assets && response.assets.length > 0) {
+        setProfileResImage(response.assets)
         setProfileImage(response.assets[0].uri);
       }
     });
   };
+
+  const openPhotoImagePicker = () => {
+    let options = {
+      mediaType: 'photo',
+      maxWidth: 300,
+      maxHeight: 300,
+      quality: 1,
+    };
+
+    launchImageLibrary(options, response => {
+      if (response?.assets && response.assets.length > 0) {
+        setAddPhotoResImage(response.assets)
+        setAddPhotoImage(response.assets[0].uri);
+      }
+    });
+  };
+
+  const createFileFromPickerData = (imagePickerResponse) => {
+    if (imagePickerResponse && imagePickerResponse.length > 0) {
+      const fileData = imagePickerResponse[0]; // Assuming you have a single image
+      const { uri, fileName, type } = fileData;
+
+      // Creating a file object for FormData
+      const file = {
+        uri: Platform.OS === 'android' ? uri : uri.replace('file://', ''), // Remove 'file://' on iOS
+        name: fileName,
+        type: type,
+      };
+
+      return file;
+    }
+    return null;
+  };
+
+  const onPressSaveChanges = async () => {
+    console.log('save changes api')
+    const userId = await AsyncStorage.getItem('token')
+    const formData = new FormData();
+    const profileFile = await createFileFromPickerData(profileImageRes)
+    const coverFile = await createFileFromPickerData(coverImageRes)
+    const businessPicFile = await createFileFromPickerData(addPhotoImageRes)
+    formData.append('business_id', userId);
+    formData.append('business_name', businessName.toString());
+    formData.append('email', emailId.toString());
+    formData.append('email_status', isEnableEmail.toString());
+    formData.append('mobile', phoneNumber.toString());
+    formData.append('mobile_status', isEnablePhone.toString());
+    if (profileFile != null) {
+      formData.append('profile', profileFile);
+    }
+    if (coverFile != null) {
+      formData.append('cover_profile', coverFile);
+    }
+    if (businessPicFile != null) {
+      formData.append('business_pictures', businessPicFile);
+    }
+    formData.append('facebook', facebookUrl.toString());
+    formData.append('facebook_status', isEnableFacebook.toString());
+    formData.append('insta', InstagramUrl.toString());
+    formData.append('insta_status', isEnableInstagram.toString());
+    formData.append('youtube', youtubeUrl.toString());
+    formData.append('youtube_status', isEnableYoutube.toString());
+    formData.append('twitter', twitterUrl.toString());
+    formData.append('twitter_status', isEnableTwitter.toString());
+    formData.append('whatsapp', whatsappUrl.toString());
+    formData.append('whatsapp_status', isEnableWhatsapp.toString());
+
+    console.log('formData', formData)
+    dispatch(UpdateBusinessProfileAction(formData))
+  }
+
+  const onPressCross = async (id)=>{
+    const userId = await AsyncStorage.getItem('token')
+    dispatch(DeleteBusinessImagesAction({
+      business_id : userId,
+      business_image_id : id
+    }))
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -75,21 +266,35 @@ const EditProfileBusiness = ({navigation}) => {
           {/* Business Image */}
           <ImageBackground
             resizeMode="cover"
-            source={Images?.image11}
+            source={coverImage == null ? Images.image22 : { uri: coverImage }}
             imageStyle={styles?.businessImage}
             style={styles?.businessImage}>
-            <Image source={Images?.image22} style={styles.homeServiceIcon} />
             <TouchableOpacity
-              onPress={() => openImagePicker()}
+              onPress={() => openCoverImagePicker()}
               activeOpacity={0.8}>
               <Image
                 source={Images?.cameraWithBack}
-                style={styles.cameraIcon}
+                style={[styles.cameraIcon, { right: DimensionsConfig.screenHeight * 0.03, top: DimensionsConfig.screenHeight * 0.22, position: 'absolute', zIndex: 99999 }]}
               />
             </TouchableOpacity>
           </ImageBackground>
 
-          <View style={{alignItems: 'center', marginTop: (mobileW * 16) / 100}}>
+          <View style={{
+            alignSelf: 'center',
+            top: -DimensionsConfig.screenHeight * 0.06
+          }}>
+            <Image source={profileImage == null ? Images.staff : { uri: profileImage }} style={styles.homeServiceIcon} />
+            <TouchableOpacity
+              onPress={() => openProfileImagePicker()}
+              activeOpacity={0.8}>
+              <Image
+                source={Images?.cameraWithBack}
+                style={[styles.cameraIcon, { top: -DimensionsConfig.screenHeight * 0.05, right: (mobileH * -7) / 100 }]}
+              />
+            </TouchableOpacity>
+          </View>
+
+          <View style={{ alignItems: 'center', marginTop: -(mobileW * 20) / 100 }}>
             <TextInputPaper
               style={{
                 width: (mobileW * 90) / 100,
@@ -99,6 +304,10 @@ const EditProfileBusiness = ({navigation}) => {
               }}
               outlineColor={Colors?.lightGray}
               activeOutlineColor={Colors?.primary}
+              value={businessName}
+              onChangeText={(txt) => {
+                setBusinessName(txt)
+              }}
               label="Business Name"
               placeholder="Business"
               mode="outlined"
@@ -109,13 +318,18 @@ const EditProfileBusiness = ({navigation}) => {
                 outlineColor={Colors?.lightGray}
                 activeOutlineColor={Colors?.primary}
                 label="Email"
-                placeholder="test@email.com"
+                keyboardType={'email-address'}
+                onChangeText={(txt) => {
+                  setEmailId(txt)
+                }}
+                value={emailId}
+                placeholder="test@gmail.com"
                 mode="outlined"
               />
               <CustomSwitch
-                isEnabled={isEnable}
+                isEnabled={isEnableEmail}
                 toggleSwitch={() => {
-                  toggleOpen();
+                  toggleEmail();
                 }}
               />
             </View>
@@ -125,7 +339,13 @@ const EditProfileBusiness = ({navigation}) => {
                 outlineColor={Colors?.primary}
                 activeOutlineColor={Colors?.primary}
                 label="Phone"
-                placeholder="+73 73538638368"
+                onChangeText={(txt) => {
+                  setPhoneNumber(txt)
+                }}
+                maxLength={10}
+                value={phoneNumber}
+                keyboardType={'number-pad'}
+                placeholder="73538638368"
                 mode="outlined"
               />
               <CustomSwitch
@@ -150,12 +370,16 @@ const EditProfileBusiness = ({navigation}) => {
                   placeholder="www.facebook.com"
                   placeholderTextColor={Colors.textLight}
                   style={styles.socialtextInputStyle}
+                  value={facebookUrl}
+                  onChangeText={(txt) => {
+                    setFacebookUrl(txt)
+                  }}
                 />
               </View>
               <CustomSwitch
-                isEnabled={isEnablePhone}
+                isEnabled={isEnableFacebook}
                 toggleSwitch={() => {
-                  togglePhone();
+                  toggleFaceBook();
                 }}
               />
             </View>
@@ -171,12 +395,16 @@ const EditProfileBusiness = ({navigation}) => {
                   placeholder="www.instagram.com"
                   placeholderTextColor={Colors.textLight}
                   style={styles.socialtextInputStyle}
+                  value={InstagramUrl}
+                  onChangeText={(txt) => {
+                    setInstagramUrl(txt)
+                  }}
                 />
               </View>
               <CustomSwitch
-                isEnabled={isEnablePhone}
+                isEnabled={isEnableInstagram}
                 toggleSwitch={() => {
-                  togglePhone();
+                  toggleInstagram();
                 }}
               />
             </View>
@@ -192,12 +420,16 @@ const EditProfileBusiness = ({navigation}) => {
                   placeholder="www.whatsapp.com"
                   placeholderTextColor={Colors.textLight}
                   style={styles.socialtextInputStyle}
+                  value={whatsappUrl}
+                  onChangeText={(txt) => {
+                    setWhatsappUrl(txt)
+                  }}
                 />
               </View>
               <CustomSwitch
-                isEnabled={isEnablePhone}
+                isEnabled={isEnableWhatsapp}
                 toggleSwitch={() => {
-                  togglePhone();
+                  toggleWhatsapp();
                 }}
               />
             </View>
@@ -213,12 +445,16 @@ const EditProfileBusiness = ({navigation}) => {
                   placeholder="www.twitter.com"
                   placeholderTextColor={Colors.textLight}
                   style={styles.socialtextInputStyle}
+                  value={twitterUrl}
+                  onChangeText={(txt) => {
+                    setTwitterUrl(txt)
+                  }}
                 />
               </View>
               <CustomSwitch
-                isEnabled={isEnablePhone}
+                isEnabled={isEnableTwitter}
                 toggleSwitch={() => {
-                  togglePhone();
+                  toggleTwitter();
                 }}
               />
             </View>
@@ -234,37 +470,48 @@ const EditProfileBusiness = ({navigation}) => {
                   placeholder="www.youtube.com"
                   placeholderTextColor={Colors.textLight}
                   style={styles.socialtextInputStyle}
+                  value={youtubeUrl}
+                  onChangeText={(txt) => {
+                    setYoutubeUrl(txt)
+                  }}
                 />
               </View>
               <CustomSwitch
-                isEnabled={isEnablePhone}
+                isEnabled={isEnableYoutube}
                 toggleSwitch={() => {
-                  togglePhone();
+                  toggleYoutube();
                 }}
               />
             </View>
 
             {/*  */}
-            <View style={{marginTop: (mobileW * 4) / 100}}>
+            <View style={{ marginTop: (mobileW * 4) / 100 }}>
               <Text style={styles.selectTitle}>Add Photo</Text>
-              <View style={{marginTop: (mobileW * 4) / 100}}>
+              <View style={{ marginTop: (mobileW * 4) / 100 }}>
                 <FlatList
-                  data={data}
+                  data={photos}
                   horizontal
                   showsHorizontalScrollIndicator={false}
-                  renderItem={({item, index}) => (
+                  renderItem={({ item, index }) => (
                     <TouchableOpacity
                       activeOpacity={0.8}
-                      onPress={() => index == 0 && openImagePicker()}>
+                      onPress={() => index == 0 && openPhotoImagePicker()}>
                       <ImageBackground
-                        source={item?.image}
+                        source={index == 0 ? addPhotoImage != null ? { uri: addPhotoImage } : item?.image : {uri :item?.image}}
                         style={{
                           width: (mobileW * 40) / 100,
                           height: (mobileW * 40) / 100,
                           marginRight: (mobileW * 4) / 100,
-                        }}>
+                        }}
+                        imageStyle={{
+                          borderRadius: (mobileW * 5) / 100,
+                          resizeMode: 'cover'
+                        }}
+                      >
                         {index !== 0 && (
-                          <TouchableOpacity activeOpacity={0.8}>
+                          <TouchableOpacity activeOpacity={0.8} onPress={()=>{
+                            onPressCross(item?.business_image_id)
+                          }}>
                             <Image
                               source={Images?.RemoveWithBack}
                               style={{
@@ -284,8 +531,8 @@ const EditProfileBusiness = ({navigation}) => {
               </View>
 
               <CommonButton
-              onPress={()=>navigation.goBack()}
-              title={'Save Changes'} />
+                onPress={() => onPressSaveChanges()}
+                title={'Save Changes'} />
             </View>
           </View>
         </ScrollView>
@@ -305,7 +552,7 @@ const styles = StyleSheet.create({
   businessImage: {
     width: (mobileW * 110) / 100,
     height: 200,
-    alignItems: 'center',
+    // alignItems: 'center',
     alignSelf: 'center',
   },
   detailsContainer: {
@@ -320,16 +567,17 @@ const styles = StyleSheet.create({
   homeServiceIcon: {
     width: (mobileW * 24) / 100,
     height: (mobileW * 24) / 100,
-    bottom: (mobileH * -19) / 100,
+    // bottom: (mobileH * -19) / 100,
     borderWidth: (mobileW * 1) / 100,
     borderColor: Colors.white,
     borderRadius: (mobileW * 12) / 100,
+    backgroundColor: Colors?.black
   },
   cameraIcon: {
     width: (mobileW * 12) / 100,
     height: (mobileW * 12) / 100,
-    bottom: (mobileH * -14) / 100,
-    right: (mobileH * -5) / 100,
+    // bottom: (mobileH * -14) / 100,
+    // right: (mobileH * -5) / 100,
   },
   socialMediaIcon: {
     width: (mobileW * 6) / 100,
@@ -600,7 +848,7 @@ const styles = StyleSheet.create({
     borderRadius: (mobileW * 3) / 100,
     elevation: 1,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },
@@ -618,7 +866,7 @@ const styles = StyleSheet.create({
     borderRadius: (mobileW * 3) / 100,
     elevation: 1,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },
@@ -712,7 +960,7 @@ const styles = StyleSheet.create({
   socialtextInputStyle: {
     width: '88%',
     height: (mobileW * 11) / 100,
-    color: Colors.red,
+    color: Colors.DarkPurple,
   },
   socialMediaTextView: {
     paddingHorizontal: (mobileW * 3) / 100,

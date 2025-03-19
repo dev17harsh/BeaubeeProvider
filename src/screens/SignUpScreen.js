@@ -53,7 +53,7 @@ const SignUpScreen = ({ navigation }) => {
   }, [signUpData])
 
   useEffect(() => {
-    if (businessTypeData?.response?.result) {
+    if (Array.isArray(businessTypeData?.response?.result)) {
       // console.log('businessTypeData ===>' , businessTypeData?.response?.result)
       const newArray = businessTypeData?.response?.result.map((item, index) => ({
         label: item?.name,

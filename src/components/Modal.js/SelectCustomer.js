@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Modal,
   View,
@@ -9,15 +9,35 @@ import {
   Dimensions,
   Image,
 } from 'react-native';
-import {DimensionsConfig} from '../../theme/dimensions';
-import {Images} from '../../assets/images';
-import {Colors} from '../../theme/colors';
+import { DimensionsConfig } from '../../theme/dimensions';
+import { Images } from '../../assets/images';
+import { Colors } from '../../theme/colors';
+import { useDispatch, useSelector } from 'react-redux';
+import { GetCustomerDetailsAction } from '../../redux/action/GetCustomerDetailsAction';
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
 
-const SelectCustomer = ({visible, onClose, onSelect}) => {
+const SelectCustomer = ({ visible, onClose, onSelect }) => {
+  const dispatch = useDispatch();
+  const getCustomerDetailsData = useSelector((state) => state.getCustomerDetailsData);
+  const [customerData, setCustomerData] = useState([]);
   const [selectedOption, setSelectedOption] = useState('highToLow');
   const [selectedId, setSelectedId] = useState(null);
+
+
+  useEffect(() => {
+    // console.log('getCustomerDetailsData?.response?.result' , getCustomerDetailsData?.response?.result)
+    if (getCustomerDetailsData?.response?.result) {
+      setCustomerData(getCustomerDetailsData?.response?.result)
+    }
+  }, [getCustomerDetailsData])
+
+  useEffect(() => {
+    if (visible) {
+      dispatch(GetCustomerDetailsAction('All'))
+      setSelectedId(null)
+    }
+  }, [visible])
 
   const data = [
     {
@@ -79,23 +99,23 @@ const SelectCustomer = ({visible, onClose, onSelect}) => {
   ];
 
   const handleItemPress = item => {
-    const newSelectedId = item.id === selectedId ? null : item.id;
+    const newSelectedId = item.user_id === selectedId ? null : item.user_id;
     setSelectedId(newSelectedId);
     onClose();
     if (onSelect) {
-      onSelect(newSelectedId ? item : null); 
+      onSelect(newSelectedId ? item : null);
     }
   };
 
-  const renderItem = ({item}) => {
-    const isSelected = item.id === selectedId;
+  const renderItem = ({ item }) => {
+    const isSelected = item.user_id === selectedId;
     return (
       <TouchableOpacity
         style={styles.itemContainer}
         onPress={() => handleItemPress(item)}>
-        <Image source={item.image} style={styles.profileImage} />
+        <Image source={{ uri: item.user_image }} style={styles.profileImage} />
         <View style={styles.textContainer}>
-          <Text style={styles.nameText}>{item.name}</Text>
+          <Text style={styles.nameText}>{item.customer_name}</Text>
         </View>
         <Image
           source={isSelected ? Images.selectedButton : Images.unSelectedButton}
@@ -116,9 +136,9 @@ const SelectCustomer = ({visible, onClose, onSelect}) => {
         />
         <Text style={styles.title}>Select Customer</Text>
         <FlatList
-          data={data}
+          data={customerData}
           showsVerticalScrollIndicator={false}
-          keyExtractor={item => item.id}
+          keyExtractor={item => item.user_id}
           renderItem={renderItem}
           contentContainerStyle={styles.listContent}
         />

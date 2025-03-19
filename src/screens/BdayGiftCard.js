@@ -9,26 +9,34 @@ import {
   FlatList,
   SafeAreaView,
 } from 'react-native';
-import React, {useState} from 'react';
-import {TextInput, TextInput as TextInputPaper} from 'react-native-paper';
-import {Images} from '../assets/images';
+import React, { useEffect, useState } from 'react';
+import { TextInput, TextInput as TextInputPaper } from 'react-native-paper';
+import { Images } from '../assets/images';
 import InputField from '../components/InputField';
-import {DimensionsConfig} from '../theme/dimensions';
-import {Colors} from '../theme/colors';
+import { DimensionsConfig } from '../theme/dimensions';
+import { Colors } from '../theme/colors';
 import AppHeader from '../components/AppHeader';
-import {Dropdown} from 'react-native-element-dropdown';
-import {mobileH, mobileW} from '../components/utils';
+import { Dropdown } from 'react-native-element-dropdown';
+import { mobileH, mobileW } from '../components/utils';
 import CommonButton from '../components/CommonButton';
 import ListProfessionalModal from '../components/ListProfessionalModal';
 import SelectPackageModal from '../components/Modal.js/SelectPackageModal';
 import CustomSwitch from '../components/CustomSwitch';
+import { useDispatch, useSelector } from 'react-redux';
+import { useIsFocused } from '@react-navigation/native';
+import { GetSendGiftCardAction } from '../redux/action/GetSendGiftCardAction';
 const data = [
-  {label: 'Option 1', value: '1'},
-  {label: 'Option 2', value: '2'},
-  {label: 'Option 3', value: '3'},
-  {label: 'Option 4', value: '4'},
+  { label: 'Option 1', value: '1' },
+  { label: 'Option 2', value: '2' },
+  { label: 'Option 3', value: '3' },
+  { label: 'Option 4', value: '4' },
 ];
-export default function BdayGiftCard({navigation}) {
+export default function BdayGiftCard({ navigation }) {
+
+  const dispatch = useDispatch();
+  const isFocused = useIsFocused()
+  const getSendGiftData = useSelector((state) => state.getSendGiftData);
+
   const [isEnable, setisEnable] = useState(false);
 
   const [value, setValue] = useState(null);
@@ -37,6 +45,24 @@ export default function BdayGiftCard({navigation}) {
   const [isModalProfessionalVisible, setModalProfessionalVisible] =
     useState(false);
   const [isPackageModal, setisPackageModal] = useState(false);
+
+  const [sendedGiftCardData, setSendedGiftCardData] = useState([])
+
+
+  useEffect(() => {
+    // console.log('getSendGiftData?.response?.result' , getSendGiftData?.response?.result)
+    if (getSendGiftData?.response?.result) {
+      setSendedGiftCardData(getSendGiftData?.response?.result)
+    }
+  }, [getSendGiftData])
+
+
+  useEffect(() => {
+    dispatch(GetSendGiftCardAction())
+  }, [isFocused])
+
+
+
   const handleOpenModal = () => setModalProfessionalVisible(true);
   const handleCloseModal = () => setModalProfessionalVisible(false);
 
@@ -45,7 +71,7 @@ export default function BdayGiftCard({navigation}) {
   const dropDown = () => {
     return (
       <Dropdown
-        style={[styles.dropdown, isFocus && {borderColor: 'blue'}]}
+        style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
         placeholderStyle={styles.placeholderStyle}
         selectedTextStyle={styles.selectedTextStyle}
         inputSearchStyle={styles.inputSearchStyle}
@@ -109,6 +135,29 @@ export default function BdayGiftCard({navigation}) {
     },
   ];
 
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+
+    // Get day, month, and year
+    const day = date.getDate();
+    const month = date.toLocaleString('default', { month: 'long' });
+    const year = date.getFullYear();
+
+    // Add ordinal suffix (st, nd, rd, th)
+    const getOrdinalSuffix = (day) => {
+      if (day > 3 && day < 21) return 'th'; // Covers 4th to 20th
+      switch (day % 10) {
+        case 1: return 'st';
+        case 2: return 'nd';
+        case 3: return 'rd';
+        default: return 'th';
+      }
+    };
+    const formattedDate = `${day}${getOrdinalSuffix(day)} ${month} ${year}`;
+    return formattedDate;
+  };
+
   const renderPaymentMethod = items => {
     const item = items.item;
     return (
@@ -119,19 +168,19 @@ export default function BdayGiftCard({navigation}) {
         <View style={styles.paymentMethodContainer}>
           <View style={styles.methodDetails}>
             <Image
-              resizeMode="contain"
-              source={item?.image}
+              resizeMode="cover"
+              source={{ uri: item?.card_background }}
               style={styles.cardIcons}
             />
-            <View style={{left: (mobileH * 1.5) / 100}}>
-              <Text style={styles.nameText}>To : {item.name}</Text>
-              <Text style={styles.methodText}>On : {item.date}</Text>
+            <View style={{ left: (mobileH * 1.5) / 100 }}>
+              <Text style={styles.nameText}>To : {item.customer_name}</Text>
+              <Text style={styles.methodText}>On : {formatDate(item.date)}</Text>
             </View>
           </View>
           <View style={styles.straightLinegiftCard} />
           <View>
-            <Text style={styles.bdayText}>{'Happy Birthday 🥳🎉'}</Text>
-            <Text style={[styles.nameText, {color: Colors.primary}]}>
+            <Text style={styles.bdayText}>{item?.title}</Text>
+            <Text style={[styles.nameText, { color: Colors.primary }]}>
               ${item.amount}.00
             </Text>
           </View>
@@ -146,12 +195,12 @@ export default function BdayGiftCard({navigation}) {
         <ListProfessionalModal
           visible={isModalProfessionalVisible}
           onClose={handleCloseModal}
-          // onSelect={e => storeDataToState(e)}
+        // onSelect={e => storeDataToState(e)}
         />
         <SelectPackageModal
           visible={isPackageModal}
           onClose={handlePackageModalClose}
-          // onSelect={e => storeDataToState(e)}
+        // onSelect={e => storeDataToState(e)}
         />
         {/* Header */}
         <AppHeader title={'Birthday Gift Cards'} />
@@ -180,7 +229,7 @@ export default function BdayGiftCard({navigation}) {
               }}
             />
           </View>
-          <View style={{marginTop: (mobileH * 3) / 100}}>
+          <View style={{ marginTop: (mobileH * 3) / 100 }}>
             <TextInput
               style={{
                 width: (mobileW * 90) / 100,
@@ -195,7 +244,7 @@ export default function BdayGiftCard({navigation}) {
               placeholder="Number of bookings"
             />
           </View>
-          <View style={{marginTop: (mobileH * 3) / 100}}>
+          <View style={{ marginTop: (mobileH * 3) / 100 }}>
             <TextInput
               style={{
                 width: (mobileW * 90) / 100,
@@ -210,7 +259,7 @@ export default function BdayGiftCard({navigation}) {
               placeholder="Enter gift amount"
             />
           </View>
-          <View style={{marginTop: (mobileH * 3) / 100}}>
+          <View style={{ marginTop: (mobileH * 3) / 100 }}>
             <TextInput
               style={{
                 width: (mobileW * 90) / 100,
@@ -229,15 +278,15 @@ export default function BdayGiftCard({navigation}) {
           <Text
             style={[
               styles.sentGiftCart,
-              {alignSelf: 'flex-start', left: (mobileW * 3) / 100},
+              { alignSelf: 'flex-start', left: (mobileW * 3) / 100 },
             ]}>
             Gift Cards Sent
           </Text>
           <FlatList
-            data={paymentMethods}
+            data={sendedGiftCardData}
             renderItem={(item, index) => renderPaymentMethod(item)}
-            keyExtractor={item => item.id}
-            contentContainerStyle={{paddingBottom: (mobileW * 12) / 100}}
+            keyExtractor={item => item.gift_card_id}
+            contentContainerStyle={{ paddingBottom: (mobileW * 18) / 100 }}
           />
         </ScrollView>
         <View
@@ -291,7 +340,7 @@ const styles = StyleSheet.create({
     borderRadius: (mobileW * 3) / 100,
     elevation: 1,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
     marginTop: (mobileW * 2) / 100,
@@ -404,7 +453,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: (mobileW * 3) / 100,
     elevation: 3,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
     width: (mobileW * 90) / 100,

@@ -174,11 +174,11 @@ const Availability = ({navigation}) => {
           })}
         </View>
         <View style={{width:mobileW*90/100,alignSelf:'center'}}>
-        <CustomButton
+        {/* <CustomButton
         style={{backgroundColor:Colors.semiPurpleLight}}
         textStyle={{color:Colors.primary}}
         title={'+ Add'}
-        />
+        /> */}
         <CommonButton
         onPress={()=>navigation.navigate('Profile')}
         title={'Save'}

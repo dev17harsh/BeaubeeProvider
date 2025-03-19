@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,63 +10,102 @@ import {
   ImageBackground,
   SafeAreaView,
 } from 'react-native';
-import {DimensionsConfig} from '../theme/dimensions';
-import {Images} from '../assets/images';
-import {Colors} from '../theme/colors';
+import { DimensionsConfig } from '../theme/dimensions';
+import { Images } from '../assets/images';
+import { Colors } from '../theme/colors';
 import AppHeader from '../components/AppHeader';
-import {mobileW} from '../components/utils';
+import { mobileW } from '../components/utils';
 import Storage from '../components/Storage';
-import {useIsFocused} from '@react-navigation/native';
+import { useIsFocused } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import { GetCategoryAction } from '../redux/action/GetCategoryAction';
+import { GetPostAction } from '../redux/action/GetPostAction';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const servicesArray = [
-  {id: 1, isLocal: false, image: Images?.Image1, isVideo: true},
-  {id: 2, isLocal: false, image: Images?.Image2},
-  {id: 3, isLocal: false, image: Images?.Image1},
-  {id: 4, isLocal: false, image: Images?.Image2},
-  {id: 5, isLocal: false, image: Images?.Image1, isVideo: true},
-  {id: 6, isLocal: false, image: Images?.Image1},
-  {id: 7, isLocal: false, image: Images?.Image2},
-  {id: 8, isLocal: false, image: Images?.Image1},
-  {id: 9, isLocal: false, image: Images?.Image2, isVideo: true},
-  {id: 10, isLocal: false, image: Images?.Image1},
-  {id: 11, isLocal: false, image: Images?.Image1},
-  {id: 12, isLocal: false, image: Images?.Image2},
-  {id: 13, isLocal: false, image: Images?.Image1, isVideo: true},
-  {id: 14, isLocal: false, image: Images?.Image2},
-  {id: 15, isLocal: false, image: Images?.Image1},
+  { id: 1, isLocal: false, image: Images?.Image1, isVideo: true },
+  { id: 2, isLocal: false, image: Images?.Image2 },
+  { id: 3, isLocal: false, image: Images?.Image1 },
+  { id: 4, isLocal: false, image: Images?.Image2 },
+  { id: 5, isLocal: false, image: Images?.Image1, isVideo: true },
+  { id: 6, isLocal: false, image: Images?.Image1 },
+  { id: 7, isLocal: false, image: Images?.Image2 },
+  { id: 8, isLocal: false, image: Images?.Image1 },
+  { id: 9, isLocal: false, image: Images?.Image2, isVideo: true },
+  { id: 10, isLocal: false, image: Images?.Image1 },
+  { id: 11, isLocal: false, image: Images?.Image1 },
+  { id: 12, isLocal: false, image: Images?.Image2 },
+  { id: 13, isLocal: false, image: Images?.Image1, isVideo: true },
+  { id: 14, isLocal: false, image: Images?.Image2 },
+  { id: 15, isLocal: false, image: Images?.Image1 },
 ];
 
-const Posts = ({navigation}) => {
+const Posts = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const getCategoryData = useSelector((state) => state.getCategoryData);
+  const getPostData = useSelector((state) => state.getPostData);
   const [postName, setPostName] = useState('All');
-  const [services, setServices] = useState(null);
+  const [services, setServices] = useState([]);
+  const [categories, setCategories] = useState([]);
   const isFocused = useIsFocused();
-  const categories = [
-    {id: 1, title: 'All', icon: Images?.allPosts},
-    {id: 2, title: 'Hair', icon: Images?.Hair},
-    {id: 3, title: 'Skin Tone', icon: Images?.Skincare},
-    {id: 4, title: 'Makeup', icon: Images?.Makeup},
-    {id: 5, title: 'Hair', icon: Images?.Hair},
-    {id: 6, title: 'Skin Tone', icon: Images?.Hair},
-    {id: 7, title: 'Makeup', icon: Images?.Makeup},
-  ];
+  // const categories = [
+  //   { id: 1, title: 'All', icon: Images?.allPosts },
+  //   { id: 2, title: 'Hair', icon: Images?.Hair },
+  //   { id: 3, title: 'Skin Tone', icon: Images?.Skincare },
+  //   { id: 4, title: 'Makeup', icon: Images?.Makeup },
+  //   { id: 5, title: 'Hair', icon: Images?.Hair },
+  //   { id: 6, title: 'Skin Tone', icon: Images?.Hair },
+  //   { id: 7, title: 'Makeup', icon: Images?.Makeup },
+  // ];
 
   useEffect(() => {
-    setDataToStorage();
-  }, []);
+    dispatch(GetCategoryAction())
+  }, [])
+
+  useEffect(() => {
+    if (Array.isArray(getPostData?.response?.result)) {
+      // console.log(getPostData?.response?.result)
+      setServices(getPostData?.response?.result)
+    }
+  }, [getPostData])
+
+  useEffect(() => {
+    if (getCategoryData?.response?.result) {
+      setCategories([
+        {
+          "id": "0",
+          "name": "All",
+          "description": "",
+          "image": Images?.allPosts,
+          "status": "1",
+        },
+        ...getCategoryData?.response?.result])
+    }
+  }, [getCategoryData])
 
   useEffect(() => {
     if (isFocused) {
-      setDataToStorage();
+      getData('0')
     }
   }, [isFocused]);
 
+  const getData = async (id) => {
+    const userId = await AsyncStorage.getItem('token')
+    console.log('userId' , userId , id)
+    const params = {
+      business_id: userId,
+      category_id: id.toStrings()
+    }
+    dispatch(GetPostAction(params))
+  }
+
   const setDataToStorage = async () => {
     let postData = await Storage.get('post_data');
-    console.log('=============>>>>>>>>>',postData);
-    
+    console.log('=============>>>>>>>>>', postData);
+
     if (postData === null) {
       setServices(servicesArray);
-      console.log('=============>>>>>>>>>11111111111',postData);
+      console.log('=============>>>>>>>>>11111111111', postData);
 
       await Storage.set('post_data', services);
     } else {
@@ -75,46 +114,49 @@ const Posts = ({navigation}) => {
   };
 
   // Render categories horizontally
-  const renderItem = ({item}) => (
+  const renderItem = ({ item }) => (
     <TouchableOpacity
       activeOpacity={0.8}
-      onPress={() => setPostName(item.title)}
+      onPress={() => {
+        getData(item?.id)
+        setPostName(item.name)
+      }}
       style={[
         styles.button,
         {
           backgroundColor:
-            postName == item.title ? Colors.primary : Colors.white,
+            postName == item.name ? Colors.primary : Colors.white,
         },
       ]}>
       <Image
-        source={item?.icon}
+        source={item.name == 'All' ? item?.image : { uri: item?.image }}
         style={[
           styles.icon,
           {
-            tintColor: postName == item.title ? Colors.white : Colors.primary,
+            tintColor: postName == item.name ? Colors.white : Colors.primary,
           },
         ]}
       />
-      {item.title !== '' && (
+      {item.name !== '' && (
         <Text
           style={[
             styles.text,
             {
-              color: postName == item.title ? Colors.white : Colors.primary,
+              color: postName == item.name ? Colors.white : Colors.primary,
             },
           ]}>
-          {item.title}
+          {item.name}
         </Text>
       )}
     </TouchableOpacity>
   );
 
   // Render service cards vertically
-  const renderService = ({item}) => (
+  const renderService = ({ item }) => (
     <TouchableOpacity activeOpacity={0.8}>
       <ImageBackground
         resizeMode="cover"
-        source={item.isLocal ? {uri: item.image} : item.image}
+        source={{ uri: item.files }}
         imageStyle={styles.serviceImage}
         style={styles.serviceImage}>
         <TouchableOpacity activeOpacity={0.8}>
@@ -123,7 +165,7 @@ const Posts = ({navigation}) => {
             style={[styles.verticalDotIcon]}
           />
         </TouchableOpacity>
-        {item.isVideo && (
+        {item.file_type == 'Video' && (
           <Image source={Images?.VideoIcon} style={[styles.VideoIconStyle]} />
         )}
       </ImageBackground>
@@ -146,20 +188,33 @@ const Posts = ({navigation}) => {
         />
       </View>
       {/* Vertical FlatList for Services */}
-      <FlatList
-        data={services}
-        renderItem={renderService}
-        keyExtractor={item => item.id}
-        showsVerticalScrollIndicator={false}
-        style={styles.serviceList}
-        numColumns={3}
-        contentContainerStyle={{
-          alignSelf: 'center',
-          paddingBottom: (DimensionsConfig?.screenWidth * 10) / 100,
-          right: 6,
-        }}
-        ListFooterComponent={<View style={{height: 20}} />}
-      />
+      {services.length > 0 ? (
+        <FlatList
+          data={services}
+          renderItem={renderService}
+          keyExtractor={item => item.post_id}
+          showsVerticalScrollIndicator={false}
+          style={styles.serviceList}
+          numColumns={3}
+          contentContainerStyle={{
+            alignSelf: 'center',
+            paddingBottom: (DimensionsConfig?.screenWidth * 10) / 100,
+            // right: 6,
+          }}
+          ListFooterComponent={<View style={{ height: 20 }} />}
+        />) : (
+        <View style={{
+          flexGrow: 1,
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <Text style={{
+            color: Colors.DarkPurple,
+            fontSize: 14,
+            fontWeight: '500'
+          }}>No Post Found</Text>
+        </View>
+      )}
       {/* Floating Add Button */}
       <TouchableOpacity
         onPress={() => navigation.navigate('PostLook')}
@@ -186,7 +241,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     alignSelf: 'center',
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },
@@ -196,6 +251,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: (mobileW * 1.9) / 100,
     marginHorizontal: (mobileW * 1.2) / 100,
+    backgroundColor: '#000'
   },
   bookButtonText: {
     fontSize: 16,
@@ -258,7 +314,7 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 8,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },

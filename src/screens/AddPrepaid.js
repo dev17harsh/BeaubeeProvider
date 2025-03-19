@@ -19,6 +19,11 @@ import {Colors} from '../theme/colors';
 import Storage from '../components/Storage';
 import SelectPackageModal from '../components/Modal.js/SelectPackageModal';
 import {Dropdown} from 'react-native-element-dropdown';
+import ListCustomerModal from '../components/ListCustomerModal';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDispatch, useSelector } from 'react-redux';
+import { AddPrepaidAction, AddPrepaidRemoveAction } from '../redux/action/AddPrepaidAction';
+import ToastMessage from '../components/ToastMessage';
 
 const tabs = ['Hair', 'Makeup', 'Skincare', 'Nails'];
 const services = [
@@ -105,7 +110,8 @@ const services = [
 ];
 
 const AddPrepaid = ({navigation}) => {
-  const [selectedImageUri, setSelectedImageUri] = useState(null);
+  const dispatch = useDispatch();
+    const addPrepaidData = useSelector((state) => state.addPrepaidData);
   const [isModalProfessionalVisible, setModalProfessionalVisible] =
     useState(false);
   const [ProfessionalData, setProfessionalData] = useState(null);
@@ -117,7 +123,24 @@ const AddPrepaid = ({navigation}) => {
   const [isFocus, setIsFocus] = useState(false);
   const [value, setValue] = useState(null);
   const [isSelected, setIsSelected] = useState('card');
+  const [toastVisible, setToastVisible] = useState(false);
+    const [toastData, setToastData] = useState({
+      message: '',
+      color: ''
+    });
   // Callback to handle selected service data from ServiceSelector
+
+ useEffect(() => {
+    // console.log('addPrepaidData?.response', addPrepaidData?.response)
+    if (addPrepaidData?.response?.message == 'success') {
+      navigation.goBack()
+      dispatch(
+        AddPrepaidRemoveAction({})
+      )
+    }
+  }, [addPrepaidData])
+
+
   const handleServiceSelection = service => {
     setChosenService(service);
     console.log('Chosen Service:', service);
@@ -130,13 +153,19 @@ const AddPrepaid = ({navigation}) => {
 
   const handleServiceSelect = service => {
     setChosenService(service);
+    console.log('servicessss', service);
+  };
+
+  const showToast = () => {
+    setToastVisible(true);
   };
 
   const data = [
-    {label: 'Option 1', value: '1'},
-    {label: 'Option 2', value: '2'},
-    {label: 'Option 3', value: '3'},
-    {label: 'Option 4', value: '4'},
+    {label: '1', value: '1'},
+    {label: '2', value: '2'},
+    {label: '3', value: '3'},
+    {label: '4', value: '4'},
+    {label: '5', value: '5'},
   ];
 
   const dropDown = () => {
@@ -163,11 +192,55 @@ const AddPrepaid = ({navigation}) => {
     );
   };
 
+  const onPressDone = async () => {
+    const userId = await AsyncStorage.getItem('token')
+    // console.log('selectedCustomer?.user_id', selectedCustomer?.user_id, selectedImage)
+    if (ProfessionalData == null) {
+      showToast()
+      setToastData({
+        message: 'Please select Customer',
+        color: Colors?.red
+      })
+    }
+    else if (chosenService == null) {
+      showToast()
+      setToastData({
+        message: 'Please select Service',
+        color: Colors?.red
+      })
+    }  else if (value == null) {
+      showToast()
+      setToastData({
+        message: 'Please select Number of Treatment',
+        color: Colors?.red
+      })
+    } 
+    else {
+      const formData = new FormData();
+      formData.append('business_id', userId.toString());
+      formData.append('customer_id', ProfessionalData?.user_id);
+      formData.append('package_id', chosenService?.id);
+      formData.append('num_of_treatments', value);
+      formData.append('payment_method', 'Saved Card');
+      formData.append('card_last4', '4434');
+      console.log("formData ====>", formData)
+      dispatch(AddPrepaidAction(formData))
+    }
+  }
+
   return (
     <SafeAreaView style={styles.container}>
+       <ToastMessage
+        visible={toastVisible}
+        message={toastData.message}
+        onClose={() => setToastVisible(false)}
+        toastStyle={{
+          backgroundColor: toastData.color
+        }}
+      />
       <AppHeader title={'Add Prepaid'} />
       <ScrollView showsVerticalScrollIndicator={false}>
-        <ListProfessionalModal
+        <ListCustomerModal
           visible={isModalProfessionalVisible}
           onClose={handleCloseModal}
           onSelect={e => storeDataToState(e)}
@@ -204,13 +277,13 @@ const AddPrepaid = ({navigation}) => {
           ) : (
             <View activeOpacity={0.8} style={styles.itemContainer}>
               <Image
-                source={ProfessionalData?.image}
-                resizeMode="contain"
+                source={{uri :ProfessionalData?.user_image}}
+                resizeMode="cover"
                 style={styles.personImage}
               />
               <View style={styles.txtView}>
                 <Text style={[styles.itemLabel, {left: 9}]}>
-                  {ProfessionalData.name}
+                  {ProfessionalData.customer_name}
                 </Text>
                 <Text style={styles.emailLabel}>{ProfessionalData.email}</Text>
               </View>
@@ -239,12 +312,12 @@ const AddPrepaid = ({navigation}) => {
           ) : (
             <View activeOpacity={0.8} style={styles.serviceContainer}>
               <Image
-                source={chosenService?.image}
+                source={Images?.image44}
                 resizeMode="contain"
                 style={styles.serviceImage}
               />
               <View style={[styles.txtView, {left: 8}]}>
-                <Text style={styles.titleService}>{chosenService.name}</Text>
+                <Text style={styles.titleService}>Package {chosenService?.total_price} </Text>
               </View>
               <TouchableOpacity
                 style={[styles.txtView]}
@@ -317,7 +390,7 @@ const AddPrepaid = ({navigation}) => {
           <View style={{height: 20}} />
           {/* Post Button */}
           <CommonButton
-            onPress={() => navigation.goBack()}
+            onPress={() => onPressDone()}
             title={'Done'}
           />
           <View style={{height: 50}} />

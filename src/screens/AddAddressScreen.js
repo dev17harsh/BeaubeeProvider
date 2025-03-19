@@ -19,11 +19,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { signupUserAction, signupUserRemoveAction } from '../redux/action/SignUpAction';
 import { CommonActions } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AddBusinessLocationAction, AddBusinessLocationRemoveAction } from '../redux/action/AddBusinessLocationAction';
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
-export default function AddAddressScreen({ navigation }) {
+export default function AddAddressScreen({ navigation, ...props }) {
   const dispatch = useDispatch();
-  const signUpData = useSelector((state) => state.signUpData);
+  const addBusinessLocationData = useSelector((state) => state.addBusinessLocationData);
   const [flatNoText, setFlatNoText] = useState('');
   const [buildingName, setBuildingName] = useState('');
   const [streetText, setStreetText] = useState('');
@@ -31,7 +32,7 @@ export default function AddAddressScreen({ navigation }) {
   const [directionsText, setDirectionsText] = useState('');
 
   useEffect(() => {
-    if (signUpData?.response?.message == 'success') {
+    if (addBusinessLocationData?.response?.message == 'success') {
       // navigation.dispatch(
       //   CommonActions.reset({
       //     index: 0,
@@ -42,12 +43,29 @@ export default function AddAddressScreen({ navigation }) {
       //     ],
       //   })
       // );
-      navigation.navigate('AddBusinessTimingScreen')
+      if (props?.route?.params?.type == 'profile') {
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [
+              {
+                name: 'MainApp',
+                params: {
+                  screen: 'Profile', // Navigate to Profile inside MainApp
+                },
+              },
+            ],
+          })
+        );
+        
+      } else {
+        navigation.navigate('AddBusinessTimingScreen')
+      }
       dispatch(
-        signupUserRemoveAction({})
+        AddBusinessLocationRemoveAction({})
       )
     }
-  }, [signUpData])
+  }, [addBusinessLocationData])
 
 
   const onPressNext = async () => {
@@ -57,14 +75,13 @@ export default function AddAddressScreen({ navigation }) {
     formData.append('address', "Schema no 78 Vijay Nagar Indore");
     formData.append('flat', flatNoText);
     formData.append('building', buildingName);
-    formData.append('flat', flatNoText);
     formData.append('street', streetText);
     formData.append('area', areaText);
     formData.append('lat', '40.722776');
     formData.append('lng', '-72.005974');
     console.log('formData', formData)
 
-    await dispatch(signupUserAction(formData));
+    await dispatch(AddBusinessLocationAction(formData));
   }
   return (
     <SafeAreaView style={styles.container}>
@@ -263,11 +280,11 @@ export default function AddAddressScreen({ navigation }) {
           </View> */}
         </ScrollView>
         <TouchableOpacity
-          disabled={flatNoText == '' && buildingName == '' && streetText == '' && areaText == '' ? true : false}
+          disabled={!flatNoText?.trim() && !buildingName?.trim()}
           onPress={onPressNext}
           // onPress={() => navigation.navigate('AddBusinessTimingScreen')}
-          style={[styles.selectLocationButton, flatNoText == '' && buildingName == '' && streetText == '' && areaText == '' && { backgroundColor: Colors?.OrGray }]}>
-          <Text style={styles.selectionButtonTxt}>Next</Text>
+          style={[styles.selectLocationButton, (!flatNoText?.trim() && !buildingName?.trim()) && { backgroundColor: Colors?.OrGray }]}>
+          <Text style={styles.selectionButtonTxt}> {props?.route?.params?.type == 'profile' ? 'Save' : 'Next'}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

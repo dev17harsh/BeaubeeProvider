@@ -51,7 +51,7 @@ const AddressMapScreen = ({ navigation }) => {
                     </TouchableOpacity>
                     
                     <TouchableOpacity
-                        onPress={() => navigation.navigate('AddAddressScreen')}
+                        onPress={() => navigation.navigate('AddAddressScreen' , {type : 'profile'})}
                         style={styles.selectLocationButton}
                     >
                         <Text style={styles.selectionButtonTxt}>Select Location</Text>

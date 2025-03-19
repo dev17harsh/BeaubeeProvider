@@ -16,6 +16,7 @@ import AppHeader from '../components/AppHeader';
 import {Colors} from '../theme/colors';
 import CustomButton from '../components/CustomButton';
 import BreakDuratinModal from '../components/Modal.js/BreakDurationModal';
+import { useIsFocused } from '@react-navigation/native';
 // import TimingsModal from '../components/Modal/TimingsModal';
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
@@ -31,6 +32,7 @@ const ScheduleDay = [
 ];
 
 const StaffDetails = ({navigation}) => {
+  const isFocused = useIsFocused()
   const [breakModal, setbreakModal] = useState(false);
   const [availableData, setAvailableData] = useState(false);
   const breakVisibleModal = () => {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -12,11 +12,24 @@ import {
 import Slider from '@react-native-community/slider';
 import { Images } from '../assets/images';
 import CustomSwitch from '../components/CustomSwitch';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { GetSettingDetailsAction } from '../redux/action/GetSettingDetailsAction';
+import { useDispatch, useSelector } from 'react-redux';
+import { useIsFocused } from '@react-navigation/native';
+import { DimensionsConfig } from '../theme/dimensions';
+import { UpdateBusinessSettingAction, UpdateBusinessSettingRemoveAction } from '../redux/action/UpdateBusinessSettingAction';
 // import MapView, { Circle } from 'react-native-maps';
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
 
-const SettingScreen = ({navigation}) => {
+const SettingScreen = ({ navigation }) => {
+
+    const dispatch = useDispatch();
+    const isFocused = useIsFocused()
+    const getSettingDetailsData = useSelector((state) => state.getSettingDetailsData);
+
+    const updateSettingData = useSelector((state) => state.updateSettingData);
+
     const [radius, setRadius] = useState(1.5); // Radius in km
     const [appNotifications, setAppNotifications] = useState({
         Messages: false,
@@ -29,29 +42,94 @@ const SettingScreen = ({navigation}) => {
         Cancellations: true,
     });
 
+    useEffect(() => {
+        // console.log('getSettingDetailsData?.response?.result' , getSettingDetailsData?.response?.result)
+        if (getSettingDetailsData?.response?.result) {
+            setAppNotifications({
+                Messages: getSettingDetailsData?.response?.result?.app_message_notification == 'true' ? true : false,
+                UpcomingAppointments: getSettingDetailsData?.response?.result?.app_upcoming_appointments_notification == 'true' ? true : false,
+                Cancellations: getSettingDetailsData?.response?.result?.app_cancellation_notification == 'true' ? true : false,
+            })
+            setSmsNotifications({
+                Messages: getSettingDetailsData?.response?.result?.sms_message_notification == 'true' ? true : false,
+                UpcomingAppointments: getSettingDetailsData?.response?.result?.sms_upcoming_appointments_notification == 'true' ? true : false,
+                Cancellations: getSettingDetailsData?.response?.result?.sms_cancellation_notification == 'true' ? true : false,
+            })
+        }
+    }, [getSettingDetailsData])
+
+    useEffect(() => {
+        if (updateSettingData?.response?.message == 'success') {
+            GetDetails()
+          dispatch(
+            UpdateBusinessSettingRemoveAction({})
+          )
+        }
+      }, [updateSettingData])
+
+
+    useEffect(() => {
+        GetDetails()
+    }, [isFocused])
+
+
+    const GetDetails = async () => {
+        const userId = await AsyncStorage.getItem('token')
+        const params = {
+            business_id: userId
+        }
+        dispatch(GetSettingDetailsAction(params))
+    }
+
     const toggleAppNotification = (key) => {
-        setAppNotifications((prev) => ({ ...prev, [key]: !prev[key] }));
+        // console.log('keyy ====> ',  key)
+        const value = appNotifications[key]
+        if(key== 'Messages'){
+            UpdateSettingsValue('app_message_notification' , !value )
+        } else if(key == 'UpcomingAppointments'){
+            UpdateSettingsValue('app_upcoming_appointments_notification ' , !value )
+        }else{
+            UpdateSettingsValue('app_cancellation_notification ' , !value )
+        }
+        // setAppNotifications((prev) => ({ ...prev, [key]: !prev[key] }));
     };
 
     const toggleSmsNotification = (key) => {
-        setSmsNotifications((prev) => ({ ...prev, [key]: !prev[key] }));
+        // setSmsNotifications((prev) => ({ ...prev, [key]: !prev[key] }));
+        const value = smsNotifications[key]
+        if(key== 'Messages'){
+            UpdateSettingsValue('sms_message_notification ' , !value )
+        } else if(key == 'UpcomingAppointments'){
+            UpdateSettingsValue('sms_upcoming_appointments_notification ' , !value )
+        }else{
+            UpdateSettingsValue('sms_cancellation_notification ' , !value )
+        }
     };
+
+    const UpdateSettingsValue = (actionType , status)=>{
+        // console.log('valuye ===/==' , actionType , status)
+        const params = {
+            actionType: actionType,
+            status : status
+        }
+        dispatch(UpdateBusinessSettingAction(params))
+    }
 
     return (
         <SafeAreaView style={styles.container}>
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Image source={Images?.CrossIcon} style={styles.backIcon} />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>Setting</Text>
-                <TouchableOpacity>
-                <Image style={styles.backIcon} />
-                </TouchableOpacity>
-            </View>
-            {/* Map Section */}
-            <View style={styles.mapContainer}>
-                {/* <MapView
+            <View style={styles.container}>
+                <View style={styles.header}>
+                    <TouchableOpacity onPress={() => navigation.goBack()}>
+                        <Image source={Images?.CrossIcon} style={styles.backIcon} />
+                    </TouchableOpacity>
+                    <Text style={styles.headerTitle}>Setting</Text>
+                    <TouchableOpacity>
+                        <Image style={styles.backIcon} />
+                    </TouchableOpacity>
+                </View>
+                {/* Map Section */}
+                <View style={styles.mapContainer}>
+                    {/* <MapView
           style={styles.map}
           initialRegion={{
             latitude: 37.7749,
@@ -67,60 +145,67 @@ const SettingScreen = ({navigation}) => {
             fillColor="rgba(128,0,128,0.2)"
           />
         </MapView> */}
-                <View style={styles.sliderContainer}>
-                    <Image source={Images?.SettingMap} style={{
-                        height: (mobileH * 20) / 100,
-                        width: (mobileW * 84) / 100,
-                        resizeMode: 'contain'
-                    }}/>
-                    <Text style={styles.radiusText}>Radius for at-home service</Text>
-                    <View style={{
-                        flexDirection: 'row' , 
-                        alignItems: 'center',
-                        marginTop: 2,
-                    }}>
-                    <Slider
-                        style={styles.slider}
-                        minimumValue={0.5}
-                        maximumValue={10}
-                        step={0.1}
-                        value={radius}
-                        onValueChange={(value) => setRadius(value)}
-                        minimumTrackTintColor="#800080"
-                        thumbTintColor="#800080"
-                    />
-                    <View style={{
-                        borderWidth: 1,
-                        borderColor: '#E6E8F1',
-                        padding: 5,
-                        borderRadius: 50
-                    }}>
+                    <View style={styles.sliderContainer}>
+                        <Image source={Images?.SettingMap} style={{
+                            height: (mobileH * 20) / 100,
+                            width: (mobileW * 84) / 100,
+                            resizeMode: 'contain'
+                        }} />
+                        <Text style={styles.radiusText}>Radius for at-home service</Text>
+                        <View style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            marginTop: 2,
+                        }}>
+                            <Slider
+                                style={styles.slider}
+                                minimumValue={0.5}
+                                maximumValue={10}
+                                step={0.1}
+                                value={radius}
+                                onValueChange={(value) => setRadius(value)}
+                                minimumTrackTintColor="#800080"
+                                thumbTintColor="#800080"
+                            />
+                            <View style={{
+                                borderWidth: 1,
+                                borderColor: '#E6E8F1',
+                                padding: 5,
+                                borderRadius: 50
+                            }}>
 
-                    <Text style={styles.radiusValue}>{radius.toFixed(1)} km</Text>
-                    </View>
+                                <Text style={styles.radiusValue}>{radius.toFixed(1)} km</Text>
+                            </View>
+                        </View>
                     </View>
                 </View>
-            </View>
 
-            {/* Notifications Section */}
-            <View style={styles.notificationsContainer}>
-                <Text style={[styles.sectionTitle , {marginTop: 10}]}>App Notifications</Text>
-                {Object.keys(appNotifications).map((key) => (
-                    <View key={key} style={styles.switchRow}>
-                        <Text style={styles.switchLabel}>{key.replace(/([A-Z])/g, ' $1')}</Text>
-                        <CustomSwitch isEnabled={appNotifications[key]} toggleSwitch={() => toggleAppNotification(key)}  />
-                    </View>
-                ))}
+                {/* Notifications Section */}
+                <View style={styles.notificationsContainer}>
+                    <Text style={[styles.sectionTitle, { marginTop: 10 }]}>App Notifications</Text>
+                    {Object.keys(appNotifications).map((key) => (
+                        <View key={key} style={styles.switchRow}>
+                            <Text style={styles.switchLabel}>{key.replace(/([A-Z])/g, ' $1')}</Text>
+                            <CustomSwitch isEnabled={appNotifications[key]} toggleSwitch={() => toggleAppNotification(key)} />
+                        </View>
+                    ))}
 
-                <Text style={[styles.sectionTitle , {marginTop: 10}]}>SMS Notifications</Text>
-                {Object.keys(smsNotifications).map((key) => (
-                    <View key={key} style={styles.switchRow}>
-                        <Text style={styles.switchLabel}>{key.replace(/([A-Z])/g, ' $1')}</Text>
-                        <CustomSwitch isEnabled={smsNotifications[key]} toggleSwitch={() => toggleSmsNotification(key)}  />
-                    </View>
-                ))}
+                    <View style={{
+                        width: '100%',
+                        height: DimensionsConfig.screenHeight * 0.002,
+                        backgroundColor: '#E7E7E7',
+                        marginVertical: DimensionsConfig.screenHeight * 0.01,
+                    }} />
+
+                    <Text style={[styles.sectionTitle, { marginTop: 10 }]}>SMS Notifications</Text>
+                    {Object.keys(smsNotifications).map((key) => (
+                        <View key={key} style={styles.switchRow}>
+                            <Text style={styles.switchLabel}>{key.replace(/([A-Z])/g, ' $1')}</Text>
+                            <CustomSwitch isEnabled={smsNotifications[key]} toggleSwitch={() => toggleSmsNotification(key)} />
+                        </View>
+                    ))}
+                </View>
             </View>
-        </View>
         </SafeAreaView>
     );
 };
@@ -199,7 +284,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingHorizontal: (mobileW * 5) / 100,
         paddingVertical: (mobileW * 6) / 100,
-      },
+    },
     headerBackIconView: {
         backgroundColor: '#FFFFFF',
         width: (mobileW * 10) / 100,
@@ -207,17 +292,17 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: (mobileH * 5) / 100,
-      },
-      backIcon: {
+    },
+    backIcon: {
         width: (mobileW * 4) / 100,
         height: (mobileW * 4) / 100,
-      },
-      headerTitle: {
+    },
+    headerTitle: {
         fontSize: 18,
         fontWeight: 'bold',
         marginLeft: 15,
         color: '#000',
-      },
+    },
 });
 
 export default SettingScreen;
