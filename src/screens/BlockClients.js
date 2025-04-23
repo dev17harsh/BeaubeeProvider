@@ -29,7 +29,7 @@ const BlockClients = ({ visible, onClose, onSelect }) => {
   const [customerData, setCustomerData] = useState([]);
   const [selectedOption, setSelectedOption] = useState('highToLow');
   const [selectedId, setSelectedId] = useState(null);
-  const [selectedTab, setSelectedTab] = useState('Blocked');
+  const [selectedTab, setSelectedTab] = useState('Block');
 
 
   useEffect(() => {
@@ -40,19 +40,19 @@ const BlockClients = ({ visible, onClose, onSelect }) => {
   }, [getCustomerDetailsData])
 
 
-   useEffect(() => {
-      if (updateCustomerStatusData?.response?.message == 'success') {
-        dispatch(GetCustomerDetailsAction(selectedTab))
+  useEffect(() => {
+    if (updateCustomerStatusData?.response?.message == 'success') {
+      dispatch(GetCustomerDetailsAction(selectedTab))
 
-        dispatch(
-          UpdateCustomerStatusRemoveAction({})
-        )
-      }
-    }, [updateCustomerStatusData])
+      dispatch(
+        UpdateCustomerStatusRemoveAction({})
+      )
+    }
+  }, [updateCustomerStatusData])
 
   useEffect(() => {
     if (isFocused) {
-      dispatch(GetCustomerDetailsAction('Blocked'))
+      dispatch(GetCustomerDetailsAction('Block'))
     }
   }, [isFocused])
 
@@ -203,14 +203,14 @@ const BlockClients = ({ visible, onClose, onSelect }) => {
       <View style={styles.tabs}>
         <TouchableOpacity
           onPress={() => {
-            setSelectedTab('Blocked');
-            dispatch(GetCustomerDetailsAction('Blocked'))
+            setSelectedTab('Block');
+            dispatch(GetCustomerDetailsAction('Block'))
           }}
-          style={[styles.tab, selectedTab === 'Blocked' && styles.activeTab]}>
+          style={[styles.tab, selectedTab === 'Block' && styles.activeTab]}>
           <Text
             style={[
               styles.tabText,
-              selectedTab === 'Blocked' && styles.activeTabText,
+              selectedTab === 'Block' && styles.activeTabText,
             ]}>
             Blocked
           </Text>

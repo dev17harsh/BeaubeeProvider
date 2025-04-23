@@ -10,7 +10,7 @@ import {
     SafeAreaView,
     Modal,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import AppHeader from '../AppHeader';
 import CustomSwitch from '../CustomSwitch';
 import CommonButton from '../CommonButton';
@@ -43,15 +43,27 @@ const generateTimeOptions = () => {
 
 const timeOptions = generateTimeOptions();
 
-const AvailabilityModal = ({ isVisible, onClose , onPressSave}) => {
-    const [schedule, setSchedule] = useState(
-        daysOfWeek.map(day => ({
-            day,
-            isOpen: false,
-            openingTime: '12:00 am',
-            closingTime: '12:30 am',
-        })),
-    );
+const AvailabilityModal = ({ isVisible, onClose, onPressSave, value }) => {
+    // const [schedule, setSchedule] = useState(
+    //     daysOfWeek.map(day => ({
+    //         day,
+    //         isOpen: false,
+    //         timeFrames: [
+    //             {
+    //                 openingTime: '12:00 am',
+    //                 closingTime: '12:30 am',
+    //             },
+    //         ],
+    //     })),
+    // );
+
+    const [schedule, setSchedule] = useState([])
+
+    useEffect(() => {
+        if (isVisible) {
+            setSchedule(value)
+        }
+    }, [isVisible])
 
     const toggleOpen = index => {
         const newSchedule = [...schedule];
@@ -59,31 +71,71 @@ const AvailabilityModal = ({ isVisible, onClose , onPressSave}) => {
         setSchedule(newSchedule);
     };
 
-    const updateTime = (index, type, value) => {
+    const updateTime = (dayIndex, frameIndex, type, value) => {
         const newSchedule = [...schedule];
+        const timeFrame = newSchedule[dayIndex].timeFrames[frameIndex];
+
         if (type === 'openingTime') {
-            newSchedule[index].openingTime = value;
+            timeFrame.openingTime = value;
             if (
                 timeOptions.indexOf(value) >=
-                timeOptions.indexOf(newSchedule[index].closingTime)
+                timeOptions.indexOf(timeFrame.closingTime)
             ) {
                 const newClosingTimeIndex = timeOptions.indexOf(value) + 1;
-                newSchedule[index].closingTime =
-                    timeOptions[newClosingTimeIndex] ||
-                    timeOptions[timeOptions.length - 1];
+                timeFrame.closingTime =
+                    timeOptions[newClosingTimeIndex] || timeOptions[timeOptions.length - 1];
             }
         } else {
-            newSchedule[index].closingTime = value;
+            timeFrame.closingTime = value;
         }
+
         setSchedule(newSchedule);
     };
 
-    const renderTimePicker = (time, onChange, options) => (
+    const addTimeFrame = index => {
+        const newSchedule = [...schedule];
+        newSchedule[index].timeFrames.push({
+            openingTime: '12:00 am',
+            closingTime: '12:30 am',
+        });
+        setSchedule(newSchedule);
+    };
+
+    const removeTimeFrame = (dayIndex, frameIndex) => {
+        const newSchedule = [...schedule];
+        newSchedule[dayIndex].timeFrames.splice(frameIndex, 1);
+        setSchedule(newSchedule);
+    };
+
+    const validateTimes = () => {
+        for (const day of schedule) {
+            for (const frame of day.timeFrames) {
+                if (
+                    timeOptions.indexOf(frame.openingTime) >=
+                    timeOptions.indexOf(frame.closingTime)
+                ) {
+                    alert(`Invalid time range for ${day.day}`);
+                    return false;
+                }
+            }
+        }
+        return true;
+    };
+
+    const handleSave = () => {
+        if (validateTimes()) {
+            onClose();
+            onPressSave(schedule);
+        }
+    };
+
+    const renderTimePicker = (time, onChange, options, status) => (
         <View style={styles.pickerContainer}>
             <Picker
                 selectedValue={time}
                 style={styles.timePicker}
                 onValueChange={onChange}
+                enabled={status}
                 mode="dropdown">
                 {options.map(timeOption => (
                     <Picker.Item label={timeOption} value={timeOption} key={timeOption} />
@@ -107,11 +159,7 @@ const AvailabilityModal = ({ isVisible, onClose , onPressSave}) => {
                     </View>
                     <ScrollView contentContainerStyle={{ paddingBottom: mobileW * 0.08 }}>
                         <View style={styles.subContainer}>
-                            {schedule.map((item, index) => {
-                                // Filter closing time options based on selected opening time
-                                const validClosingOptions = timeOptions.slice(
-                                    timeOptions.indexOf(item.openingTime) + 1,
-                                );
+                            {schedule.map((item, dayIndex) => {
 
                                 return (
                                     <View key={item.day} style={styles.dayContainer}>
@@ -127,10 +175,10 @@ const AvailabilityModal = ({ isVisible, onClose , onPressSave}) => {
                                             </Text>
                                             <CustomSwitch
                                                 isEnabled={item?.isOpen}
-                                                toggleSwitch={() => toggleOpen(index)}
+                                                toggleSwitch={() => toggleOpen(dayIndex)}
                                             />
                                         </View>
-                                        <View style={styles.timeContainer}>
+                                        {/* <View style={styles.timeContainer}>
                                             {renderTimePicker(
                                                 item.openingTime,
                                                 value => updateTime(index, 'openingTime', value),
@@ -142,8 +190,47 @@ const AvailabilityModal = ({ isVisible, onClose , onPressSave}) => {
                                                 value => updateTime(index, 'closingTime', value),
                                                 validClosingOptions,
                                             )}
-                                        </View>
-                                        <View
+                                        </View> */}
+                                        {item.timeFrames.map((frame, frameIndex) => {
+                                            const validClosingOptions = timeOptions.slice(
+                                                timeOptions.indexOf(frame.openingTime) + 1,
+                                            );
+
+                                            return (
+                                                <View key={frameIndex} style={[styles.timeContainer, frameIndex > 0 && { marginTop: DimensionsConfig.screenHeight * 0.015 }]}>
+                                                    {renderTimePicker(
+                                                        frame.openingTime,
+                                                        value =>
+                                                            updateTime(dayIndex, frameIndex, 'openingTime', value),
+                                                        timeOptions,
+                                                        item?.isOpen
+                                                    )}
+                                                    <Text style={styles.toText}>To</Text>
+                                                    {renderTimePicker(
+                                                        frame.closingTime,
+                                                        value =>
+                                                            updateTime(dayIndex, frameIndex, 'closingTime', value),
+                                                        validClosingOptions,
+                                                        item?.isOpen
+                                                    )}
+
+                                                    {/* Remove button */}
+                                                    {frameIndex.length > 1 && (
+                                                        <TouchableOpacity
+                                                            onPress={() => removeTimeFrame(dayIndex, frameIndex)}
+                                                        >
+                                                            <Image
+                                                                source={Images?.deleteIcon}
+                                                                style={styles.backIcon}
+                                                            />
+                                                        </TouchableOpacity>
+                                                    )}
+                                                </View>
+                                            );
+                                        })}
+                                        <TouchableOpacity
+                                            disabled={!item?.isOpen}
+                                            onPress={() => addTimeFrame(dayIndex)}
                                             style={{
                                                 alignSelf: 'flex-start',
                                                 paddingVertical: (mobileW * 3) / 100,
@@ -158,7 +245,7 @@ const AvailabilityModal = ({ isVisible, onClose , onPressSave}) => {
                                                 style={[
                                                     styles.dayText,
                                                     {
-                                                        color: Colors.primary,
+                                                        color: !item?.isOpen ? Colors?.OrGray : Colors.primary,
                                                         left: (mobileW * 2) / 100,
                                                         fontWeight: '700',
                                                         fontSize: mobileW * 3.5 / 100
@@ -166,7 +253,7 @@ const AvailabilityModal = ({ isVisible, onClose , onPressSave}) => {
                                                 ]}>
                                                 Add Timeframe
                                             </Text>
-                                        </View>
+                                        </TouchableOpacity>
                                     </View>
                                 );
                             })}

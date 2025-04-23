@@ -21,6 +21,16 @@ import CalendarPickerModal from '../components/Modal.js/CalendarPickerModal';
 import ProfileModal from '../components/ProfileCard';
 import CommonButton from '../components/CommonButton';
 import { DimensionsConfig } from '../theme/dimensions';
+import { useDispatch, useSelector } from 'react-redux';
+import { useIsFocused } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { GetStaffAction } from '../redux/action/GetStaffAction';
+import { GetUserDetailAction } from '../redux/action/GetUserDetailAction';
+import { UpdateFutureBookingsAction, UpdateFutureBookingsRemoveAction } from '../redux/action/UpdateFutureBookingsAction';
+import { GetBookingsAction } from '../redux/action/GetBookingsAction';
+import { UpdateQueuebtnStatusAction, UpdateQueuebtnStatusRemoveAction } from '../redux/action/UpdateQueuebtnStatusAction';
+import { GetQueueAction } from '../redux/action/GetQueueAction';
+import { UpdateQueueBookingRemoveAction, UpdateQueueBookingStatusAction } from '../redux/action/UpdateQueueBookingStatusAction';
 
 // Helper function to generate time slots between a given start and end time
 const generateTimeSlots = (startTime, endTime) => {
@@ -119,6 +129,15 @@ const profileDataDetails = {
 };
 
 const BookingsQueueScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const getStaffData = useSelector((state) => state.getStaffData);
+  const UserDetailData = useSelector((state) => state.getUserDetailData);
+  const updateFutureBookingsData = useSelector((state) => state.updateFutureBookingsData);
+  const getBookingsData = useSelector((state) => state.getBookingsData);
+  const getQueueData = useSelector((state) => state.getQueueData);
+  const updateQueueBtnStatusData = useSelector((state) => state.updateQueueBtnStatusData);
+  const updateQueueBookingStatusData = useSelector((state) => state.updateQueueBookingStatusData);
+  const isFocused = useIsFocused()
   const [selectedDate, setSelectedDate] = useState('');
   const [dates, setDates] = useState([]);
   const [appointmentsData, setAppointmentsData] = useState({});
@@ -135,17 +154,116 @@ const BookingsQueueScreen = ({ navigation }) => {
   const [resumeQuery, setresumeQuery] = useState(false);
   const [isEnableQueue, setisEnableQueue] = useState(false);
   const [EnablineQueModal, setEnablineQueModal] = useState(false);
-  const [selectedDates, setSelectedDates] = useState([]);
-  const [pauseResumeQuery, setpauseResumeQuery] = useState(false);
+  const [selectedDates, setSelectedDates] = useState(null);
+  const [isEnableQueUeModal, setEnableQueueModal] = useState(false);
   const [profileData, setprofileData] = useState(profileDataDetails);
+  const [staffDropDownData, setStaffDropDownData] = useState([]);
+  const [timeSlots, setTimeSlots] = useState([])
+  const [queueData, setQueueData] = useState([])
 
 
-  const timeSlots = [
-    { id: "1", time: "4:10 pm - 4:40 pm", description: "Haircut and Beard Trim", stylist: "John D.", hour: "4PM" },
-    { id: "2", time: "5:00 pm - 5:30 pm", description: "Haircut and Beard Trim", stylist: "John D.", hour: "5PM" },
-    { id: "3", time: "5:30 pm - 6:00 pm", description: "Haircut and Beard Trim", stylist: "John D.", hour: "5PM" },
-    { id: "4", time: "6:10 pm - 6:40 pm", description: "Haircut and Beard Trim", stylist: "John D.", hour: "6PM" },
-  ];
+  // const timeSlots = [
+  //   { id: "1", time: "4:10 pm - 4:40 pm", description: "Haircut and Beard Trim", stylist: "John D.", hour: "4PM" },
+  //   { id: "2", time: "5:00 pm - 5:30 pm", description: "Haircut and Beard Trim", stylist: "John D.", hour: "5PM" },
+  //   { id: "3", time: "5:30 pm - 6:00 pm", description: "Haircut and Beard Trim", stylist: "John D.", hour: "5PM" },
+  //   { id: "4", time: "6:10 pm - 6:40 pm", description: "Haircut and Beard Trim", stylist: "John D.", hour: "6PM" },
+  // ];
+
+
+  useEffect(() => {
+    if (isFocused) {
+      getData()
+      dispatch(GetUserDetailAction())
+      getQueueValData('')
+    }
+
+  }, [isFocused])
+
+  useEffect(() => {
+    if (getStaffData?.response?.result) {
+      // console.log('getStaffData?.response?.result', getStaffData?.response?.result)
+      const dropdownOptions = getStaffData?.response?.result.map(staff => ({
+        label: `${staff.first_name || ''} ${staff.last_name.slice('')[0] || ''}`.trim() || 'Unnamed Staff',
+        value: staff.staff_id
+      }));
+      setStaffDropDownData(dropdownOptions)
+    }
+  }, [getStaffData])
+
+  useEffect(() => {
+    if (UserDetailData?.response?.result) {
+      // console.log('UserDetailData?.respons', UserDetailData?.response?.result)
+      setisEnable(UserDetailData?.response?.result?.is_pouse_future_booking == 'true' ? false : true)
+      setisEnableQueue(UserDetailData?.response?.result?.is_queue == 'true' ? true : false)
+    }
+  }, [UserDetailData])
+
+  useEffect(() => {
+    if (updateQueueBtnStatusData?.response?.message == 'success') {
+      dispatch(UpdateQueuebtnStatusRemoveAction())
+      dispatch(GetUserDetailAction())
+      setresumeQuery(false)
+      setpauseQuery(false)
+      setEnablineQueModal(false)
+      // console.log('updateQueueBtnStatusData?.response?.result' , updateQueueBtnStatusData?.response?.result)
+    }
+  }, [updateQueueBtnStatusData])
+
+  useEffect(() => {
+    if (updateQueueBookingStatusData?.response?.message == 'success') {
+      dispatch(UpdateQueueBookingRemoveAction())
+      getQueueValData('')
+      setresumeQuery(false)
+      setpauseQuery(false)
+      setEnablineQueModal(false)
+      setEnableQueueModal(false)
+      // console.log('updateQueueBookingStatusData?.response?.result' , updateQueueBookingStatusData?.response?.result)
+    }
+  }, [updateQueueBookingStatusData])
+
+  useEffect(() => {
+    if (updateFutureBookingsData?.response?.message == 'success') {
+      dispatch(UpdateFutureBookingsRemoveAction())
+      dispatch(GetUserDetailAction())
+      bookingModalOffOn()
+      // console.log('updateFutureBookingsData?.response?.result' , updateFutureBookingsData?.response?.result)
+    }
+  }, [updateFutureBookingsData])
+
+  useEffect(() => {
+    if (getBookingsData?.response?.message == 'success') {
+      // console.log('getBookingsData', getBookingsData?.response)
+
+      setTimeSlots(getBookingsData?.response?.result)
+    } else {
+      setTimeSlots([])
+    }
+  }, [getBookingsData])
+
+  useEffect(() => {
+    // console.log('getQueueData', getQueueData?.response?.result)
+    if (getQueueData?.response?.message == 'success') {
+
+      setQueueData(getQueueData?.response?.result)
+    } else {
+      setQueueData([])
+    }
+  }, [getQueueData])
+
+
+  const getData = async () => {
+    const userId = await AsyncStorage.getItem('token')
+    dispatch(GetStaffAction({
+      business_id: userId
+    }))
+  }
+
+  const getQueueValData = async (staffId) => {
+    dispatch(GetQueueAction({
+      staff_id: staffId
+    }))
+  }
+
 
 
   // Ensure timeSlots is always initialized
@@ -158,64 +276,88 @@ const BookingsQueueScreen = ({ navigation }) => {
   });
 
   // Group data by hour
-  const groupedSlots = validTimeSlots.reduce((acc, slot) => {
-    acc[slot.hour] = acc[slot.hour] || [];
-    acc[slot.hour].push(slot);
+  const groupedSlots = validTimeSlots.reduce((acc, appointment) => {
+    const appointmentHour = getHourFrom12HourTime(appointment.appointment_start_time);
+    const formattedHour =
+      appointmentHour === 0
+        ? "12AM"
+        : appointmentHour < 12
+          ? `${appointmentHour}AM`
+          : appointmentHour === 12
+            ? "12PM"
+            : `${appointmentHour - 12}PM`;
+
+    acc[formattedHour] = acc[formattedHour] || [];
+    acc[formattedHour].push(appointment);
     return acc;
   }, {});
+
+  function getHourFrom12HourTime(timeStr) {
+    // Match time format like "01:00 PM"
+    const [time, modifier] = timeStr.split(' ');
+    let [hours, minutes] = time.split(':').map(Number);
+
+    if (modifier === 'PM' && hours !== 12) {
+      hours += 12;
+    } else if (modifier === 'AM' && hours === 12) {
+      hours = 0;
+    }
+
+    return hours; // returns 0–23
+  }
 
 
   const openCalendar = () => {
     setCalendarVisible(true);
   };
-
-  const handleDateSelected = date => {
-    console.log('date:', date);
-  };
-
-  const data = [
-    { label: 'Option 1', value: '1' },
-    { label: 'Option 2', value: '2' },
-    { label: 'Option 3', value: '3' },
-    { label: 'Option 4', value: '4' },
-  ];
   // Set up the dates dynamically for a week from today
   useEffect(() => {
     const today = new Date();
-    const generatedDates = Array.from({ length: 7 }, (_, i) => {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      return date.toISOString().split('T')[0];
-    });
+    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0); // Last day of current month
+
+    const generatedDates = [];
+    let currentDate = new Date(today);
+
+    while (currentDate <= endOfMonth) {
+      generatedDates.push(currentDate.toISOString().split('T')[0]);
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
     setDates(generatedDates);
-    setSelectedDate(generatedDates[0]);
+    setSelectedDates(generatedDates[0]);
+    getBookingsFromDate({ date: generatedDates[0], staff_id: '' })
+
 
     // Simulating fetching dynamic appointment data
-    setAppointmentsData({
-      [generatedDates[0]]: [
-        {
-          time: '16:10 - 16:40',
-          slot: '16:10',
-          name: 'John D.',
-          service: 'Haircut and Beard Trim',
-        },
-        {
-          time: '17:00 - 17:40',
-          slot: '17:00',
-          name: 'John D.',
-          service: 'Haircut and Beard Trim',
-        },
-      ],
-      [generatedDates[1]]: [
-        {
-          time: '17:30 - 18:00',
-          slot: '17:30',
-          name: 'Jane S.',
-          service: 'Manicure',
-        },
-      ],
-    });
+    // setAppointmentsData({
+    //   [generatedDates[0]]: [
+    //     {
+    //       time: '16:10 - 16:40',
+    //       slot: '16:10',
+    //       name: 'John D.',
+    //       service: 'Haircut and Beard Trim',
+    //     },
+    //     {
+    //       time: '17:00 - 17:40',
+    //       slot: '17:00',
+    //       name: 'John D.',
+    //       service: 'Haircut and Beard Trim',
+    //     },
+    //   ],
+    //   [generatedDates[1]]: [
+    //     {
+    //       time: '17:30 - 18:00',
+    //       slot: '17:30',
+    //       name: 'Jane S.',
+    //       service: 'Manicure',
+    //     },
+    //   ],
+    // });
   }, []);
+
+  const getBookingsFromDate = ({ date, staff_id }) => {
+    dispatch(GetBookingsAction({ appointment_date: date, staff_id: staff_id }))
+  }
 
   // Generate time slots between 4 PM and 8 PM
   // const timeSlots = generateTimeSlots('16:00', '20:00');
@@ -302,7 +444,7 @@ const BookingsQueueScreen = ({ navigation }) => {
         selectedTextStyle={styles.selectedTextStyle}
         inputSearchStyle={styles.inputSearchStyle}
         iconStyle={styles.iconStyle}
-        data={data}
+        data={staffDropDownData}
         maxHeight={300}
         labelField="label"
         valueField="value"
@@ -311,6 +453,7 @@ const BookingsQueueScreen = ({ navigation }) => {
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
         onChange={item => {
+          getBookingsFromDate({ date: selectedDates, staff_id: item.value })
           setValue(item.value);
           setIsFocus(false);
         }}
@@ -344,6 +487,13 @@ const BookingsQueueScreen = ({ navigation }) => {
     return date.toLocaleDateString("en-US", options);
   };
 
+  const UpdateBookingStatus = ({booking_id , status}) =>{
+    dispatch(UpdateQueueBookingStatusAction({
+      booking_id : booking_id,
+      status : status
+    }))
+  }
+
   const BookingsData = () => {
     return (
       <>
@@ -366,7 +516,8 @@ const BookingsQueueScreen = ({ navigation }) => {
             <CustomSwitch
               isEnabled={isEnable}
               toggleSwitch={() => {
-                toggleOpen(), bookingModalOffOn();
+                // toggleOpen(),
+                bookingModalOffOn();
               }}
             />
             <TouchableOpacity
@@ -405,7 +556,7 @@ const BookingsQueueScreen = ({ navigation }) => {
           }}>
           <Text
             style={{ fontSize: 16, color: Colors.primary, fontWeight: '600' }}>
-            {formatDate(selectedDate)}
+            {formatDate(selectedDates)}
           </Text>
           <TouchableOpacity onPress={() => openCalendar()}>
             <Image
@@ -432,13 +583,16 @@ const BookingsQueueScreen = ({ navigation }) => {
                   key={index}
                   style={[
                     styles.dayButton,
-                    date === selectedDate && styles.selectedDay,
+                    date === selectedDates && styles.selectedDay,
                   ]}
-                  onPress={() => setSelectedDate(date)}>
+                  onPress={() => {
+                    getBookingsFromDate({ date: date, staff_id: '' })
+                    setSelectedDates(date)
+                  }}>
                   <Text
                     style={[
                       styles.dayText,
-                      date === selectedDate && styles.selectedDayText,
+                      date === selectedDates && styles.selectedDayText,
                     ]}>
                     {getDay(date)}
                   </Text>
@@ -469,12 +623,12 @@ const BookingsQueueScreen = ({ navigation }) => {
                   groupedSlots[hour].map((slot) => (
                     <TouchableOpacity
                       onPress={() => {
-                        navigation.navigate('BookingDetailScreen');
+                        navigation.navigate('BookingDetailScreen', { details: slot });
                       }}
                       style={[styles.appointmentContainer]}>
-                      <Text style={styles.timeText}>{slot.time}</Text>
-                      <Text style={styles.nameText}>{slot.stylist}</Text>
-                      <Text style={styles.serviceText}>{slot.description}</Text>
+                      <Text style={styles.timeText}>{slot.appointment_start_time} - {slot.appointment_end_time}</Text>
+                      <Text style={styles.nameText}>{slot.customer_name}</Text>
+                      <Text style={styles.serviceText}>{slot?.services?.join(', ')}</Text>
                     </TouchableOpacity>
                   ))
                 ) : (
@@ -509,7 +663,7 @@ const BookingsQueueScreen = ({ navigation }) => {
         selectedTextStyle={styles.selectedTextStyle}
         inputSearchStyle={styles.inputSearchStyle}
         iconStyle={styles.iconStyle}
-        data={data}
+        data={staffDropDownData}
         maxHeight={300}
         labelField="label"
         valueField="value"
@@ -520,32 +674,51 @@ const BookingsQueueScreen = ({ navigation }) => {
         onChange={item => {
           setValue(item.value);
           setIsFocus(false);
+
         }}
       />
     );
   };
 
   const renderItem = ({ item }) => {
-    return (
+   return (
+      
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={() => {
-          setIsProfileModalVisible(true), setprofileData(item);
+          if (item?.booking_status == 'Pending') {
+            setEnableQueueModal(true)
+            setprofileData(item);
+          } else {
+            setIsProfileModalVisible(true)
+            setprofileData(item);
+          }
         }}
-        style={[styles?.card, item.status && styles.borderStyle]}>
-        <Image source={item.image} style={styles?.avatar} />
+        style={[styles?.card, item.booking_status == 'Cancel' && {borderColor: Colors?.red} , item.booking_status != 'Pending' && item.booking_status != 'Cancel' && styles.borderStyle]}>
+        <Image source={{ uri: item?.customer_profile }} style={styles?.avatar} />
         <View style={styles?.infoContainer}>
-          <Text style={[styles?.name, { color: '#301E39', fontSize: 14, fontWeight: '600' }]}>{item.name}</Text>
-          <Text style={[styles?.service, { color: '#554F67', fontWeight: '400', fontSize: 12 }]}>{item.service}</Text>
+          <Text style={[styles?.name, { color: '#301E39', fontSize: 14, fontWeight: '600' }]}>{item.customer_name}</Text>
+          <Text style={[styles?.service, { color: '#554F67', fontWeight: '400', fontSize: 12 }]}>{item?.services?.join(', ')}</Text>
         </View>
-        {item.status ? (
+        {
+          item.booking_status == 'Cancel' ? (
+            <View style={[styles?.progressContainer , {backgroundColor: Colors?.red}]}>
+              <Text style={[styles?.progressTxt, { fontSize: 12, fontWeight: '600',color: Colors?.white}]}>{'Cancel'}</Text>
+            </View>
+          ) :
+        item.booking_status == 'Complete' ? (
+          <View style={styles?.progressContainer}>
+            <Text style={[styles?.progressTxt, { fontSize: 12, fontWeight: '600', }]}>{'Completed'}</Text>
+          </View>
+        ) :
+        item.booking_status == 'Start Service' ? (
           <View style={styles?.progressContainer}>
             <Text style={[styles?.progressTxt, { fontSize: 12, fontWeight: '600', }]}>{'In Progress'}</Text>
           </View>
         ) : (
           <View style={styles?.timeContainer}>
             <Image style={styles?.timeIcon} source={Images?.Time} />
-            <Text style={[styles?.time, { color: '#554F67', fontSize: 12, fontWeight: '600' }]}>{item.time}</Text>
+            <Text style={[styles?.time, { color: '#554F67', fontSize: 12, fontWeight: '600' }]}>{item.appointment_start_time}</Text>
           </View>
         )}
       </TouchableOpacity>
@@ -562,20 +735,53 @@ const BookingsQueueScreen = ({ navigation }) => {
         <ProfileModal
           visible={isProfileModalVisible}
           onClose={() => setIsProfileModalVisible(false)}
-          profileImage={profileData?.image}
-          name={profileData.name}
-          serviceName={profileData.service}
-          price={profileData.price}
-          addOns={profileData.addOns}
-          assistantImage={Images?.image11}
-          assistantName={profileData.assistantName}
-          rating={profileData.rating}
-          reviews={profileData.reviews}
+          profileImage={Images?.image33}
+          name={profileData.customer_name}
+          serviceName={profileData?.services?.join(', ')}
+          price={`$ ${profileData.price}`}
+          // addOns={profileData.addOns}
+          assistantImage={{ uri: profileData.professional_details?.profile }}
+          assistantName={profileData.professional_details?.name}
+          rating={profileData.avg_rating}
+          reviews={profileData.total_reviews}
           onAddAmendPress={() => {
-            navigation.navigate('BookService'), setIsProfileModalVisible(false);
+            navigation.navigate('BookService' , {data : profileData}), setIsProfileModalVisible(false);
           }}
-          onCompletePress={() => setIsProfileModalVisible(false)}
+          onCompletePress={() => {
+            UpdateBookingStatus({
+              booking_id : profileData?.booking_id,
+              status: 'Complete'
+            })
+            setIsProfileModalVisible(false)}}
           navigation={navigation}
+        />
+
+        <BookingModal
+          modalText={`Are you sure you want to start service for ${profileData?.customer_name}?`}
+          buttonText={'Start Service'}
+          cancelButtonText={'No Show'}
+          thirdButtonText={'Back'}
+          visible={isEnableQueUeModal}
+          onClose={() => {
+            // setEnableQueueModal(false)
+            UpdateBookingStatus({
+              booking_id : profileData?.booking_id,
+              status: 'Cancel'
+            })
+          }}
+          onFirstBtn={() => {
+            UpdateBookingStatus({
+              booking_id : profileData?.booking_id,
+              status: 'Start Service'
+            })
+          }}
+          onClickThird={() => {
+            setEnableQueueModal(false)
+          }}
+          cancelBtnTextColor={Colors?.white}
+          // type={resumeQuery}
+          buttonBackgroundColor={Colors.primary}
+          cancelButtonBackgroundColor={Colors?.red}
         />
         <View
           style={{
@@ -595,8 +801,12 @@ const BookingsQueueScreen = ({ navigation }) => {
             <CustomSwitch
               isEnabled={isEnableQueue}
               toggleSwitch={() => {
-                toggleOpenQue();
-                enableQueueModal();
+                // toggleOpenQue();
+                if (isEnableQueue) {
+                  pauseQueryModal()
+                } else {
+                  enableQueueModal();
+                }
               }}
             />
             <Image style={styles.infoIcon} source={Images.Information} />
@@ -643,7 +853,7 @@ const BookingsQueueScreen = ({ navigation }) => {
               Pause the queue temporarily, new customer’s won’t be able to join
               the queue. The existing queue remains.
             </Text>
-            {!pauseResumeQuery ? (
+            {isEnableQueue ? (
               <CommonButton
                 buttonStyle={{ backgroundColor: Colors.red }}
                 title={'Pause Queue Temporarily'}
@@ -654,12 +864,12 @@ const BookingsQueueScreen = ({ navigation }) => {
                 buttonStyle={{ backgroundColor: Colors.semiPurpleLight }}
                 textStyle={{ color: Colors.primary }}
                 title={'Resume Queue'}
-                onPress={() => pauseQueryModal()}
+                onPress={() => resumeQueryModal()}
               />
             )}
           </View>
           <FlatList
-            data={dataForQue}
+            data={queueData}
             keyExtractor={item => item.id}
             renderItem={renderItem}
             contentContainerStyle={styles.listContainer}
@@ -669,15 +879,33 @@ const BookingsQueueScreen = ({ navigation }) => {
     );
   };
 
+  const onPressUpdateBookingStatus = () => {
+    dispatch(UpdateFutureBookingsAction({
+      status: isEnable
+    }))
+  }
+
+  const onPressQueueStatus = (val) => {
+    dispatch(UpdateQueuebtnStatusAction({
+      status: val
+    }))
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={Colors?.white} barStyle={'dark-content'} />
       {/* Cancel appointment Modal */}
+
       <BookingModal
-        modalText={'Are you sure you want to cancel this appointment?'}
+        modalText={!isEnable ? 'Are you sure you want to resume the bookings for today?' : 'Are you sure you want to pause the bookings for today?'}
         visible={modalVisible}
+        buttonText={!isEnable ? 'Resume Bookings' : 'Pause Bookings'}
         onClose={bookingModalOffOn}
-        type={modalVisible}
+        type={isEnable}
+        onFirstBtn={() => {
+          onPressUpdateBookingStatus()
+        }}
+        buttonBackgroundColor={!isEnable ? Colors.primary : Colors.red}
       />
       {/* Pause Query Moadl */}
       <BookingModal
@@ -688,7 +916,10 @@ const BookingsQueueScreen = ({ navigation }) => {
         }
         visible={pauseQuery}
         onClose={pauseQueryModal}
-        type={pauseQuery}
+        onFirstBtn={() => {
+          onPressQueueStatus(false)
+        }}
+      // type={pauseQuery}
       />
       {/* Resume Query Moadl */}
       <BookingModal
@@ -699,8 +930,11 @@ const BookingsQueueScreen = ({ navigation }) => {
         }
         visible={resumeQuery}
         onClose={resumeQueryModal}
-        type={resumeQuery}
+        // type={resumeQuery}
         buttonBackgroundColor={Colors.primary}
+        onFirstBtn={() => {
+          onPressQueueStatus(true)
+        }}
       />
       {/* Enable Query Moadl */}
       <BookingModal
@@ -711,9 +945,18 @@ const BookingsQueueScreen = ({ navigation }) => {
         }
         visible={EnablineQueModal}
         onClose={enableQueueModal}
-        type={resumeQuery}
+        onFirstBtn={() => {
+          if (isEnableQueue) {
+            onPressQueueStatus(false)
+          } else {
+            onPressQueueStatus(true)
+          }
+        }}
+        // type={resumeQuery}
         buttonBackgroundColor={Colors.primary}
       />
+
+
 
       <OnOffModal visible={onOffModal} onClose={modalOnoff} />
       <CalendarPickerModal
@@ -721,6 +964,10 @@ const BookingsQueueScreen = ({ navigation }) => {
         onClose={() => setCalendarVisible(false)} // Close modal handler
         selectedDates={selectedDates}
         setSelectedDates={setSelectedDates}
+        onPressDate={(val) => {
+          setSelectedDates(val)
+          getBookingsFromDate({ date: val, staff_id: '' })
+        }}
       />
       {tabsView()}
       {/* Data manage as per screen */}

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Modal,
   View,
@@ -11,14 +11,17 @@ import {
   ScrollView,
   SafeAreaView,
 } from 'react-native';
-import {DimensionsConfig} from '../theme/dimensions';
-import {Images} from '../assets/images';
+import { DimensionsConfig } from '../theme/dimensions';
+import { Images } from '../assets/images';
 import AppHeader from '../components/AppHeader';
 import CustomSwitch from '../components/CustomSwitch';
 import CustomButton from '../components/CustomButton';
 import CommonButton from '../components/CommonButton';
-import {Colors} from '../theme/colors';
-import {Picker} from '@react-native-picker/picker';
+import { Colors } from '../theme/colors';
+import { Picker } from '@react-native-picker/picker';
+import { useDispatch, useSelector } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AddToRosterAction, AddToRosterRemoveAction } from '../redux/action/AddToRosterAction';
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
 
@@ -44,163 +47,244 @@ const generateTimeOptions = () => {
 
 const timeOptions = generateTimeOptions();
 
-const RosteringHours = ({visible, onClose, onSelect,navigation}) => {
-  const [selectedOption, setSelectedOption] = useState('highToLow');
-  const [selectedId, setSelectedId] = useState(null);
+const RosteringHours = ({ navigation, ...props }) => {
 
-  const [schedule, setSchedule] = useState(
-    daysOfWeek.map(day => ({
-      day,
-      isOpen: day !== 'Saturday' && day !== 'Sunday',
-      timeFrames: [
-        {openingTime: '12:00 PM', closingTime: '12:30 PM'}, // Default timeframe
-      ],
-    })),
+  const dispatch = useDispatch();
+  const addToRosterData = useSelector((state) => state.addToRosterData);
+
+  const [schedule, setSchedule] = useState([
+    { start_time: '12:00 PM', end_time: '12:30 PM' },
+  ]
   );
+  const [intialize, setIntialize] = useState(false);
 
-  const toggleOpen = index => {
-    const newSchedule = [...schedule];
-    newSchedule[index].isOpen = !newSchedule[index].isOpen;
-    setSchedule(newSchedule);
+  useEffect(() => {
+    // console.log('?.response?.result', addToRosterData?.response)
+    if (addToRosterData?.response?.message == 'success') {
+      dispatch(AddToRosterRemoveAction())
+      navigation.goBack()
+    }
+  }, [addToRosterData])
+
+  const convertTo12Hour = (time) => {
+    let [hour, minute] = time.split(':');
+    hour = parseInt(hour, 10);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    hour = hour % 12 || 12; // Convert 0 to 12 for AM
+    return `${hour}:${minute} ${ampm}`;
   };
 
-  const addTimeFrame = index => {
-    const newSchedule = [...schedule];
-    newSchedule[index].timeFrames.push({
-      openingTime: '12:00 PM',
-      closingTime: '12:30 PM',
+
+
+  useEffect(() => {
+    if (props?.route?.params?.data) {
+      // console.log('props?.route?.params?.data', props?.route?.params?.data)
+      setSchedule([{ start_time: convertTo12Hour(props?.route?.params?.data?.start_time), end_time: convertTo12Hour(props?.route?.params?.data?.start_time) },])
+      setIntialize(true)
+    } else {
+      setIntialize(true)
+    }
+
+  }, [props?.route?.params])
+
+  const addTimeFrame = () => {
+    const newSchedule = [...schedule]; // avoid mutation
+    newSchedule.push({
+      start_time: '12:00 PM',
+      end_time: '12:30 PM',
     });
     setSchedule(newSchedule);
   };
 
-  const updateTime = (index, timeFrameIndex, type, value) => {
-    const newSchedule = [...schedule];
-    const timeFrame = newSchedule[index].timeFrames[timeFrameIndex];
 
-    if (type === 'openingTime') {
-      timeFrame.openingTime = value;
+
+  const convertTo24Hour = (time) => {
+    const [timePart, modifier] = time.split(' ');
+    let [hours, minutes] = timePart.split(':');
+
+    if (modifier.toLowerCase() === 'pm' && hours !== '12') {
+      hours = String(parseInt(hours, 10) + 12);
+    } else if (modifier.toLowerCase() === 'am' && hours === '12') {
+      hours = '00';
+    }
+
+    return `${hours.padStart(2, '0')}:${minutes}`;
+  };
+
+
+  const convertArrayTimes = (timeArray) => {
+    return timeArray.map(({ start_time, end_time }) => ({
+      start_time: convertTo24Hour(start_time),
+      end_time: convertTo24Hour(end_time),
+    }));
+  };
+
+
+  const updateTime = (timeFrameIndex, type, value) => {
+    const newSchedule = [...schedule]; // avoid mutation
+    const timeFrame = { ...newSchedule[timeFrameIndex] };
+
+    if (type === 'start_time') {
+      timeFrame.start_time = value;
       if (
-        timeOptions.indexOf(value) >= timeOptions.indexOf(timeFrame.closingTime)
+        timeOptions.indexOf(value) >= timeOptions.indexOf(timeFrame.end_time)
       ) {
         const newClosingIndex = timeOptions.indexOf(value) + 1;
-        timeFrame.closingTime =
+        timeFrame.end_time =
           timeOptions[newClosingIndex] || timeOptions[timeOptions.length - 1];
       }
     } else {
-      timeFrame.closingTime = value;
+      timeFrame.end_time = value;
     }
+
+    newSchedule[timeFrameIndex] = timeFrame;
     setSchedule(newSchedule);
   };
 
+
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    }).replace(',', '');
+  };
+
+  const onPressSave = async () => {
+    // console.log('save ', schedule, schedule)
+    const userId = await AsyncStorage.getItem('token')
+    const scheduleValue = convertArrayTimes(schedule)
+    // console.log('scheduleValue', scheduleValue)
+
+    const formData = new FormData();
+    if (props?.route?.params?.type == 'Edit') {
+      formData.append('roaster_id', props?.route?.params?.data?.roaster_id);
+    }
+    formData.append('business_id', userId);
+    formData.append('staff_id', props?.route?.params?.staffDetail?.staff_id);
+    formData.append('date', props?.route?.params?.selectedData?.date);
+    formData.append('shifts', JSON.stringify(scheduleValue));
+    console.log('formData', formData, scheduleValue)
+
+
+    dispatch(AddToRosterAction(formData))
+  }
+
+
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: Colors.white}}>
-      <View style={{flex: 1, backgroundColor: Colors.white}}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.white }}>
+      <View style={{ flex: 1, backgroundColor: Colors.white }}>
         <AppHeader title={'Rostering Hours'} />
-        <ScrollView style={{paddingHorizontal: (mobileW * 3) / 100}}>
+        <ScrollView style={{ paddingHorizontal: (mobileW * 3) / 100 }}>
           <TouchableOpacity style={[styles.itemContainer]}>
-            <Image source={Images?.image11} style={styles.profileImage} />
+            <Image source={props?.route?.params?.staffDetail?.profile ? { uri: props?.route?.params?.staffDetail?.profile } : Images?.image11} style={styles.profileImage} />
             <View style={styles.textContainer}>
-              <Text style={styles.nameText}>{'Linda Johnson'}</Text>
+              <Text style={styles.nameText}>{props?.route?.params?.staffDetail?.first_name} {props?.route?.params?.staffDetail?.last_name}</Text>
             </View>
 
-            <Text style={[styles.nameText, {color: Colors.black}]}>
-              {'3 Aug, 2024'}
+            <Text style={[styles.nameText, { color: Colors.black }]}>
+              {formatDate(props?.route?.params?.selectedData?.date)}
             </Text>
           </TouchableOpacity>
-          <View
-            style={{
-              backgroundColor: Colors.semiPurpleLight,
-              width: '100%',
-              paddingVertical: (mobileW * 3) / 100,
-              width: (mobileW * 89) / 100,
-              alignSelf: 'center',
-              borderRadius: (mobileW * 2) / 100,
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingHorizontal: (mobileW * 2) / 100,
-            }}>
-            <Image source={Images?.timeBack} style={styles.imageWatch} />
-            <Text
-              style={[
-                styles.nameText,
-                {left: 10, color: Colors.gray, fontWeight: '400'},
-              ]}>
-              {'Linda is available 9am-1pm'}
-            </Text>
-          </View>
+          {props?.route?.params?.data ? (
+            <View
+              style={{
+                backgroundColor: Colors.semiPurpleLight,
+                width: '100%',
+                paddingVertical: (mobileW * 3) / 100,
+                width: (mobileW * 89) / 100,
+                alignSelf: 'center',
+                borderRadius: (mobileW * 2) / 100,
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingHorizontal: (mobileW * 2) / 100,
+              }}>
+              <Image source={Images?.timeBack} style={styles.imageWatch} />
+              <Text
+                style={[
+                  styles.nameText,
+                  { left: 10, color: Colors.gray, fontWeight: '400' },
+                ]}>
+                {`Linda is available ${convertTo12Hour(props?.route?.params?.data?.start_time)}-${convertTo12Hour(props?.route?.params?.data?.end_time)}`}
+              </Text>
+            </View>) : null}
           <View style={styles.straightLine} />
 
-          {schedule.map((item, index) => (
-            <View key={item.day} style={styles.dayContainer}>
-              {item.timeFrames.map((timeFrame, timeFrameIndex) => {
-                const validClosingOptions = timeOptions.slice(
-                  timeOptions.indexOf(timeFrame.openingTime) + 1,
-                );
-                return (
-                  <View key={timeFrameIndex} style={styles.timeContainer}>
-                    <View style={styles.pickerContainer}>
-                      <Picker
-                        selectedValue={timeFrame.openingTime}
-                        style={styles.timePicker}
-                        onValueChange={value =>
-                          updateTime(
-                            index,
-                            timeFrameIndex,
-                            'openingTime',
-                            value,
-                          )
-                        }
-                        mode="dropdown">
-                        {timeOptions.map(timeOption => (
-                          <Picker.Item
-                            label={timeOption}
-                            value={timeOption}
-                            key={timeOption}
-                          />
-                        ))}
-                      </Picker>
-                    </View>
-                    <Text style={styles.toText}>To</Text>
-                    <View style={styles.pickerContainer}>
-                      <Picker
-                        selectedValue={timeFrame.closingTime}
-                        style={styles.timePicker}
-                        onValueChange={value =>
-                          updateTime(
-                            index,
-                            timeFrameIndex,
-                            'closingTime',
-                            value,
-                          )
-                        }
-                        mode="dropdown">
-                        {validClosingOptions.map(timeOption => (
-                          <Picker.Item
-                            label={timeOption}
-                            value={timeOption}
-                            key={timeOption}
-                          />
-                        ))}
-                      </Picker>
-                    </View>
+          {/* {schedule.map((item, index) => ( */}
+          <View style={styles.dayContainer}>
+            {intialize && schedule.map((timeFrame, timeFrameIndex) => {
+              const validClosingOptions = timeOptions.slice(
+                timeOptions.indexOf(timeFrame.start_time) + 1,
+              );
+              return (
+                <View key={timeFrameIndex} style={styles.timeContainer}>
+                  <View style={styles.pickerContainer}>
+                    <Picker
+                      selectedValue={timeFrame.start_time}
+                      style={styles.timePicker}
+                      onValueChange={value =>
+                        updateTime(
+                          timeFrameIndex,
+                          'start_time',
+                          value,
+                        )
+                      }
+                      mode="dropdown">
+                      {timeOptions.map(timeOption => (
+                        <Picker.Item
+                          label={timeOption}
+                          value={timeOption}
+                          key={timeOption}
+                        />
+                      ))}
+                    </Picker>
                   </View>
-                );
-              })}
+                  <Text style={styles.toText}>To</Text>
+                  <View style={styles.pickerContainer}>
+                    <Picker
+                      selectedValue={timeFrame.end_time}
+                      style={styles.timePicker}
+                      onValueChange={value =>
+                        updateTime(
+                          timeFrameIndex,
+                          'end_time',
+                          value,
+                        )
+                      }
+                      mode="dropdown">
+                      {validClosingOptions.map(timeOption => (
+                        <Picker.Item
+                          label={timeOption}
+                          value={timeOption}
+                          key={timeOption}
+                        />
+                      ))}
+                    </Picker>
+                  </View>
+                </View>
+              );
+            })}
+            {props?.route?.params?.data ? null : (
               <TouchableOpacity
-                onPress={() => addTimeFrame(index)}
+                onPress={() => addTimeFrame()}
                 style={styles.addTimeFrameButton}>
                 <Image
                   source={Images.PlusWithLightBAck}
                   style={styles.addIcon}
                 />
                 <Text style={styles.addText}>Add Timeframe</Text>
-              </TouchableOpacity>
-            </View>
-          ))}
+              </TouchableOpacity>)}
+          </View>
+          {/* ))} */}
         </ScrollView>
         <View style={styles.buttonContainer}>
           <CommonButton
-            onPress={() => navigation.navigate('Profile')}
+            onPress={() => {
+              // console.log('scmnsjcns', JSON.stringify(schedule))
+              onPressSave()
+            }}
             title={'Save'}
           />
         </View>
@@ -335,7 +419,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: (mobileW * 4) / 100,
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },

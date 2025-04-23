@@ -8,6 +8,8 @@ import {
   FlatList,
   Dimensions,
   Image,
+  ScrollView,
+  Alert,
 } from 'react-native';
 import { DimensionsConfig } from '../../theme/dimensions';
 import { Images } from '../../assets/images';
@@ -16,15 +18,21 @@ import CommonButton from '../CommonButton';
 import { TextInput as TextInputPaper } from 'react-native-paper';
 import { useDispatch, useSelector } from 'react-redux';
 import { GetCustomerDetailsAction } from '../../redux/action/GetCustomerDetailsAction';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { FindCustomerProfileAction, FindCustomerProfileRemoveAction } from '../../redux/action/FindCustomerProfileAction';
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
 
 const SelectGiftCardModal = ({ visible, onClose, onSelect }) => {
   const dispatch = useDispatch();
   const getCustomerDetailsData = useSelector((state) => state.getCustomerDetailsData);
+  const findCustomerProfileData = useSelector((state) => state.findCustomerProfileData);
   const [customerData, setCustomerData] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [selectedTab, setSelectedTab] = useState('Exixting');
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
 
   useEffect(() => {
     // console.log('getCustomerDetailsData?.response?.result' , getCustomerDetailsData?.response?.result)
@@ -32,6 +40,24 @@ const SelectGiftCardModal = ({ visible, onClose, onSelect }) => {
       setCustomerData(getCustomerDetailsData?.response?.result)
     }
   }, [getCustomerDetailsData])
+
+  useEffect(() => {
+    // console.log('findCustomerProfileData?.response?.result' , findCustomerProfileData?.response?.result)
+    if (findCustomerProfileData?.response?.message == 'success') {
+      onClose(), onSelect(findCustomerProfileData?.response?.result)
+      dispatch(FindCustomerProfileRemoveAction())
+    } else if (findCustomerProfileData?.response?.message == 'unsuccess') {
+      Alert.alert(
+        "Error", // Title
+        "No Customer Found", // Message
+        [
+          { text: "OK", onPress: () => console.log("OK Pressed") }
+        ],
+        { cancelable: true } // Allows dismissing alert by tapping outside
+      );
+      dispatch(FindCustomerProfileRemoveAction())
+    }
+  }, [findCustomerProfileData])
 
   useEffect(() => {
     if (visible) {
@@ -161,7 +187,7 @@ const SelectGiftCardModal = ({ visible, onClose, onSelect }) => {
 
   const newDataView = () => {
     return (
-      <>
+      <ScrollView keyboardDismissMode='interactive' scrollEnabled={false} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Customer Details</Text>
         <View>
           <TextInputPaper
@@ -169,7 +195,8 @@ const SelectGiftCardModal = ({ visible, onClose, onSelect }) => {
             outlineColor={Colors?.OrGray}
             activeOutlineColor={Colors?.gray}
             label="Name"
-            // onChangeText={text => setText(text)}
+            value={name}
+            onChangeText={text => setName(text)}
             mode="outlined"
             placeholder="Enter Name"
           />
@@ -178,7 +205,9 @@ const SelectGiftCardModal = ({ visible, onClose, onSelect }) => {
             outlineColor={Colors?.OrGray}
             activeOutlineColor={Colors?.gray}
             label="Email"
-            // onChangeText={text => setText(text)}
+            value={email}
+            onChangeText={text => setEmail(text)}
+            keyboardType='email-address'
             mode="outlined"
             placeholder="Enter Email"
           />
@@ -187,7 +216,9 @@ const SelectGiftCardModal = ({ visible, onClose, onSelect }) => {
             outlineColor={Colors?.OrGray}
             activeOutlineColor={Colors?.gray}
             label="Phone"
-            // onChangeText={text => setText(text)}
+            value={phone}
+            onChangeText={text => setPhone(text)}
+            keyboardType='number-pad'
             mode="outlined"
             placeholder="Enter Phone"
           />
@@ -197,12 +228,56 @@ const SelectGiftCardModal = ({ visible, onClose, onSelect }) => {
               marginTop: (mobileH * 30) / 100,
               alignSelf: 'center',
             }}>
-            <CommonButton onPress={() => onClose()} title={'Add Customer'} />
+            <CommonButton onPress={() => { handelAddCustomer() }} title={'Add Customer'} />
           </View>
         </View>
-      </>
+      </ScrollView>
     );
   };
+
+  const handelAddCustomer = async () => {
+    if (name.split('').length === 0) {
+      console.log('Hit this');
+      Alert.alert(
+        "Alert", // Title
+        "Please enter customer Name", // Message
+        [
+          { text: "OK", onPress: () => console.log("OK Pressed") }
+        ],
+        { cancelable: true } // Allows dismissing alert by tapping outside
+      );
+    } else if (phone.split('').length === 0) {
+      console.log('Hit this');
+      Alert.alert(
+        "Alert", // Title
+        "Please enter customer Phone", // Message
+        [
+          { text: "OK", onPress: () => console.log("OK Pressed") }
+        ],
+        { cancelable: true } // Allows dismissing alert by tapping outside
+      );
+    } else if (email.split('').length === 0) {
+      console.log('Hit this');
+      Alert.alert(
+        "Alert", // Title
+        "Please enter customer Email", // Message
+        [
+          { text: "OK", onPress: () => console.log("OK Pressed") }
+        ],
+        { cancelable: true } // Allows dismissing alert by tapping outside
+      );
+    } else {
+      const formData = new FormData();
+      formData.append('customer_name', name);
+      formData.append('mobile', phone);
+      formData.append('email', email);
+      
+      console.log('Hit this ===>' , formData);
+      dispatch(FindCustomerProfileAction(formData))
+    }
+
+  }
+
 
   return (
     <Modal transparent={true} visible={visible} animationType="slide">

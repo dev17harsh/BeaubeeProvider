@@ -7,11 +7,11 @@ import {
   StyleSheet,
   Image,
 } from 'react-native';
-import {Colors} from '../theme/colors';
-import {DimensionsConfig} from '../theme/dimensions';
+import { Colors } from '../theme/colors';
+import { DimensionsConfig } from '../theme/dimensions';
 import CommonButton from './CommonButton';
-import {mobileW} from './utils';
-import {Images} from '../assets/images';
+import { mobileW } from './utils';
+import { Images } from '../assets/images';
 
 const ProfileCard = ({
   visible,
@@ -19,12 +19,12 @@ const ProfileCard = ({
   profileImage,
   name,
   serviceName,
-  price,
+  price = 0,
   addOns,
   assistantImage,
   assistantName,
-  rating,
-  reviews,
+  rating = 0,
+  reviews = 0,
   onAddAmendPress,
   onCompletePress,
   navigation
@@ -49,9 +49,9 @@ const ProfileCard = ({
               <Text style={styles.serviceName}>{serviceName}</Text>
               <Text style={styles.price}>{price}</Text>
             </View>
-            <Text style={styles.addOns}>
+            {/* <Text style={styles.addOns}>
               Add Ons: <Text style={styles.boldText}>{addOns}</Text>
-            </Text>
+            </Text> */}
 
             <View style={styles.straightLine} />
 
@@ -76,7 +76,7 @@ const ProfileCard = ({
 
           <CommonButton
             title={'Mark as Complete'}
-            onPress={() => {onCompletePress()}}
+            onPress={() => { onCompletePress() }}
           />
         </View>
       </View>

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -15,15 +15,27 @@ import {Images} from '../assets/images';
 import {DimensionsConfig} from '../theme/dimensions';
 import ListProfessionalModal from '../components/Modal.js/ListProfessionalModal';
 import CommonButton from '../components/CommonButton';
+import { UpdateQueueBookingRemoveAction, UpdateQueueBookingStatusAction } from '../redux/action/UpdateQueueBookingStatusAction';
+import { useDispatch, useSelector } from 'react-redux';
 
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
-const BookServices = ({navigation}) => {
+const BookServices = ({navigation , ...props}) => {
+  const dispatch = useDispatch();
+  const updateQueueBookingStatusData = useSelector((state) => state.updateQueueBookingStatusData);
   const [selectedValue, setSelectedValue] = useState('0');
   const [selectedSlot, setSelectedSlot] = useState('1:00 - 2:00');
   const [selectedStartDate, setSelectedStartDate] = useState(null);
   const [isModalProfessionalVisible, setModalProfessionalVisible] =
     useState(false);
+
+
+    useEffect(() => {
+        if (updateQueueBookingStatusData?.response?.message == 'success') {
+          dispatch(UpdateQueueBookingRemoveAction())
+         navigation.goBack()
+        }
+      }, [updateQueueBookingStatusData])
 
   const timeSlots = [
     {time: '12:00 - 1:00', notification: true},
@@ -47,6 +59,13 @@ const BookServices = ({navigation}) => {
   const onDateChange = date => {
     setSelectedStartDate(date);
   };
+
+   const UpdateBookingStatus = () =>{
+      dispatch(UpdateQueueBookingStatusAction({
+        booking_id : props?.route?.params?.data?.booking_id,
+        status : 'Complete'
+      }))
+    }
 
   const renderItem = ({item}) => (
     <TouchableOpacity
@@ -98,7 +117,7 @@ const BookServices = ({navigation}) => {
       <ScrollView style={styles.Scrollcontainer}>
         {/* Header */}
         <View style={styles.creditSection}>
-          <Text style={styles.creditAmount}>Straight Hair</Text>
+          <Text style={styles.creditAmount}>{props?.route?.params?.data?.services?.join(', ')}</Text>
           <View
             style={{
               flexDirection: 'row',
@@ -113,23 +132,23 @@ const BookServices = ({navigation}) => {
                 styles.creditTitle,
                 {color: Colors?.primary, fontWeight: '600', fontSize: 14},
               ]}>
-              $60.00
+              ${props?.route?.params?.data?.price}
             </Text>
-            <Text style={styles.creditTitle}>Duration: 45 minuets</Text>
+            <Text style={styles.creditTitle}>Duration: {props?.route?.params?.data?.duration} minuets</Text>
           </View>
         </View>
         <View style={styles.straightLine} />
         <View>
           <Text style={styles.sectionTitle}>Add ons (Optional)</Text>
           <FlatList
-            data={addons}
+            data={props?.route?.params?.data?.service_addons}
             keyExtractor={item => item.id}
             horizontal
             renderItem={({item}) => (
               <AddOnCard
                 name={item.name}
                 duration={item.duration}
-                price={item.price}
+                price={`$ ${item.charge}`}
               />
             )}
             showsHorizontalScrollIndicator={false}
@@ -147,25 +166,28 @@ const BookServices = ({navigation}) => {
             style={styles.methodDetails}>
             <Image
               resizeMode="contain"
-              source={Images?.Image1}
+              source={{uri: props?.route?.params?.data?.professional_details?.profile}}
               style={styles.personIcons}
             />
             <View
               style={{width: (mobileW * 64) / 100, left: (mobileW * 2) / 100}}>
-              <Text style={styles.personNameText}>{'Select Professional'}</Text>
+              {/* <Text style={styles.personNameText}>{'Select Professional'}</Text> */}
+              <Text style={styles.personNameText}>{props?.route?.params?.data?.professional_details?.name}</Text>
             </View>
-            <Image source={Images.forwardIcon} style={styles.backIcon} />
+            {/* <Image source={Images.forwardIcon} style={styles.backIcon} /> */}
           </TouchableOpacity>
         </View>
-        <TouchableOpacity>
+        {/* <TouchableOpacity>
           <Text style={[styles.sectionRemove]}>
             X Remove Selection
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         {/* Buttons */}
         <CommonButton
           title={'Finish'}
-          onPress={() => navigation.goBack()}
+          onPress={() => {
+            UpdateBookingStatus()
+          }}
           buttonStyle={{marginTop: (mobileH * 20) / 100}}
         />
         <View style={{marginTop: (mobileH * 5) / 100}} />

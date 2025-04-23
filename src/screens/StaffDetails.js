@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,33 +10,45 @@ import {
   Touchable,
   TouchableOpacity,
   SafeAreaView,
+  Alert,
 } from 'react-native';
-import {Images} from '../assets/images';
+import { Images } from '../assets/images';
 import AppHeader from '../components/AppHeader';
-import {Colors} from '../theme/colors';
+import { Colors } from '../theme/colors';
 import CustomButton from '../components/CustomButton';
 import BreakDuratinModal from '../components/Modal.js/BreakDurationModal';
 import { useIsFocused } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import { DeleteStaffAction, DeleteStaffRemoveAction } from '../redux/action/DeleteStaffAction';
 // import TimingsModal from '../components/Modal/TimingsModal';
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
 
-const ScheduleDay = [
-  {day: 'Monday', time: '10:00AM to 09:00PM'},
-  {day: 'Tuesday', time: '10:00AM to 09:00PM'},
-  {day: 'Wednesday', time: '10:00AM to 09:00PM'},
-  {day: 'Thusday', time: '10:00AM to 09:00PM'},
-  {day: 'Friday', time: '10:00AM to 09:00PM'},
-  {day: 'Saturday', time: '10:00AM to 09:00PM'},
-  {day: 'Sunday', time: '10:00AM to 09:00PM'},
-];
 
-const StaffDetails = ({navigation}) => {
+const StaffDetails = ({ navigation, ...props }) => {
+  const dispatch = useDispatch();
   const isFocused = useIsFocused()
+  const deleteStaffData = useSelector((state) => state.deleteStaffData);
   const [breakModal, setbreakModal] = useState(false);
   const [availableData, setAvailableData] = useState(false);
   const breakVisibleModal = () => {
     setbreakModal(!breakModal);
+  };
+
+  useEffect(() => {
+    if (deleteStaffData?.response?.message == 'success') {
+      navigation.goBack()
+      dispatch(
+        DeleteStaffRemoveAction({})
+      )
+    }
+  }, [deleteStaffData])
+
+  const formatTime = (timeString) => {
+    const [hours, minutes] = timeString.split(":");
+    const date = new Date();
+    date.setHours(hours, minutes);
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true });
   };
 
   const renderData = items => {
@@ -52,21 +64,33 @@ const StaffDetails = ({navigation}) => {
         <Text
           style={{
             color: '#554F67',
-            fontWeight:'400',
-            fontSize:14
+            fontWeight: '400',
+            fontSize: 14
           }}>
-          {item.day}
+          {item.day_of_week}
         </Text>
         <Text
-         style={{
-          color: '#554F67',
-          fontWeight:'400',
-          fontSize:14
-        }}
-        >{item.time}</Text>
+          style={{
+            color: '#554F67',
+            fontWeight: '400',
+            fontSize: 14
+          }}
+        >{formatTime(item.start_time)} - {formatTime(item.end_time)}</Text>
       </View>
     );
   };
+
+  const onPressDelete = () => {
+    Alert.alert(
+      "",
+      `Are you sure you want to delete ${props?.route?.params?.details?.first_name} ${props?.route?.params?.details?.last_name} staff?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "OK", onPress: () => dispatch(DeleteStaffAction({ staff_id: props?.route?.params?.details?.staff_id })) }
+      ]
+    );
+
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -77,13 +101,13 @@ const StaffDetails = ({navigation}) => {
         <ScrollView style={styles.Scrollcontainer}>
           {/* Business Image */}
 
-          <Image source={Images?.image22} style={styles.homeServiceIcon} />
+          <Image source={{ uri: props?.route?.params?.details?.profile }} style={styles.homeServiceIcon} />
 
-          <View style={{alignItems: 'center', marginTop: (mobileW * 3) / 100}}>
+          <View style={{ alignItems: 'center', marginTop: (mobileW * 3) / 100 }}>
             {/* User Info */}
-            <Text style={styles.name}>Kynthia Johnson</Text>
-            <Text style={styles.email}>kynthiajohnson@email.com</Text>
-            <Text style={styles.phone}>+123 456 7890</Text>
+            <Text style={styles.name}>{props?.route?.params?.details?.first_name} {props?.route?.params?.details?.last_name}</Text>
+            <Text style={styles.email}>{props?.route?.params?.details?.email}</Text>
+            <Text style={styles.phone}>{props?.route?.params?.details?.mobile}</Text>
           </View>
           {/* Business Details */}
           <View
@@ -94,12 +118,12 @@ const StaffDetails = ({navigation}) => {
               <View style={[styles.txtView]}>
                 <Text style={styles.itemLabel}>Ratings</Text>
               </View>
-              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Image source={Images?.starIcon} style={styles?.backIcon} />
                 <Text style={styles?.ratingText}>
-                  {'5.0 '}
+                  {props?.route?.params?.details?.average_rating}
                   <Text style={[styles.ratingText, styles.reviewTxt]}>
-                    ({'191' + ' Ratings'})
+                    ({`${props?.route?.params?.details?.total_rated_user}` + ' Ratings'})
                   </Text>
                 </Text>
               </View>
@@ -109,11 +133,11 @@ const StaffDetails = ({navigation}) => {
               <View style={[styles.txtView]}>
                 <Text style={styles.itemLabel}>Service</Text>
               </View>
-              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 {/* <Image source={Images?.starIcon} style={styles?.backIcon} /> */}
                 <Text style={styles?.ratingText}>
                   <Text style={[styles.ratingText, styles.reviewTxt]}>
-                    Hair
+                    {props?.route?.params?.details?.category}
                   </Text>
                 </Text>
               </View>
@@ -124,9 +148,7 @@ const StaffDetails = ({navigation}) => {
                 <Text style={styles.itemLabel}>Bio</Text>
               </View>
               <Text style={styles.itemDescription}>
-                Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor
-                eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante,
-                dapibus in, viverra quis
+                {props?.route?.params?.details?.bio}
               </Text>
             </View>
 
@@ -154,9 +176,9 @@ const StaffDetails = ({navigation}) => {
                 </TouchableOpacity>
               </View>
               {availableData && (
-                <View style={{marginTop: (mobileW * 3) / 100}}>
+                <View style={{ marginTop: (mobileW * 3) / 100 }}>
                   <FlatList
-                    data={ScheduleDay}
+                    data={props?.route?.params?.details?.staff_timing}
                     renderItem={item => renderData(item)}
                   />
                 </View>
@@ -171,7 +193,7 @@ const StaffDetails = ({navigation}) => {
               <CustomButton
                 title={'Edit'}
                 onPress={() => {
-                  navigation.navigate('AddProfesssional');
+                  navigation.navigate('AddProfesssional', { data: props?.route?.params?.details, type: 'edit' });
                 }}
                 style={{
                   marginBottom: (mobileW * 3) / 100,
@@ -189,14 +211,15 @@ const StaffDetails = ({navigation}) => {
               <CustomButton
                 title={'Delete'}
                 onPress={() => {
-                  navigation.navigate('Profile');
+                  // navigation.navigate('Profile');
+                  onPressDelete()
                 }}
                 style={{
                   marginBottom: (mobileW * 3) / 100,
                   marginTop: (mobileW * 2) / 100,
                   paddingVertical: (mobileW * 3.2) / 100,
                 }}
-                textStyle={{fontWeight: '600', fontSize: 14}}
+                textStyle={{ fontWeight: '600', fontSize: 14 }}
               />
             </View>
           </View>
@@ -501,7 +524,7 @@ const styles = StyleSheet.create({
     marginTop: (mobileW * 4) / 100,
     elevation: 1,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },
@@ -518,7 +541,7 @@ const styles = StyleSheet.create({
     marginTop: (mobileW * 4) / 100,
     elevation: 1,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },
@@ -537,7 +560,7 @@ const styles = StyleSheet.create({
     elevation: 1,
     shadowColor: '#000',
     shadowOpacity: 0.1,
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
   },
   txtView: {},

@@ -257,7 +257,7 @@ const SensGiftCard = ({ navigation }) => {
               style={[styles.icon, { borderRadius: (mobileW * 5.5) / 100, }]}
             />
             <View style={{ width: '75%', marginLeft: 10 }}>
-              <Text style={[styles.itemLabel, { marginLeft: 0 }]}>{selectedCustomer?.customer_name}</Text>
+              <Text style={[styles.itemLabel, { marginLeft: 0 }]}>{selectedCustomer?.first_name ? `${selectedCustomer?.first_name} ${selectedCustomer?.last_name}`: selectedCustomer?.customer_name}</Text>
               <Text style={{
                 color: '#9E98AC',
                 fontSize: 12,

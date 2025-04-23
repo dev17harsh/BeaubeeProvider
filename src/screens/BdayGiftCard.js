@@ -9,7 +9,7 @@ import {
   FlatList,
   SafeAreaView,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { TextInput, TextInput as TextInputPaper } from 'react-native-paper';
 import { Images } from '../assets/images';
 import InputField from '../components/InputField';
@@ -25,28 +25,40 @@ import CustomSwitch from '../components/CustomSwitch';
 import { useDispatch, useSelector } from 'react-redux';
 import { useIsFocused } from '@react-navigation/native';
 import { GetSendGiftCardAction } from '../redux/action/GetSendGiftCardAction';
-const data = [
-  { label: 'Option 1', value: '1' },
-  { label: 'Option 2', value: '2' },
-  { label: 'Option 3', value: '3' },
-  { label: 'Option 4', value: '4' },
-];
+import { UpdateGiftCardForCustomerAction, UpdateGiftCardForCustomerRemoveAction } from '../redux/action/UpdateGiftCardForCustomerAction';
+import { GetGiftCardForCustomerAction } from '../redux/action/GetGiftCardForCustomerAction';
 export default function BdayGiftCard({ navigation }) {
 
   const dispatch = useDispatch();
   const isFocused = useIsFocused()
   const getSendGiftData = useSelector((state) => state.getSendGiftData);
+  const updateGiftCardForCustomerData = useSelector((state) => state.updateGiftCardForCustomerData);
+  const getGiftCardForCustomerData = useSelector((state) => state.getGiftCardForCustomerData);
 
   const [isEnable, setisEnable] = useState(false);
 
-  const [value, setValue] = useState(null);
-  const [isFocus, setIsFocus] = useState(false);
+  const [bookingNumbervalue, setBookingNumberValue] = useState(null);
+  const [amountvalue, setAmountValue] = useState(null);
+  const [isBookingFocus, setIsBookingFocus] = useState(false);
+  const [isAmountFocus, setIsAmountFocus] = useState(false);
+  const [birthdayMsg, setBirthdayMsg] = useState('');
   const [selectedOption, setSelectedOption] = useState('savedPayment'); // Default selection
   const [isModalProfessionalVisible, setModalProfessionalVisible] =
     useState(false);
   const [isPackageModal, setisPackageModal] = useState(false);
 
   const [sendedGiftCardData, setSendedGiftCardData] = useState([])
+  const typingTimeoutRef = useRef(null);
+
+
+  useEffect(() => {
+    if (updateGiftCardForCustomerData?.response?.message == 'success') {
+      dispatch(
+        UpdateGiftCardForCustomerRemoveAction({})
+      )
+    }
+  }, [updateGiftCardForCustomerData])
+
 
 
   useEffect(() => {
@@ -58,7 +70,20 @@ export default function BdayGiftCard({ navigation }) {
 
 
   useEffect(() => {
+    // console.log('getGiftCardForCustomerData?.response?.result' , getGiftCardForCustomerData?.response?.result)
+    if (getGiftCardForCustomerData?.response?.result) {
+      // setSendedGiftCardData(getSendGiftData?.response?.result)
+      setisEnable(getGiftCardForCustomerData?.response?.result?.enable_gift_card == 'true' ? true : false)
+      setBirthdayMsg(getGiftCardForCustomerData?.response?.result?.gift_message)
+      setAmountValue(getGiftCardForCustomerData?.response?.result?.gift_amount)
+      setBookingNumberValue(getGiftCardForCustomerData?.response?.result?.enable_after_no_of_booking)
+    }
+  }, [getGiftCardForCustomerData])
+
+
+  useEffect(() => {
     dispatch(GetSendGiftCardAction())
+    dispatch(GetGiftCardForCustomerAction())
   }, [isFocused])
 
 
@@ -68,72 +93,131 @@ export default function BdayGiftCard({ navigation }) {
 
   const handlePackageModalOpen = () => setisPackageModal(true);
   const handlePackageModalClose = () => setisPackageModal(false);
-  const dropDown = () => {
+  const bookingNumberdata = [
+    { label: '1', value: '1' },
+    { label: '2', value: '2' },
+    { label: '3', value: '3' },
+    { label: '4', value: '4' },
+    { label: '5', value: '5' },
+  ];
+
+  const amountdata = [
+    { label: '$ 10', value: '10' },
+    { label: '$ 20', value: '20' },
+    { label: '$ 30', value: '30' },
+    { label: '$ 40', value: '40' },
+    { label: '$ 50', value: '50' },
+  ];
+
+  const BookingNumberdropDown = () => {
     return (
-      <Dropdown
-        style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
-        placeholderStyle={styles.placeholderStyle}
-        selectedTextStyle={styles.selectedTextStyle}
-        inputSearchStyle={styles.inputSearchStyle}
-        iconStyle={styles.iconStyle}
-        data={data}
-        maxHeight={300}
-        labelField="label"
-        valueField="value"
-        placeholder={!isFocus ? 'Select' : '...'}
-        value={value}
-        onFocus={() => setIsFocus(true)}
-        onBlur={() => setIsFocus(false)}
-        onChange={item => {
-          setValue(item.value);
-          setIsFocus(false);
-        }}
-      />
+      <View>
+        {/* Label positioned above dropdown */}
+        <View style={{
+          position: 'absolute',
+          top: -10,
+          left: 5,
+          backgroundColor: '#FFFFFF',
+          paddingHorizontal: 4,
+          maxWidth: '80%',
+          zIndex: 1,
+        }}>
+          <Text style={{
+            fontSize: 12,
+            fontWeight: '500',
+            color: !isEnable ? '#D3D3D3' :  '#554F67',
+          }}>Enable after this number of bookings</Text>
+        </View>
+
+        <Dropdown
+          style={[styles.dropdown, isBookingFocus && { borderColor: '#665f78' }]}
+          data={bookingNumberdata}
+          disable={!isEnable}
+          maxHeight={300}
+          labelField="label"
+          valueField="value"
+          placeholder={!isBookingFocus ? 'Select' : '...'}
+          value={bookingNumbervalue}
+          placeholderStyle={[styles.placeholderStyle, !isEnable && {color :  '#D3D3D3'}]}
+          selectedTextStyle={[styles.selectedTextStyle, !isEnable && {color :  '#D3D3D3'}]}
+          inputSearchStyle={styles.inputSearchStyle}
+          iconStyle={styles.iconStyle}
+          onFocus={() => setIsBookingFocus(true)}
+          onBlur={() => setIsBookingFocus(false)}
+          onChange={item => {
+            setBookingNumberValue(item.value);
+            setIsBookingFocus(false);
+            dispatch(UpdateGiftCardForCustomerAction(
+              {
+                action: 'enable_after_no_of_booking',
+                status: item.value
+              }
+            ))
+          }}
+        />
+      </View>
+    );
+  };
+
+  const AmountdropDown = () => {
+    return (
+      <View>
+        {/* Label positioned above dropdown */}
+        <View style={{
+          position: 'absolute',
+          top: -10,
+          left: 5,
+          backgroundColor: '#FFFFFF',
+          paddingHorizontal: 4,
+          maxWidth: '80%',
+          zIndex: 1,
+        }}>
+          <Text style={{
+            fontSize: 12,
+            fontWeight: '500',
+            color:!isEnable ? '#D3D3D3' :  '#554F67',
+          }}>Gift Amount</Text>
+        </View>
+
+        <Dropdown
+          style={[styles.dropdown, isAmountFocus && { borderColor: '#665f78' }]}
+          data={amountdata}
+          disable={!isEnable}
+          maxHeight={300}
+          labelField="label"
+          valueField="value"
+          placeholder={!isAmountFocus ? 'Select' : '...'}
+          value={amountvalue}
+          placeholderStyle={[styles.placeholderStyle, !isEnable && {color :  '#D3D3D3'}]}
+          selectedTextStyle={[styles.selectedTextStyle, !isEnable && {color :  '#D3D3D3'}]}
+          inputSearchStyle={styles.inputSearchStyle}
+          iconStyle={styles.iconStyle}
+          onFocus={() => setIsAmountFocus(true)}
+          onBlur={() => setIsAmountFocus(false)}
+          onChange={item => {
+            setAmountValue(item.value);
+            setIsAmountFocus(false);
+            dispatch(UpdateGiftCardForCustomerAction(
+              {
+                action: 'gift_amount',
+                status: item.value
+              }
+            ))
+          }}
+        />
+      </View>
     );
   };
 
   const toggleOpen = () => {
     setisEnable(!isEnable);
+    dispatch(UpdateGiftCardForCustomerAction(
+      {
+        action: 'enable_gift_card',
+        status: !isEnable
+      }
+    ))
   };
-
-  const paymentMethods = [
-    {
-      name: 'Kelvin Nikotis',
-      image: Images.image11,
-      amount: '30',
-      date: '25 th January 2024',
-    },
-    {
-      name: 'Jasmin dois',
-      image: Images.image22,
-      amount: '50',
-      date: '15 th January 2024',
-    },
-    {
-      name: 'Diana Nois',
-      image: Images.image33,
-      amount: '70',
-      date: '12 th January 2024',
-    },
-    {
-      name: 'Ashley Nick',
-      image: Images.image44,
-      amount: '100',
-      date: '17 th January 2024',
-    },
-    {
-      name: 'Kelvin Nikotis',
-      image: Images.image55,
-      amount: '80',
-      date: '28 th January 2024',
-    },
-    {
-      name: "Nick Jone's",
-      image: Images.Image1,
-      amount: '90',
-      date: '31 th January 2024',
-    },
-  ];
 
 
   const formatDate = (dateString) => {
@@ -156,6 +240,32 @@ export default function BdayGiftCard({ navigation }) {
     };
     const formattedDate = `${day}${getOrdinalSuffix(day)} ${month} ${year}`;
     return formattedDate;
+  };
+
+
+  const handleTextChange = (text) => {
+    setBirthdayMsg(text);
+
+    // Clear previous timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    // Set a new timeout
+    typingTimeoutRef.current = setTimeout(() => {
+      handleAfterTyping(text);
+    }, 500); // Trigger after 500ms of no typing
+  };
+
+  const handleAfterTyping = (text) => {
+    console.log('Final text:', text);
+    dispatch(UpdateGiftCardForCustomerAction(
+      {
+        action: 'gift_message',
+        status: text
+      }
+    ))
+    // Your action here (e.g., API call)
   };
 
   const renderPaymentMethod = items => {
@@ -230,7 +340,7 @@ export default function BdayGiftCard({ navigation }) {
             />
           </View>
           <View style={{ marginTop: (mobileH * 3) / 100 }}>
-            <TextInput
+            {/* <TextInput
               style={{
                 width: (mobileW * 90) / 100,
                 fontSize: 14,
@@ -242,10 +352,11 @@ export default function BdayGiftCard({ navigation }) {
               // onChangeText={text => setText(text)}
               mode="outlined"
               placeholder="Number of bookings"
-            />
+            /> */}
+            {BookingNumberdropDown()}
           </View>
           <View style={{ marginTop: (mobileH * 3) / 100 }}>
-            <TextInput
+            {/* <TextInput
               style={{
                 width: (mobileW * 90) / 100,
                 fontSize: 14,
@@ -257,19 +368,23 @@ export default function BdayGiftCard({ navigation }) {
               // onChangeText={text => setText(text)}
               mode="outlined"
               placeholder="Enter gift amount"
-            />
+            /> */}
+            {AmountdropDown()}
           </View>
-          <View style={{ marginTop: (mobileH * 3) / 100 }}>
+          <View style={{ marginTop: (mobileH * 2) / 100 }}>
             <TextInput
               style={{
                 width: (mobileW * 90) / 100,
                 fontSize: 14,
                 backgroundColor: '#fff',
               }}
-              outlineColor={Colors?.OrGray}
-              activeOutlineColor={Colors?.gray}
-              label="Birthdat Message"
-              // onChangeText={text => setText(text)}
+              disabled={!isEnable}
+              outlineColor={'#EEE6F1'}
+              activeOutlineColor={'#EEE6F1'}
+              placeholderTextColor={'#554F67'}
+              label="Birthday Message"
+              value={birthdayMsg}
+              onChangeText={handleTextChange}
               mode="outlined"
               placeholder="Enter birthday message"
             />
@@ -392,13 +507,13 @@ const styles = StyleSheet.create({
   },
   dropdown: {
     height: (mobileW * 13) / 100,
-    borderColor: 'gray',
+    borderColor: '#EEE6F1',
     borderWidth: 0.5,
     borderRadius: (mobileW * 2) / 100,
     paddingHorizontal: (mobileW * 4) / 100,
     width: (mobileW * 90) / 100,
-    left: 10,
-    marginTop: (mobileW * 4) / 100,
+    // left: 10,
+    // marginTop: (mobileW * 2) / 100,
   },
   dropdownQue: {
     height: (mobileW * 8) / 100,
@@ -410,12 +525,12 @@ const styles = StyleSheet.create({
     right: 10,
   },
   placeholderStyle: {
-    fontSize: 16,
-    color: 'gray',
+    fontSize: 14,
+    color: Colors.OrGray,
   },
   selectedTextStyle: {
-    fontSize: 16,
-    color: 'black',
+    fontSize: 14,
+    color: '#301E39',
   },
   inputSearchStyle: {
     height: 40,

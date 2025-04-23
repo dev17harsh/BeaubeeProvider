@@ -25,26 +25,36 @@ import { useDispatch, useSelector } from 'react-redux';
 import { GetCategoryAction } from '../redux/action/GetCategoryAction';
 import ToastMessage from '../components/ToastMessage';
 
-const ScheduleDay = [
-  { day: 'Monday', time: '10:00AM to 09:00PM' },
-  { day: 'Tuesday', time: '10:00AM to 09:00PM' },
-  { day: 'Wednesday', time: '10:00AM to 09:00PM' },
-  { day: 'Thusday', time: '10:00AM to 09:00PM' },
-  { day: 'Friday', time: '10:00AM to 09:00PM' },
-  { day: 'Saturday', time: '10:00AM to 09:00PM' },
-  { day: 'Sunday', time: '10:00AM to 09:00PM' },
-];
+// const ScheduleDay = [
+//   { day: 'Monday', time: '10:00AM to 09:00PM' },
+//   { day: 'Tuesday', time: '10:00AM to 09:00PM' },
+//   { day: 'Wednesday', time: '10:00AM to 09:00PM' },
+//   { day: 'Thusday', time: '10:00AM to 09:00PM' },
+//   { day: 'Friday', time: '10:00AM to 09:00PM' },
+//   { day: 'Saturday', time: '10:00AM to 09:00PM' },
+//   { day: 'Sunday', time: '10:00AM to 09:00PM' },
+// ];
 
-const checkboxOptions = [
-  { title: 'Hair', Image: Images?.Hair },
-  { title: 'SkinCare', Image: Images?.Skincare },
-  { title: 'Makeup', Image: Images?.Makeup },
-  { title: 'Nails', Image: Images?.Nail },
-  { title: 'Taining', Image: Images?.Tanning },
-  { title: 'Hair Removal', Image: Images?.HairRemoval },
-];
+// const checkboxOptions = [
+//   { title: 'Hair', Image: Images?.Hair },
+//   { title: 'SkinCare', Image: Images?.Skincare },
+//   { title: 'Makeup', Image: Images?.Makeup },
+//   { title: 'Nails', Image: Images?.Nail },
+//   { title: 'Taining', Image: Images?.Tanning },
+//   { title: 'Hair Removal', Image: Images?.HairRemoval },
+// ];
 
-const AddProfesssional = ({ navigation }) => {
+const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+
+const convertTo12HourFormat = (time) => {
+  let [hours, minutes] = time.split(':');
+  let suffix = hours >= 12 ? 'pm' : 'am';
+  hours = ((hours % 12) || 12).toString(); // Convert 0 to 12 for 12AM case
+  return `${hours}:${minutes} ${suffix}`;
+};
+
+const AddProfesssional = ({ navigation, ...props }) => {
   const dispatch = useDispatch();
   const addStaffData = useSelector((state) => state.addStaffData);
   const getCategoryData = useSelector((state) => state.getCategoryData);
@@ -59,7 +69,18 @@ const AddProfesssional = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [tier, setTier] = useState('');
   const [desciption, setDesciption] = useState('');
-  const [schedule, setSchedule] = useState([]);
+  const [schedule, setSchedule] = useState(
+    daysOfWeek.map(day => ({
+      day,
+      isOpen: false,
+      timeFrames: [
+        {
+          openingTime: '12:00 am',
+          closingTime: '12:30 am',
+        },
+      ],
+    })),
+  );
   const [profileImageRes, setProfileResImage] = useState({});
   const [categories, setCategories] = useState([]);
   const [toastVisible, setToastVisible] = useState(false);
@@ -67,6 +88,42 @@ const AddProfesssional = ({ navigation }) => {
     message: '',
     color: ''
   });
+
+
+  useEffect(() => {
+    if (props?.route?.params?.data) {
+      // console.log('data testing ', props?.route?.params?.data)
+      setFirstName(props?.route?.params?.data?.first_name)
+      setLastName(props?.route?.params?.data?.last_name)
+      setProfileImage(props?.route?.params?.data?.profile)
+      setPositionDesciption(props?.route?.params?.data?.position_description)
+      setEmail(props?.route?.params?.data?.email)
+      // setTier()
+      setSelectedCheckbox(props?.route?.params?.data?.category_id)
+      setDesciption(props?.route?.params?.data?.bio)
+      const formattedSchedule = processScheduleData(props?.route?.params?.data?.staff_timing);
+      // console.log('formattedSchedule ====>' , JSON.stringify(formattedSchedule) ,"                    ", JSON.stringify(schedule))
+      setSchedule(formattedSchedule);
+    }
+
+  }, [props?.route?.params])
+
+  const processScheduleData = (data) => {
+    return daysOfWeek.map((day) => {
+      const timeFrames = data
+        .filter((item) => item.day_of_week === day && item.staff_status === "true")
+        .map((item) => ({
+          openingTime: convertTo12HourFormat(item.start_time),
+          closingTime: convertTo12HourFormat(item.end_time),
+        }));
+
+      return {
+        day,
+        isOpen: timeFrames.length > 0,
+        timeFrames: timeFrames.length > 0 ? timeFrames : [{ openingTime: '12:00 am', closingTime: '12:30 am' }],
+      };
+    });
+  };
 
 
   useEffect(() => {
@@ -114,7 +171,7 @@ const AddProfesssional = ({ navigation }) => {
             }}>
             {item.day}
           </Text>
-          <Text>{item.openingTime} - {item.closingTime}</Text>
+          <Text>{item.timeFrames[0].openingTime} - {item.timeFrames[item.timeFrames.length - 1].closingTime}</Text>
         </View>)
     );
   };
@@ -226,25 +283,34 @@ const AddProfesssional = ({ navigation }) => {
         color: Colors?.red
       })
     }
-    else if (options.length == 0) {
-      showToast()
-      setToastData({
-        message: 'Please Add some Options',
-        color: Colors?.red
-      })
-    } else {
-      let transformedArray = []
+    // else if (options.length == 0) {
+    //   showToast()
+    //   setToastData({
+    //     message: 'Please Add some Options',
+    //     color: Colors?.red
+    //   })
+    // }
+    else {
+      let transformedArray = [];
+
       if (schedule.length > 0) {
-        transformedArray = schedule.map(item => ({
+        transformedArray = schedule.map((item) => ({
           day_of_week: item.day,
-          start_time: convertTimeTo24HrFormat(item.openingTime),
-          end_time: convertTimeTo24HrFormat(item.closingTime),
-          staff_status: item.isOpen.toString()
+          staff_status: item.isOpen,
+          time_slots: item.timeFrames.map((frame) => ({
+            start_time: convertTimeTo24HrFormat(frame.openingTime),
+            end_time: convertTimeTo24HrFormat(frame.closingTime),
+          })),
         }));
       }
+
+      // console.log('transformedArray', JSON.stringify( transformedArray))
       const userId = await AsyncStorage.getItem('token')
       const formData = new FormData();
       const profileFile = await createFileFromPickerData(profileImageRes)
+      if (props?.route?.params?.data?.staff_id) {
+        formData.append('staff_id', props?.route?.params?.data?.staff_id);
+      }
       formData.append('business_id', userId);
       formData.append('category_id', selectedCheckbox);
       formData.append('first_name', firstName);
@@ -276,7 +342,9 @@ const AddProfesssional = ({ navigation }) => {
         onClose={() => {
           setAvaialblityModalVisible(false)
         }}
+        value={schedule}
         onPressSave={(data) => {
+          // console.log(data, "data ====>")
           setSchedule(data)
         }}
       />

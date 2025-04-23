@@ -1,7 +1,7 @@
 import React from 'react';
-import {View, Text, Modal, TouchableOpacity, StyleSheet} from 'react-native';
-import {Colors} from '../../theme/colors';
-import {mobileW} from '../utils';
+import { View, Text, Modal, TouchableOpacity, StyleSheet } from 'react-native';
+import { Colors } from '../../theme/colors';
+import { mobileW } from '../utils';
 
 const BookingModal = ({
   visible,
@@ -14,6 +14,9 @@ const BookingModal = ({
   cancelButtonText,
   modalText, // New prop for customizable modal text
   midText,
+  onClickThird,
+  thirdButtonText,
+  cancelBtnTextColor
 }) => {
   return (
     <Modal transparent={true} visible={visible} animationType="fade">
@@ -22,8 +25,7 @@ const BookingModal = ({
           {/* Customizable Modal Text */}
           <Text style={styles.modalText}>
             {modalText ||
-              `Are you sure you want to ${
-                type ? 'pause' : 'resume'
+              `Are you sure you want to ${type ? 'pause' : 'resume'
               } the bookings for today?`}
           </Text>
           {midText ? (
@@ -38,7 +40,7 @@ const BookingModal = ({
               {midText}
             </Text>
           ) : null}
-          <View style={{marginTop: 20}} />
+          <View style={{ marginTop: 20 }} />
 
           {/* Pause Button */}
           <TouchableOpacity
@@ -62,13 +64,31 @@ const BookingModal = ({
             activeOpacity={0.8}
             style={[
               styles.cancelButton,
-              {backgroundColor: cancelButtonBackgroundColor || '#f2f2f2'}, // Default gray
+              { backgroundColor: cancelButtonBackgroundColor || '#f2f2f2' }, // Default gray
             ]}
             onPress={onClose}>
-            <Text style={styles.cancelButtonText}>
+            <Text style={[styles.cancelButtonText , {
+              color: cancelBtnTextColor || '#a14ebe'
+            }]}>
               {cancelButtonText || 'Cancel'} {/* Default text if not passed */}
             </Text>
           </TouchableOpacity>
+          {thirdButtonText != 'Back' ?
+            null : (<TouchableOpacity
+              activeOpacity={0.8}
+              style={[
+                styles.cancelButton,
+                {
+                  backgroundColor: Colors?.white
+                }
+              ]}
+              onPress={onClickThird}>
+              <Text style={styles.cancelButtonText}>
+                {thirdButtonText} {/* Default text if not passed */}
+              </Text>
+            </TouchableOpacity>)}
+
+
         </View>
       </View>
     </Modal>

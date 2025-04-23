@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -11,14 +11,46 @@ import {
   SafeAreaView,
 } from 'react-native';
 import AppHeader from '../components/AppHeader';
-import {Colors} from '../theme/colors';
-import {Images} from '../assets/images';
-import {DimensionsConfig} from '../theme/dimensions';
+import { Colors } from '../theme/colors';
+import { Images } from '../assets/images';
+import { DimensionsConfig } from '../theme/dimensions';
+import { useDispatch, useSelector } from 'react-redux';
+import { GetBookingDetailsAction } from '../redux/action/GetBookingDetailsAction';
+import { UpdateBookingStatusAction, UpdateBookingStatusRemoveAction } from '../redux/action/UpdateBookingStatusAction';
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
-const BookingDetailScreen = ({navigation}) => {
+const BookingDetailScreen = ({ navigation, ...props }) => {
+  const dispatch = useDispatch();
+  const getBookingDeatilsData = useSelector((state) => state.getBookingDeatilsData);
+  const updateBookingStatusData = useSelector((state) => state.updateBookingStatusData);
   const [isCancelModalVisible, setIsCandelModalVisible] = useState(false);
   const [isChargeModalVisible, setIsChargeModalVisible] = useState(false);
+  const [data, setData] = useState({})
+
+  useEffect(() => {
+    if (props?.route?.params?.details) {
+      // console.log('props?.route?.params?.details', props?.route?.params?.details)
+      dispatch(GetBookingDetailsAction({ booking_id: props?.route?.params?.details?.booking_id }))
+    }
+
+  }, [props?.route?.params?.details])
+
+
+  useEffect(() => {
+    if (updateBookingStatusData?.response?.message == 'success') {
+      dispatch(UpdateBookingStatusRemoveAction())
+      navigation.goBack()
+    }
+  }, [updateBookingStatusData])
+
+
+  useEffect(() => {
+    if (getBookingDeatilsData?.response?.message == 'success') {
+
+      // console.log('getBookingDeatilsData?.response?.result' , getBookingDeatilsData?.response?.result)
+      setData(getBookingDeatilsData?.response?.result[0])
+    }
+  }, [getBookingDeatilsData])
 
   const cancelCloseModal = () => {
     setIsCandelModalVisible(false);
@@ -27,6 +59,13 @@ const BookingDetailScreen = ({navigation}) => {
   const chargeCloseModal = () => {
     setIsChargeModalVisible(false);
   };
+
+  const UpdateBookingStatus = ({ booking_id, status }) => {
+    dispatch(UpdateBookingStatusAction({
+      booking_id: booking_id,
+      status: status
+    }))
+  }
 
   const cancelConformationModal = () => {
     return (
@@ -44,6 +83,10 @@ const BookingDetailScreen = ({navigation}) => {
               onPress={() => {
                 setIsChargeModalVisible(true);
                 cancelCloseModal();
+                UpdateBookingStatus({
+                  booking_id: data?.booking_id,
+                  status: 'Cancel'
+                })
               }}>
               <Text style={styles.modalCancelText}>Cancel Appointment</Text>
             </TouchableOpacity>
@@ -72,10 +115,10 @@ const BookingDetailScreen = ({navigation}) => {
             <TouchableOpacity
               style={[
                 styles.modalCancelButton,
-                {backgroundColor: Colors?.primary},
+                { backgroundColor: Colors?.primary },
               ]}
               onPress={chargeCloseModal}>
-              <Text style={[styles.modalCancelText, {color: Colors?.white}]}>
+              <Text style={[styles.modalCancelText, { color: Colors?.white }]}>
                 Charge
               </Text>
             </TouchableOpacity>
@@ -104,37 +147,37 @@ const BookingDetailScreen = ({navigation}) => {
             <View style={styles.infoContainer}>
               <View style={styles.row}>
                 <Text style={styles.label}>Customer</Text>
-                <Text style={[styles.value, {color: Colors?.primary}]}>
-                  Kynthia's
+                <Text style={[styles.value, { color: Colors?.primary }]}>
+                  {data?.customer_name}
                 </Text>
               </View>
               <View style={styles.row}>
                 <Text style={styles.label}>Service</Text>
-                <Text style={styles.value}>Straight Hair</Text>
+                <Text style={styles.value}>{data?.services?.join(', ')}</Text>
               </View>
               <View style={styles.row}>
                 <Text style={styles.label}>Price</Text>
-                <Text style={[styles.value, styles.price]}>$60.00</Text>
+                <Text style={[styles.value, styles.price]}>${data?.price}</Text>
               </View>
               <View style={styles.row}>
                 <Text style={styles.label}>Duration</Text>
-                <Text style={styles.value}>Straight Hair</Text>
+                <Text style={styles.value}>{data?.duration} min.</Text>
               </View>
               <View style={styles.row}>
                 <Text style={styles.label}>Appointment Date</Text>
-                <Text style={styles.value}>29th March, 2022</Text>
+                <Text style={styles.value}>{data?.appointment_date}</Text>
               </View>
               <View style={styles.row}>
                 <Text style={styles.label}>Appointment Time</Text>
-                <Text style={styles.value}>12:00PM-1:00PM</Text>
+                <Text style={styles.value}>{data?.appointment_start_time} - {data?.appointment_end_time}</Text>
               </View>
               <View style={styles.row}>
                 <Text style={styles.label}>Professional</Text>
-                <Text style={styles.value}>Linda Johnson</Text>
+                <Text style={styles.value}>{data?.professional}</Text>
               </View>
               <View style={styles.row}>
                 <Text style={styles.label}>Service Location</Text>
-                <Text style={styles.value}>Your location</Text>
+                <Text style={styles.value}>{data?.service_location}</Text>
               </View>
               <View
                 style={{
@@ -169,6 +212,7 @@ const BookingDetailScreen = ({navigation}) => {
                     alignItems: 'center',
                   },
                 ]}>
+                {/* {console.log('dsada' , data?.service_addons)} */}
                 <Image
                   source={Images?.personImage}
                   style={{
@@ -177,7 +221,7 @@ const BookingDetailScreen = ({navigation}) => {
                     borderRadius: 100,
                   }}
                 />
-                <Text style={[styles.value, {marginLeft: 10}]}>Linda J.</Text>
+                <Text style={[styles.value, { marginLeft: 10 }]}>{data?.professional}</Text>
               </View>
             </View>
           </View>
@@ -187,30 +231,30 @@ const BookingDetailScreen = ({navigation}) => {
           {/* Cost Breakdown Section */}
           <View style={styles.section}>
             {/* <Text style={styles.sectionTitle}>Cost Breakdown</Text> */}
-            <View style={[styles.infoContainer, {paddingVertical: 5}]}>
+            <View style={[styles.infoContainer, { paddingVertical: 5 }]}>
               <View style={styles.row}>
                 <Text style={styles.sectionTitle}>Cost Breakdown</Text>
               </View>
               <View style={styles.row}>
-                <Text style={styles.value}>Straight Hair</Text>
-                <Text style={styles.value}>$60.00</Text>
+                <Text style={styles.value}>{data?.services?.join(', ')}</Text>
+                <Text style={styles.value}>{data?.price}</Text>
               </View>
               <View style={styles.row}>
                 <Text style={styles.value}>Visiting Charges</Text>
-                <Text style={styles.value}>$10.00</Text>
+                <Text style={styles.value}>${data?.visiting_charge}</Text>
               </View>
               <View style={styles.row}>
-                <Text style={styles.value}>Visiting Charges</Text>
-                <Text style={styles.value}>$10.00</Text>
+                <Text style={styles.value}>Donation</Text>
+                <Text style={styles.value}>${data?.donation}</Text>
               </View>
               <View style={styles.row}>
+                <Text style={styles.value}>Promotion</Text>
+                <Text style={styles.value}>${data?.promotion}</Text>
+              </View>
+              {/* <View style={styles.row}>
                 <Text style={styles.value}>Visiting Charges</Text>
                 <Text style={styles.value}>$10.00</Text>
-              </View>
-              <View style={styles.row}>
-                <Text style={styles.value}>Visiting Charges</Text>
-                <Text style={styles.value}>$10.00</Text>
-              </View>
+              </View> */}
               <View
                 style={{
                   width: '100%',
@@ -221,7 +265,7 @@ const BookingDetailScreen = ({navigation}) => {
               />
               <View style={styles.row}>
                 <Text style={[styles.label, styles.totalLabel]}>Total</Text>
-                <Text style={[styles.value, styles.totalValue]}>$70.00</Text>
+                <Text style={[styles.value, styles.totalValue]}>${data?.total_amount}</Text>
               </View>
             </View>
           </View>
@@ -230,7 +274,7 @@ const BookingDetailScreen = ({navigation}) => {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>
               Location{' '}
-              <Text style={{color: '#9E98AC', fontWeight: '400',fontSize:16}}>
+              <Text style={{ color: '#9E98AC', fontWeight: '400', fontSize: 16 }}>
                 (Customer Location)
               </Text>
             </Text>
@@ -263,8 +307,8 @@ const BookingDetailScreen = ({navigation}) => {
                     }}
                   />
                 </View>
-                <Text style={[styles.value, {marginLeft: 10, fontSize: 14,fontWeight:'400',color:Colors.textLight}]}>
-                  188 Ballarat Rd. Footscray
+                <Text style={[styles.value, { marginLeft: 10, fontSize: 14, fontWeight: '400', color: Colors.textLight }]}>
+                  {data?.customer_location}
                 </Text>
               </View>
             </View>
@@ -286,9 +330,9 @@ const BookingDetailScreen = ({navigation}) => {
                 ]}>
                 <Image
                   source={Images?.cardPayment}
-                  style={{height: mobileH * 0.06, width: mobileH * 0.06}}
+                  style={{ height: mobileH * 0.06, width: mobileH * 0.06 }}
                 />
-                <Text style={[styles.value, {marginLeft: 10}]}>
+                <Text style={[styles.value, { marginLeft: 10 }]}>
                   **** **** **** 1234
                 </Text>
               </View>
@@ -296,26 +340,40 @@ const BookingDetailScreen = ({navigation}) => {
           </View>
 
           {/* Buttons */}
-          <TouchableOpacity
-            onPress={() => setIsChargeModalVisible(true)}
-            style={styles.rescheduleButton}>
-            <Text style={styles.rescheduleText}>Start Service</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
+          {data?.booking_status == 'Start Service' || data?.booking_status == 'Pending' ? (
+            <TouchableOpacity
+              onPress={() => {
+                if (data?.booking_status == 'Start Service') {
+                  UpdateBookingStatus({
+                    booking_id: data?.booking_id,
+                    status: 'Complete'
+                  })
+                } else {
+                  UpdateBookingStatus({
+                    booking_id: data?.booking_id,
+                    status: 'Start Service'
+                  })
+                }
+              }}
+              style={styles.rescheduleButton}>
+              <Text style={styles.rescheduleText}>{data?.booking_status == 'Start Service' ? 'Complete' : 'Start Service'}</Text>
+            </TouchableOpacity>) : null}
+          {/* <TouchableOpacity
             // onPress={() => navigation.navigate('RescheduleService')}
-            style={[styles.rescheduleButton, {backgroundColor: '#EEE6F1'}]}>
-            <Text style={[styles.rescheduleText, {color: Colors?.primary}]}>
+            style={[styles.rescheduleButton, { backgroundColor: '#EEE6F1' }]}>
+            <Text style={[styles.rescheduleText, { color: Colors?.primary }]}>
               Edit
             </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              setIsCandelModalVisible(true);
-            }}
-            style={styles.cancelButton}>
-            <Text style={styles.cancelText}>Cancel</Text>
-          </TouchableOpacity>
-          <View style={{marginTop: (mobileH * 5) / 100}} />
+          </TouchableOpacity> */}
+          {data?.booking_status == 'Start Service' || data?.booking_status == 'Pending' ? (
+            <TouchableOpacity
+              onPress={() => {
+                setIsCandelModalVisible(true);
+              }}
+              style={styles.cancelButton}>
+              <Text style={styles.cancelText}>Cancel</Text>
+            </TouchableOpacity>) : null}
+          <View style={{ marginTop: (mobileH * 5) / 100 }} />
         </ScrollView>
         {cancelConformationModal()}
         {cancelChargesModal()}
@@ -362,7 +420,7 @@ const styles = StyleSheet.create({
     padding: 16,
     elevation: 3,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
     borderWidth: 1,
@@ -403,7 +461,7 @@ const styles = StyleSheet.create({
     elevation: 3,
     marginTop: (mobileW * 5) / 100,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },
@@ -413,7 +471,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: (mobileW * 2.3) / 100,
     borderTopRightRadius: (mobileW * 2.3) / 100,
   },
-  locationName: {fontSize: (mobileW * 4) / 100, color: '#000'},
+  locationName: { fontSize: (mobileW * 4) / 100, color: '#000' },
   locationNameAdd: {
     fontSize: (mobileW * 2.8) / 100,
     color: '#000',
@@ -486,7 +544,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: (mobileW * 3) / 100,
     elevation: 3,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },

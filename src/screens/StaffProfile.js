@@ -25,8 +25,6 @@ const StaffProfile = ({ navigation }) => {
   const isFocused = useIsFocused()
   const dispatch = useDispatch();
   const getStaffData = useSelector((state) => state.getStaffData);
-  const [selectedOption, setSelectedOption] = useState('highToLow');
-  const [selectedId, setSelectedId] = useState(null);
   const [staffData, setStaffData] = useState([])
 
 
@@ -49,85 +47,16 @@ const StaffProfile = ({ navigation }) => {
     }))
   }
 
-  const data = [
-    {
-      id: '1',
-      name: 'Johnathan Morrison',
-      rating: 5.0,
-      reviews: 121,
-      image: Images.Image1,
-      email: 'Johnathanmorrison@gmail.com',
-    },
-    {
-      id: '2',
-      name: 'Maria Kevin',
-      rating: 5.0,
-      reviews: 100,
-      image: Images.Image2,
-      email: 'Mariakevin@gmail.com',
-    },
-    {
-      id: '3',
-      name: 'Linda Johnson',
-      rating: 5.0,
-      reviews: 99,
-      image: Images.image11,
-      email: 'Lindajohnson@gmail.com',
-    },
-    {
-      id: '4',
-      name: 'Kevin Frank',
-      rating: 5.0,
-      reviews: 80,
-      image: Images.image22,
-      email: 'KevinFrank@gmail@gmail.com',
-    },
-    {
-      id: '5',
-      name: 'Dwayne Jackson',
-      rating: 5.0,
-      reviews: 60,
-      image: Images.image33,
-      email: 'Dwaynejackson@gmail@gmail.com',
-    },
-    {
-      id: '6',
-      name: 'Tom Cameron',
-      rating: 5.0,
-      reviews: 45,
-      image: Images.image44,
-      email: 'Tomcameron@gmail@gmail.com',
-    },
-    {
-      id: '7',
-      name: 'Conor Charlie',
-      rating: 5.0,
-      reviews: 40,
-      image: Images.image55,
-      email: 'Conorcharlie@gmail@gmail.com',
-    },
-  ];
-
-  const handleItemPress = item => {
-    const newSelectedId = item.id === selectedId ? null : item.id;
-    setSelectedId(newSelectedId);
-
-    // Return selected item data to the parent component
-    if (onSelect) {
-      onSelect(newSelectedId ? item : null); // Pass selected item or null if deselected
-    }
-  };
 
   const renderItem = ({ item }) => {
-    const isSelected = item.id === selectedId;
     return (
       <TouchableOpacity
         activeOpacity={0.8}
         style={styles.itemContainer}
-        onPress={() => navigation.navigate('StaffDetails')}>
+        onPress={() => navigation.navigate('StaffDetails' , {details : item})}>
         <Image source={{ uri: item.profile }} style={styles.profileImage} />
         <View style={styles.textContainer}>
-          <Text style={styles.nameText}>{item.name}</Text>
+          <Text style={styles.nameText}>{item.first_name} {item.last_name}</Text>
           <View
             style={{
               flexDirection: 'row',
@@ -137,9 +66,9 @@ const StaffProfile = ({ navigation }) => {
             <Image source={Images?.starIcon} style={styles?.backIcon} />
             <Text style={styles?.ratingText}>
               {item?.average_rating}
-              {/* <Text style={[styles.ratingText, styles.reviewTxt]}>
-                ({item?.reviews + ' Ratings'})
-              </Text> */}
+              <Text style={[styles.ratingText, styles.reviewTxt]}>
+                ({item?.total_rated_user + ' Ratings'})
+              </Text>
             </Text>
           </View>
         </View>

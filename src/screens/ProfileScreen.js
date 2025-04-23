@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -15,58 +15,99 @@ import CustomSwitch from '../components/CustomSwitch';
 import { Colors } from '../theme/colors';
 import BookingModal from '../components/Modal.js/BookingModal';
 import PrepaidOptionModal from '../components/Modal.js/PrepaidOptionModal';
+import { useDispatch, useSelector } from 'react-redux';
+import { UpdateFutureBookingsAction, UpdateFutureBookingsRemoveAction } from '../redux/action/UpdateFutureBookingsAction';
+import { GetUserDetailAction } from '../redux/action/GetUserDetailAction';
+import { useIsFocused } from '@react-navigation/native';
+import { UpdateShopCloselyAction, UpdateShopCloselyRemoveAction } from '../redux/action/UpdateShopCloselyAction';
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
 const ProfileScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const isFocused = useIsFocused()
+  const UserDetailData = useSelector((state) => state.getUserDetailData);
+  const updateFutureBookingsData = useSelector((state) => state.updateFutureBookingsData);
+  const updateShopCloselyData = useSelector((state) => state.updateShopCloselyData);
   const [isEnable, setisEnable] = useState(false);
   const [isEnable1, setisEnable1] = useState(false);
-
   const [pauseBookingModal, setpauseBookingModal] = useState(false);
-  const [resumeBookingModal, setresumeBookingModal] = useState(false);
   const [showPrepaidOptionModal, setshowPrepaidOptionModal] = useState(false);
   const [CloseShop, setCloseShop] = useState(false);
 
-  const toggleOpen = () => {
-    setisEnable(!isEnable);
-  };
+  useEffect(() => {
+    if (UserDetailData?.response?.result) {
+      // console.log('UserDetailData?.respons', UserDetailData?.response?.result)
+      setisEnable(UserDetailData?.response?.result?.is_pouse_future_booking == 'true' ? false : true)
+      setisEnable1(UserDetailData?.response?.result?.is_close_shop_early == 'true' ? false : true)
+    }
+  }, [UserDetailData])
+
+  useEffect(() => {
+    if (updateFutureBookingsData?.response?.message == 'success') {
+      dispatch(UpdateFutureBookingsRemoveAction())
+      dispatch(GetUserDetailAction())
+      setpauseBookingModal(false)
+      setCloseShop(false);
+      // console.log('updateFutureBookingsData?.response?.result' , updateFutureBookingsData?.response?.result)
+    }
+  }, [updateFutureBookingsData])
+
+  useEffect(() => {
+    if (updateShopCloselyData?.response?.message == 'success') {
+      dispatch(UpdateShopCloselyRemoveAction())
+      dispatch(GetUserDetailAction())
+      setCloseShop(false)
+      setpauseBookingModal(false)
+      // console.log('updateShopCloselyData?.response?.result' , updateShopCloselyData?.response?.result)
+    }
+  }, [updateShopCloselyData])
+
+  useEffect(() => {
+    if (isFocused) {
+      dispatch(GetUserDetailAction())
+    }
+
+  }, [isFocused])
+
 
   const toggleOpen1 = () => {
     setisEnable1(!isEnable1);
   };
 
   const bookingPause = () => {
-    setpauseBookingModal(!pauseBookingModal);
+    setpauseBookingModal(true);
   };
 
-  const bookingResume = () => {
-    setresumeBookingModal(!resumeBookingModal);
-  };
+  const onPressUpdateBookingStatus = () => {
+    dispatch(UpdateFutureBookingsAction({
+      status: isEnable
+    }))
+  }
+
+  const onPressUpdateShopCloselyStatus = () => {
+    dispatch(UpdateShopCloselyAction({
+      status: isEnable1
+    }))
+  }
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.container}>
-        {/* Cancel appointment Modal */}
-        <BookingModal
-          modalText={'Are you sure you want to pause the bookings?'}
+        {pauseBookingModal && (<BookingModal
+          modalText={!isEnable ? 'Are you sure you want to resume the bookings for today?' : 'Are you sure you want to pause the bookings for today?'}
+          buttonText={!isEnable ? 'Resume Bookings' : 'Pause Bookings'}
           midText={
-            'You’ll have to manually turn the bookings on to continue receiving bookings.'
+            isEnable && 'You’ll have to manually turn the bookings on to continue receiving bookings.'
           }
           visible={pauseBookingModal}
-          onClose={bookingPause}
-          type={pauseBookingModal}
-        />
-        {/* Pause Query Moadl */}
-        <BookingModal
-          modalText={'Are you sure you want to pause the bookings?'}
-          midText={
-            'You’ll have to manually turn the bookings on to continue receiving bookings.'
-          }
-          buttonBackgroundColor={{ backgroundColor: Colors.primary }}
-          visible={resumeBookingModal}
-          onClose={bookingResume}
-          type={resumeBookingModal}
-        />
-        {/* Resume Query Moadl */}
+          onFirstBtn={() => {
+            onPressUpdateBookingStatus()
+          }}
+          onClose={() => {
+            setpauseBookingModal(false)
+          }}
+          buttonBackgroundColor={!isEnable ? Colors.primary : Colors.red}
+        />)}
         <BookingModal
           modalText={'You have 3 existing bookings today!'}
           buttonText={'Cancel All Bookings and Close Early'}
@@ -75,13 +116,18 @@ const ProfileScreen = ({ navigation }) => {
           }
           onFirstBtn={() => {
             navigation.navigate('CloseShopEarly');
+            setCloseShop(false);
           }}
           visible={CloseShop}
           onClose={() => {
-            setCloseShop(false);
+            onPressUpdateBookingStatus()
           }}
           type={CloseShop}
-          cancelButtonText={'Pause Bookings'}
+          cancelButtonText={!isEnable ? 'Resume Bookings' : 'Pause Bookings'}
+          thirdButtonText={'Back'}
+          onClickThird={() => {
+            setCloseShop(false);
+          }}
         />
 
         <PrepaidOptionModal
@@ -118,7 +164,6 @@ const ProfileScreen = ({ navigation }) => {
               <CustomSwitch
                 isEnabled={isEnable}
                 toggleSwitch={() => {
-                  toggleOpen();
                   bookingPause();
                 }}
               />
@@ -129,8 +174,13 @@ const ProfileScreen = ({ navigation }) => {
               <CustomSwitch
                 isEnabled={isEnable1}
                 toggleSwitch={() => {
-                  toggleOpen1();
-                  setCloseShop(true);
+                  // toggleOpen1();
+                  if (isEnable1) {
+                    setCloseShop(true);
+                  }
+                  else {
+                    onPressUpdateShopCloselyStatus()
+                  }
                 }}
               />
             </View>
