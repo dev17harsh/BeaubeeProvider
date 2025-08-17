@@ -11,6 +11,7 @@ import {
   ImageBackground,
   TextInput,
   SafeAreaView,
+  Platform,
 } from 'react-native';
 import { Images } from '../assets/images';
 import AppHeader from '../components/AppHeader';
@@ -96,14 +97,14 @@ const EditProfileBusiness = ({ navigation }) => {
     }
   }, [UserDetailData])
 
-  useEffect(()=>{
-    if(DeleteBusinessImageData?.response?.result == 'Business Image Delete Successfully'){
-      console.log('?.response?.result' , DeleteBusinessImageData?.response?.result)
+  useEffect(() => {
+    if (DeleteBusinessImageData?.response?.result == 'Business Image Delete Successfully') {
+      console.log('?.response?.result', DeleteBusinessImageData?.response?.result)
       dispatch(DeleteBusinessImagesRemoveAction())
       navigation.goBack()
       // dispatch(GetUserDetailAction())
     }
-  },[DeleteBusinessImageData])
+  }, [DeleteBusinessImageData])
 
   useEffect(() => {
     if (UpdateBusinessProfileData?.response?.result) {
@@ -223,13 +224,14 @@ const EditProfileBusiness = ({ navigation }) => {
     formData.append('email_status', isEnableEmail.toString());
     formData.append('mobile', phoneNumber.toString());
     formData.append('mobile_status', isEnablePhone.toString());
-    if (profileFile != null) {
+    if (profileFile.name) {
       formData.append('profile', profileFile);
     }
-    if (coverFile != null) {
+    console.log('coverFile' ,coverFile)
+    if (coverFile.name) {
       formData.append('cover_profile', coverFile);
     }
-    if (businessPicFile != null) {
+    if (businessPicFile.name) {
       formData.append('business_pictures', businessPicFile);
     }
     formData.append('facebook', facebookUrl.toString());
@@ -247,11 +249,11 @@ const EditProfileBusiness = ({ navigation }) => {
     dispatch(UpdateBusinessProfileAction(formData))
   }
 
-  const onPressCross = async (id)=>{
+  const onPressCross = async (id) => {
     const userId = await AsyncStorage.getItem('token')
     dispatch(DeleteBusinessImagesAction({
-      business_id : userId,
-      business_image_id : id
+      business_id: userId,
+      business_image_id: id
     }))
   }
 
@@ -266,22 +268,33 @@ const EditProfileBusiness = ({ navigation }) => {
           {/* Business Image */}
           <ImageBackground
             resizeMode="cover"
-            source={coverImage == null ? Images.image22 : { uri: coverImage }}
+            source={Images.image22 }
             imageStyle={styles?.businessImage}
             style={styles?.businessImage}>
+
+            {coverImage && (
+              <Image
+                resizeMode="cover"
+                source={{ uri: coverImage }}
+                style={[styles.businessImage, { position: 'absolute', zIndex: 1 }]}
+              />
+            )}
+
             <TouchableOpacity
               onPress={() => openCoverImagePicker()}
-              activeOpacity={0.8}>
+              activeOpacity={0.8}
+              style={{zIndex : 2}}>
               <Image
                 source={Images?.cameraWithBack}
-                style={[styles.cameraIcon, { right: DimensionsConfig.screenHeight * 0.03, top: DimensionsConfig.screenHeight * 0.22, position: 'absolute', zIndex: 99999 }]}
+                style={[styles.cameraIcon, { right: DimensionsConfig.screenHeight * 0.03, top: Platform.OS == 'ios' ? DimensionsConfig.screenHeight * 0.18 : DimensionsConfig.screenHeight * 0.22, position: 'absolute', zIndex: 99999 }]}
               />
             </TouchableOpacity>
           </ImageBackground>
 
           <View style={{
             alignSelf: 'center',
-            top: -DimensionsConfig.screenHeight * 0.06
+            top: -DimensionsConfig.screenHeight * 0.06,
+            zIndex: 3
           }}>
             <Image source={profileImage == null ? Images.staff : { uri: profileImage }} style={styles.homeServiceIcon} />
             <TouchableOpacity
@@ -289,7 +302,7 @@ const EditProfileBusiness = ({ navigation }) => {
               activeOpacity={0.8}>
               <Image
                 source={Images?.cameraWithBack}
-                style={[styles.cameraIcon, { top: -DimensionsConfig.screenHeight * 0.05, right: (mobileH * -7) / 100 }]}
+                style={[styles.cameraIcon, { top: Platform.OS == 'ios' ? -DimensionsConfig.screenHeight * 0.04 : -DimensionsConfig.screenHeight * 0.05, right: Platform.OS == 'ios' ? (mobileH * -6.8) / 100 : (mobileH * -7) / 100 }]}
               />
             </TouchableOpacity>
           </View>
@@ -497,7 +510,7 @@ const EditProfileBusiness = ({ navigation }) => {
                       activeOpacity={0.8}
                       onPress={() => index == 0 && openPhotoImagePicker()}>
                       <ImageBackground
-                        source={index == 0 ? addPhotoImage != null ? { uri: addPhotoImage } : item?.image : {uri :item?.image}}
+                        source={index == 0 ? addPhotoImage != null ? { uri: addPhotoImage } : item?.image : { uri: item?.image }}
                         style={{
                           width: (mobileW * 40) / 100,
                           height: (mobileW * 40) / 100,
@@ -509,7 +522,7 @@ const EditProfileBusiness = ({ navigation }) => {
                         }}
                       >
                         {index !== 0 && (
-                          <TouchableOpacity activeOpacity={0.8} onPress={()=>{
+                          <TouchableOpacity activeOpacity={0.8} onPress={() => {
                             onPressCross(item?.business_image_id)
                           }}>
                             <Image

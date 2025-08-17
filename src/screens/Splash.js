@@ -17,10 +17,14 @@ const Splash = ({ navigation }) => {
   const checkNavigation = async () => {
     const userId = await AsyncStorage.getItem('token')
     if (userId) {
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'MainApp' }],
-      });
+      // setTimeout(() => {
+      //   navigation.reset({
+      //     index: 0,
+      //     routes: [{ name: 'MainApp' }],
+      //   });
+      // }, 500)
+      navigation.navigate('MainApp')
+      
     } else {
       navigation.reset({
         index: 0,

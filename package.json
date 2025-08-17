@@ -27,6 +27,7 @@
     "react-native-big-calendar": "^4.15.2",
     "react-native-calendar-picker": "^8.0.5",
     "react-native-calendars": "^1.1307.0",
+    "react-native-dropdown-picker": "^5.4.6",
     "react-native-element-dropdown": "^2.12.2",
     "react-native-gifted-charts": "^1.4.47",
     "react-native-image-picker": "^7.1.2",

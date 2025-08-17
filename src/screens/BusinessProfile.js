@@ -83,14 +83,42 @@ const BusinessProfile = ({ navigation }) => {
 
         <ScrollView style={styles.Scrollcontainer}>
           {/* Business Image */}
-          <Image
+          {/* <Image
             resizeMode="cover"
             source={userDetail?.cover_profile == null ? Images.image22 : { uri: userDetail?.cover_profile }}
             imageStyle={styles?.businessImage}
             style={styles?.businessImage}>
-          </Image>
-          {console.log('userDetail' , userDetail)}
-          <Image source={{ uri: userDetail?.profile }} style={[styles.homeServiceIcon]} />
+          </Image> */}
+          <View style={styles.coverWrapper}>
+            {/* Fallback always at the back */}
+            <Image
+              resizeMode="cover"
+              source={Images.image22}
+              style={[styles.businessImage, { zIndex: 0, position: 'absolute' }]}
+            />
+
+            {/* User image sits on top if available */}
+            {userDetail?.cover_profile && (
+              <Image
+                resizeMode="cover"
+                source={{ uri: userDetail?.cover_profile }}
+                style={[styles.businessImage, { zIndex: 1 }]}
+              />
+            )}
+          </View>
+          {/* {console.log('userDetail' , userDetail)} */}
+
+          {/* <Image source={{ uri: userDetail?.profile }} style={[styles.homeServiceIcon]} /> */}
+
+          <View style={styles.coverProfileWrapper}>
+            {/* Fallback always at the back */}
+            <Image source={Images.businessprofile} style={[styles.homeServiceIcon, { zIndex: 0, position: 'absolute' }]} />
+
+            {/* User image sits on top if available */}
+            {userDetail?.profile && (
+              <Image source={{ uri: userDetail?.profile }} style={[styles.homeServiceIcon, { zIndex: 1 }]} />
+            )}
+          </View>
 
           <View style={{ alignItems: 'center', marginTop: - (mobileW * 10) / 100 }}>
             {/* User Info */}
@@ -157,8 +185,8 @@ const BusinessProfile = ({ navigation }) => {
                 </TouchableOpacity>
               </View>
               {userDetail?.buiness_time?.length > 0 && (
-              <View style={styles.dayView}>
-                
+                <View style={styles.dayView}>
+
                   <FlatList
                     data={
                       showDate ? userDetail?.buiness_time : userDetail?.buiness_time.slice(0, 1)
@@ -177,13 +205,13 @@ const BusinessProfile = ({ navigation }) => {
                     )}
                   />
 
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  onPress={() => setShowDate(!showDate)}
-                  style={{ alignSelf: 'flex-start' }}>
-                  <Image source={Images?.Plus} style={styles.plusIcon} />
-                </TouchableOpacity>
-              </View>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => setShowDate(!showDate)}
+                    style={{ alignSelf: 'flex-start' }}>
+                    <Image source={Images?.Plus} style={styles.plusIcon} />
+                  </TouchableOpacity>
+                </View>
               )}
             </TouchableOpacity>
 
@@ -261,11 +289,22 @@ const styles = StyleSheet.create({
   Scrollcontainer: {
     backgroundColor: '#FFFFFF',
   },
-  businessImage: {
+  // businessImage: {
+  //   width: (mobileW * 110) / 100,
+  //   height: 200,
+  //   alignItems: 'center',
+  //   alignSelf: 'center',
+  // },
+  coverWrapper: {
     width: (mobileW * 110) / 100,
     height: 200,
-    alignItems: 'center',
     alignSelf: 'center',
+    overflow: 'hidden', // ensures images don’t spill
+  },
+
+  businessImage: {
+    width: '100%',
+    height: '100%',
   },
   detailsContainer: {
     padding: 16,
@@ -276,7 +315,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     fontSize: (mobileW * 2.5) / 100,
   },
-  homeServiceIcon: {
+  coverProfileWrapper: {
     width: (mobileW * 24) / 100,
     height: (mobileW * 24) / 100,
     // bottom: (mobileH * -19) / 100,
@@ -284,6 +323,11 @@ const styles = StyleSheet.create({
     top: (mobileH * -6) / 100,
     borderWidth: (mobileW * 1) / 100,
     borderColor: Colors.white,
+    borderRadius: (mobileW * 12) / 100,
+  },
+  homeServiceIcon: {
+    width: '100%',
+    height: '100%',
     borderRadius: (mobileW * 12) / 100,
   },
   businessName: {
@@ -548,12 +592,12 @@ const styles = StyleSheet.create({
     marginTop: (mobileW * 5) / 100,
     paddingVertical: (mobileW * 4) / 100,
     borderRadius: (mobileW * 3) / 100,
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    borderWidth: 1,
+    // elevation: 1,
+    // shadowColor: '#000',
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.3,
+    // shadowRadius: 4,
+    borderWidth: 1.5,
     borderColor: Colors.borderColor,
   },
   itemContainer1: {
@@ -568,11 +612,13 @@ const styles = StyleSheet.create({
     marginTop: (mobileW * 5) / 100,
     paddingVertical: (mobileW * 4) / 100,
     borderRadius: (mobileW * 3) / 100,
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
+    borderWidth: 1.5,
+    borderColor: Colors.borderColor,
+    // elevation: 1,
+    // shadowColor: '#000',
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.3,
+    // shadowRadius: 4,
   },
   txtView: {
     width: (mobileW * 68) / 100,

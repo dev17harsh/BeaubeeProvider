@@ -18,7 +18,8 @@ const LoginScreen = ({ navigation }) => {
     const [toastVisible, setToastVisible] = useState(false);
     const [toastData, setToastData] = useState({
         message: '',
-        color: ''
+        color: '',
+        error: false
     });
 
     const showToast = () => {
@@ -46,7 +47,8 @@ const LoginScreen = ({ navigation }) => {
             showToast()
             setToastData({
                 message: loginData?.response?.result,
-                color: Colors?.red
+                color: Colors?.red,
+                error: true
             })
             dispatch(
                 UserLoginDataClean({})
@@ -63,31 +65,35 @@ const LoginScreen = ({ navigation }) => {
             showToast()
             setToastData({
                 message: 'Please Entered Email',
-                color: Colors?.red
+                color: Colors?.red,
+                error: true
             })
         } else if (email && !emailRegex.test(email)) {
             showToast()
             setToastData({
                 message: 'Invalid email address',
-                color: Colors?.red
+                color: Colors?.red,
+                error: true
             })
         } else if (password == '') {
             showToast()
             setToastData({
                 message: 'Please Entered Password',
-                color: Colors?.red
+                color: Colors?.red,
+                error: true
             })
         } else if (password && !passwordRegex.test(password)) {
             showToast()
             setToastData({
                 message: 'Password must be 8-25 characters, include at least one special character, and no emojis.',
-                color: Colors?.red
+                color: Colors?.red,
+                error: true
             })
         } else {
             const formData = new FormData();
             formData.append('email', email);
             formData.append('password', password);
-            console.log('login data  ===>' , formData)
+            console.log('login data  ===>', formData)
             await dispatch(loginUser(formData));
 
         }
@@ -103,6 +109,7 @@ const LoginScreen = ({ navigation }) => {
                 toastStyle={{
                     backgroundColor: toastData.color
                 }}
+                error={toastData.error}
             />
             <StatusBar backgroundColor={Colors?.primary} barStyle={'light-content'} />
             <ImageBackground source={Images?.ScreenBackground} style={styles.ImageView} />
@@ -145,7 +152,7 @@ const LoginScreen = ({ navigation }) => {
                         value={password}
                         onChangeText={setPassword}
                     />
-                    <TouchableOpacity onPress={()=>{
+                    <TouchableOpacity onPress={() => {
                         navigation.navigate('ForgetPasswordEmailScreen')
                     }} >
                         <Text style={styles.forgetText}>Forget Password ?</Text>

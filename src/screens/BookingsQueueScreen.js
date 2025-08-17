@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -162,6 +162,9 @@ const BookingsQueueScreen = ({ navigation }) => {
   const [queueData, setQueueData] = useState([])
 
 
+  const dateScrollRef = useRef(null);
+
+
   // const timeSlots = [
   //   { id: "1", time: "4:10 pm - 4:40 pm", description: "Haircut and Beard Trim", stylist: "John D.", hour: "4PM" },
   //   { id: "2", time: "5:00 pm - 5:30 pm", description: "Haircut and Beard Trim", stylist: "John D.", hour: "5PM" },
@@ -179,14 +182,18 @@ const BookingsQueueScreen = ({ navigation }) => {
 
   }, [isFocused])
 
+
+
   useEffect(() => {
     if (getStaffData?.response?.result) {
       // console.log('getStaffData?.response?.result', getStaffData?.response?.result)
-      const dropdownOptions = getStaffData?.response?.result.map(staff => ({
-        label: `${staff.first_name || ''} ${staff.last_name.slice('')[0] || ''}`.trim() || 'Unnamed Staff',
-        value: staff.staff_id
-      }));
-      setStaffDropDownData(dropdownOptions)
+      if (Array.isArray(getStaffData?.response?.result)) {
+        const dropdownOptions = getStaffData?.response?.result.map(staff => ({
+          label: `${staff.first_name || ''} ${staff.last_name.slice('')[0] || ''}`.trim() || 'Unnamed Staff',
+          value: staff.staff_id
+        }));
+        setStaffDropDownData(dropdownOptions)
+      }
     }
   }, [getStaffData])
 
@@ -375,9 +382,9 @@ const BookingsQueueScreen = ({ navigation }) => {
               navigation.navigate('BookingDetailScreen');
             }}
             style={[styles.appointmentContainer]}>
-            <Text style={styles.timeText}>{appointment.time}</Text>
-            <Text style={styles.nameText}>{appointment.name}</Text>
-            <Text style={styles.serviceText}>{appointment.service}</Text>
+            <Text style={styles.timeText}>{appointment?.time}</Text>
+            <Text style={styles.nameText}>{appointment?.name}</Text>
+            <Text style={styles.serviceText}>{appointment?.service}</Text>
           </TouchableOpacity>
         ) : (
           <View />
@@ -487,12 +494,27 @@ const BookingsQueueScreen = ({ navigation }) => {
     return date.toLocaleDateString("en-US", options);
   };
 
-  const UpdateBookingStatus = ({booking_id , status}) =>{
+  const UpdateBookingStatus = ({ booking_id, status }) => {
     dispatch(UpdateQueueBookingStatusAction({
-      booking_id : booking_id,
-      status : status
+      booking_id: booking_id,
+      status: status
     }))
   }
+
+
+const handleDatePickerSelect = (pickedDate) => {
+  setSelectedDates(pickedDate);
+  getBookingsFromDate({ date: pickedDate, staff_id: '' });
+
+  // Find index of picked date in your dates array
+  const index = dates.findIndex(d => d === pickedDate);
+  if (index !== -1 && dateScrollRef.current) {
+    dateScrollRef.current.scrollTo({
+      x: index * 55,
+      animated: true,
+    });
+  }
+};
 
   const BookingsData = () => {
     return (
@@ -501,7 +523,8 @@ const BookingsQueueScreen = ({ navigation }) => {
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
-            paddingVertical: (mobileW * 4) / 100,
+            paddingBottom: (mobileW * 3) / 100,
+            paddingHorizontal : (mobileW * 2) / 100,
             borderBottomWidth: (mobileW * 0.2) / 100,
             borderBottomColor: Colors.lightGray,
           }}>
@@ -568,11 +591,13 @@ const BookingsQueueScreen = ({ navigation }) => {
         </View>
         <View>
           <ScrollView
+          ref={dateScrollRef}
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.daysContainer}>
-            {dates.map((date, index) => (
+            {dates.length > 0 && dates.map((date, index) => (
               <View
+                key={index}
                 style={{
                   alignItems: 'center',
                   justifyContent: 'space-around',
@@ -586,8 +611,9 @@ const BookingsQueueScreen = ({ navigation }) => {
                     date === selectedDates && styles.selectedDay,
                   ]}
                   onPress={() => {
-                    getBookingsFromDate({ date: date, staff_id: '' })
-                    setSelectedDates(date)
+                    // getBookingsFromDate({ date: date, staff_id: '' })
+                    // setSelectedDates(date)
+                    handleDatePickerSelect(date)
                   }}>
                   <Text
                     style={[
@@ -608,8 +634,8 @@ const BookingsQueueScreen = ({ navigation }) => {
             </>
           ):( */}
         <FlatList
-          data={hours}
-          keyExtractor={(item) => item}
+          data={Array.isArray(hours) ? hours : []}
+          keyExtractor={(item, index) => String(item?.id ?? index)}
           showsVerticalScrollIndicator={false}
           renderItem={({ item: hour }) => (
             <View style={styles.hourSection}>
@@ -626,13 +652,13 @@ const BookingsQueueScreen = ({ navigation }) => {
                         navigation.navigate('BookingDetailScreen', { details: slot });
                       }}
                       style={[styles.appointmentContainer]}>
-                      <Text style={styles.timeText}>{slot.appointment_start_time} - {slot.appointment_end_time}</Text>
-                      <Text style={styles.nameText}>{slot.customer_name}</Text>
+                      <Text style={styles.timeText}>{slot?.appointment_start_time} - {slot?.appointment_end_time}</Text>
+                      <Text style={styles.nameText}>{slot?.customer_name}</Text>
                       <Text style={styles.serviceText}>{slot?.services?.join(', ')}</Text>
                     </TouchableOpacity>
                   ))
                 ) : (
-                  <Text style={styles.emptySlot}>No bookings available</Text>
+                  <Text style={styles.emptySlot}>No bookings availables</Text>
                 )}
               </View>
             </View>
@@ -681,8 +707,8 @@ const BookingsQueueScreen = ({ navigation }) => {
   };
 
   const renderItem = ({ item }) => {
-   return (
-      
+    return (
+
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={() => {
@@ -694,33 +720,33 @@ const BookingsQueueScreen = ({ navigation }) => {
             setprofileData(item);
           }
         }}
-        style={[styles?.card, item.booking_status == 'Cancel' && {borderColor: Colors?.red} , item.booking_status != 'Pending' && item.booking_status != 'Cancel' && styles.borderStyle]}>
+        style={[styles?.card, item?.booking_status == 'Cancel' && { borderColor: Colors?.red }, item?.booking_status != 'Pending' && item?.booking_status != 'Cancel' && styles.borderStyle]}>
         <Image source={{ uri: item?.customer_profile }} style={styles?.avatar} />
         <View style={styles?.infoContainer}>
-          <Text style={[styles?.name, { color: '#301E39', fontSize: 14, fontWeight: '600' }]}>{item.customer_name}</Text>
+          <Text style={[styles?.name, { color: '#301E39', fontSize: 14, fontWeight: '600' }]}>{item?.customer_name}</Text>
           <Text style={[styles?.service, { color: '#554F67', fontWeight: '400', fontSize: 12 }]}>{item?.services?.join(', ')}</Text>
         </View>
         {
-          item.booking_status == 'Cancel' ? (
-            <View style={[styles?.progressContainer , {backgroundColor: Colors?.red}]}>
-              <Text style={[styles?.progressTxt, { fontSize: 12, fontWeight: '600',color: Colors?.white}]}>{'Cancel'}</Text>
+          item?.booking_status == 'Cancel' ? (
+            <View style={[styles?.progressContainer, { backgroundColor: Colors?.red }]}>
+              <Text style={[styles?.progressTxt, { fontSize: 12, fontWeight: '600', color: Colors?.white }]}>{'Cancel'}</Text>
             </View>
           ) :
-        item.booking_status == 'Complete' ? (
-          <View style={styles?.progressContainer}>
-            <Text style={[styles?.progressTxt, { fontSize: 12, fontWeight: '600', }]}>{'Completed'}</Text>
-          </View>
-        ) :
-        item.booking_status == 'Start Service' ? (
-          <View style={styles?.progressContainer}>
-            <Text style={[styles?.progressTxt, { fontSize: 12, fontWeight: '600', }]}>{'In Progress'}</Text>
-          </View>
-        ) : (
-          <View style={styles?.timeContainer}>
-            <Image style={styles?.timeIcon} source={Images?.Time} />
-            <Text style={[styles?.time, { color: '#554F67', fontSize: 12, fontWeight: '600' }]}>{item.appointment_start_time}</Text>
-          </View>
-        )}
+            item?.booking_status == 'Complete' ? (
+              <View style={styles?.progressContainer}>
+                <Text style={[styles?.progressTxt, { fontSize: 12, fontWeight: '600', }]}>{'Completed'}</Text>
+              </View>
+            ) :
+              item?.booking_status == 'Start Service' ? (
+                <View style={styles?.progressContainer}>
+                  <Text style={[styles?.progressTxt, { fontSize: 12, fontWeight: '600', }]}>{'In Progress'}</Text>
+                </View>
+              ) : (
+                <View style={styles?.timeContainer}>
+                  <Image style={styles?.timeIcon} source={Images?.Time} />
+                  <Text style={[styles?.time, { color: '#554F67', fontSize: 12, fontWeight: '600' }]}>{item?.appointment_start_time}</Text>
+                </View>
+              )}
       </TouchableOpacity>
     );
   };
@@ -736,23 +762,24 @@ const BookingsQueueScreen = ({ navigation }) => {
           visible={isProfileModalVisible}
           onClose={() => setIsProfileModalVisible(false)}
           profileImage={Images?.image33}
-          name={profileData.customer_name}
+          name={profileData?.customer_name}
           serviceName={profileData?.services?.join(', ')}
-          price={`$ ${profileData.price}`}
+          price={`$ ${profileData?.price}`}
           // addOns={profileData.addOns}
-          assistantImage={{ uri: profileData.professional_details?.profile }}
+          assistantImage={{ uri: profileData?.professional_details?.profile }}
           assistantName={profileData.professional_details?.name}
-          rating={profileData.avg_rating}
-          reviews={profileData.total_reviews}
+          rating={profileData?.avg_rating}
+          reviews={profileData?.total_reviews}
           onAddAmendPress={() => {
-            navigation.navigate('BookService' , {data : profileData}), setIsProfileModalVisible(false);
+            navigation.navigate('BookService', { data: profileData }), setIsProfileModalVisible(false);
           }}
           onCompletePress={() => {
             UpdateBookingStatus({
-              booking_id : profileData?.booking_id,
+              booking_id: profileData?.booking_id,
               status: 'Complete'
             })
-            setIsProfileModalVisible(false)}}
+            setIsProfileModalVisible(false)
+          }}
           navigation={navigation}
         />
 
@@ -765,13 +792,13 @@ const BookingsQueueScreen = ({ navigation }) => {
           onClose={() => {
             // setEnableQueueModal(false)
             UpdateBookingStatus({
-              booking_id : profileData?.booking_id,
+              booking_id: profileData?.booking_id,
               status: 'Cancel'
             })
           }}
           onFirstBtn={() => {
             UpdateBookingStatus({
-              booking_id : profileData?.booking_id,
+              booking_id: profileData?.booking_id,
               status: 'Start Service'
             })
           }}
@@ -869,8 +896,8 @@ const BookingsQueueScreen = ({ navigation }) => {
             )}
           </View>
           <FlatList
-            data={queueData}
-            keyExtractor={item => item.id}
+            data={Array.isArray(queueData) ? queueData : []}
+            keyExtractor={(item, index) => String(item?.id ?? index)}
             renderItem={renderItem}
             contentContainerStyle={styles.listContainer}
           />
@@ -965,8 +992,9 @@ const BookingsQueueScreen = ({ navigation }) => {
         selectedDates={selectedDates}
         setSelectedDates={setSelectedDates}
         onPressDate={(val) => {
-          setSelectedDates(val)
-          getBookingsFromDate({ date: val, staff_id: '' })
+          // setSelectedDates(val)
+          // getBookingsFromDate({ date: val, staff_id: '' })
+          handleDatePickerSelect(val)
         }}
       />
       {tabsView()}
@@ -1100,8 +1128,8 @@ const styles = StyleSheet.create({
     borderRadius: (mobileW * 3) / 100,
     borderWidth: (mobileW * 1.5) / 100,
     borderColor: '#F6EFF9',
-    marginVertical: (mobileW * 2) / 100,
-    marginVertical: (mobileH * 3) / 100,
+    marginHorizontal: (mobileW * 3) / 100,
+    marginVertical: (mobileH * 2) / 100,
   },
   tab: {
     flex: 1,

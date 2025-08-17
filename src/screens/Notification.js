@@ -143,6 +143,24 @@ const Notification = ({ navigation }) => {
           keyExtractor={item => item.id}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
+          ListEmptyComponent={() => {
+            return (
+              <View style={{
+                flex: 1,
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: mobileH * 0.7
+              }}>
+                <Text style={{
+                  fontSize: 15,
+                  color: Colors.OrGray,
+                  fontWeight: '500'
+                }}>
+                  No found
+                </Text>
+              </View>
+            )
+          }}
         />
       </View>
     </SafeAreaView>

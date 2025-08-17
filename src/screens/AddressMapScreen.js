@@ -19,7 +19,7 @@ import { DimensionsConfig } from '../theme/dimensions';
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
 
-const AddressMapScreen = ({ navigation }) => {
+const AddressMapScreen = ({ navigation , ...props }) => {
     const [searchModalVisible, setSearchModalVisible] = useState(false);
 
     return (
@@ -51,7 +51,7 @@ const AddressMapScreen = ({ navigation }) => {
                     </TouchableOpacity>
                     
                     <TouchableOpacity
-                        onPress={() => navigation.navigate('AddAddressScreen' , {type : 'profile'})}
+                        onPress={() => navigation.navigate('AddAddressScreen' , {type : props?.route?.params?.type})}
                         style={styles.selectLocationButton}
                     >
                         <Text style={styles.selectionButtonTxt}>Select Location</Text>

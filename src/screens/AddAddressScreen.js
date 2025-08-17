@@ -30,6 +30,7 @@ export default function AddAddressScreen({ navigation, ...props }) {
   const [streetText, setStreetText] = useState('');
   const [areaText, setAreaText] = useState('');
   const [directionsText, setDirectionsText] = useState('');
+  // console.log('props?.route?.params?.type' , props?.route?.params?.type)
 
   useEffect(() => {
     if (addBusinessLocationData?.response?.message == 'success') {
@@ -44,20 +45,24 @@ export default function AddAddressScreen({ navigation, ...props }) {
       //   })
       // );
       if (props?.route?.params?.type == 'profile') {
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [
-              {
-                name: 'MainApp',
-                params: {
-                  screen: 'Profile', // Navigate to Profile inside MainApp
-                },
-              },
-            ],
-          })
-        );
-        
+        // setTimeout(() =>{
+        // navigation.dispatch(
+        //   CommonActions.reset({
+        //     index: 0,
+        //     routes: [
+        //       {
+        //         name: 'MainApp',
+        //         params: {
+        //           screen: 'Profile', // Navigate to Profile inside MainApp
+        //         },
+        //       },
+        //     ],
+        //   })
+        // );
+        // }, 500)
+       navigation.navigate('MainApp', { screen: 'Profile' });
+
+
       } else {
         navigation.navigate('AddBusinessTimingScreen')
       }
@@ -83,6 +88,8 @@ export default function AddAddressScreen({ navigation, ...props }) {
 
     await dispatch(AddBusinessLocationAction(formData));
   }
+
+  const diableBUtton = !flatNoText?.trim() && !buildingName?.trim()
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.container}>
@@ -280,10 +287,10 @@ export default function AddAddressScreen({ navigation, ...props }) {
           </View> */}
         </ScrollView>
         <TouchableOpacity
-          disabled={!flatNoText?.trim() && !buildingName?.trim()}
+          disabled={diableBUtton}
           onPress={onPressNext}
           // onPress={() => navigation.navigate('AddBusinessTimingScreen')}
-          style={[styles.selectLocationButton, (!flatNoText?.trim() && !buildingName?.trim()) && { backgroundColor: Colors?.OrGray }]}>
+          style={[styles.selectLocationButton, diableBUtton && { backgroundColor: Colors?.OrGray }]}>
           <Text style={styles.selectionButtonTxt}> {props?.route?.params?.type == 'profile' ? 'Save' : 'Next'}</Text>
         </TouchableOpacity>
       </View>

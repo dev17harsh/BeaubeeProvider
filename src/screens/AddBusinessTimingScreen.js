@@ -1,12 +1,14 @@
 import {
     View,
     Text,
-    Switch,
     StyleSheet,
     Dimensions,
     ScrollView,
     TouchableOpacity,
     SafeAreaView,
+    Platform,
+    Modal,
+    Button,
 } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import AppHeader from '../components/AppHeader'
@@ -17,19 +19,18 @@ import { DimensionsConfig } from '../theme/dimensions';
 import { useDispatch, useSelector } from 'react-redux';
 import { signupUserAction, signupUserRemoveAction } from '../redux/action/SignUpAction';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
 
 const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
-// Generate time slots in 30-minute intervals
 const generateTimeOptions = () => {
     const times = [];
     const date = new Date();
     date.setHours(0, 0, 0, 0);
-
     for (let i = 0; i < 48; i++) {
-        times.push(date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }));
+        times.push(date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }).toLowerCase());
         date.setMinutes(date.getMinutes() + 30);
     }
     return times;
@@ -40,28 +41,26 @@ const timeOptions = generateTimeOptions();
 const AddBusinessTimingScreen = ({ navigation }) => {
     const dispatch = useDispatch();
     const signUpData = useSelector((state) => state.signUpData);
+
     const [schedule, setSchedule] = useState(
         daysOfWeek.map(day => ({
             day,
             status: day !== 'Saturday' && day !== 'Sunday',
-            "time_range": {
-                "start": "12:00 am",
-                "end": "12:00 am"
+            time_range: {
+                start: "12:00 am",
+                end: "12:30 am"
             },
         }))
     );
 
-
+    const [iosPicker, setIosPicker] = useState({ visible: false, index: null, type: null });
 
     useEffect(() => {
         if (signUpData?.response?.message == 'success') {
             navigation.navigate('AddServicesScreen')
-            dispatch(
-                signupUserRemoveAction({})
-            )
+            dispatch(signupUserRemoveAction({}))
         }
     }, [signUpData])
-
 
     const toggleOpen = (index) => {
         const newSchedule = [...schedule];
@@ -73,7 +72,6 @@ const AddBusinessTimingScreen = ({ navigation }) => {
         const newSchedule = [...schedule];
         if (type === 'openingTime') {
             newSchedule[index].time_range.start = value;
-            // If opening time is set later than closing time, adjust closing time to be at least 30 mins later
             if (timeOptions.indexOf(value) >= timeOptions.indexOf(newSchedule[index].time_range.end)) {
                 const newClosingTimeIndex = timeOptions.indexOf(value) + 1;
                 newSchedule[index].time_range.end = timeOptions[newClosingTimeIndex] || timeOptions[timeOptions.length - 1];
@@ -94,7 +92,6 @@ const AddBusinessTimingScreen = ({ navigation }) => {
     }
 
     const onPressSubmit = async () => {
-        // console.log('schedule ===>' , schedule)
         const userId = await AsyncStorage.getItem('token')
         const values = transformSchedule(schedule)
         const formData = new FormData();
@@ -108,77 +105,109 @@ const AddBusinessTimingScreen = ({ navigation }) => {
         await dispatch(signupUserAction(formData));
     }
 
-    const renderTimePicker = (time, onChange, options, status) => (
-        <View style={styles.pickerContainer}>
-            <Picker
-                selectedValue={time}
-                style={[styles.timePicker, !status && { color: Colors.OrGray }]}
-                onValueChange={onChange}
-                mode="dropdown"
-                enabled={status}
-            >
-                {options.map((timeOption) => (
-                    <Picker.Item label={timeOption} value={timeOption} key={timeOption} />
-                ))}
-            </Picker>
-        </View>
-    );
+    const renderTimePicker = (time, onChange, options, status, index, type) => {
+        if (Platform.OS === 'ios') {
+            return (
+                <TouchableOpacity
+                    style={[styles.pickerContainer, !status && { backgroundColor: '#f5f5f5' }]}
+                    disabled={!status}
+                    onPress={() => setIosPicker({ visible: true, index, type })}
+                >
+                    <Text style={{ color: status ? '#000' : Colors.OrGray }}>
+                        {time}
+                    </Text>
+                </TouchableOpacity>
+            )
+        }
+
+        return (
+            <View style={styles.pickerContainer}>
+                <Picker
+                    selectedValue={time}
+                    style={[styles.timePicker, !status && { color: Colors.OrGray }]}
+                    onValueChange={onChange}
+                    mode="dropdown"
+                    enabled={status}
+                >
+                    {options.map((timeOption) => (
+                        <Picker.Item label={timeOption} value={timeOption} key={timeOption} />
+                    ))}
+                </Picker>
+            </View>
+        )
+    };
 
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.container}>
-                {/* Header */}
-                <AppHeader
-                    title={"Timings"}
-                />
+                <AppHeader title={"Timings"} />
                 <ScrollView contentContainerStyle={{ paddingBottom: (mobileW * 18) / 100 }}>
                     <View style={styles.subContainer}>
                         {schedule.map((item, index) => {
-                            // Filter closing time options based on selected opening time
-                            const validClosingOptions = timeOptions.slice(timeOptions.indexOf(item.openingTime) + 1);
+                            const validClosingOptions = timeOptions.slice(timeOptions.indexOf(item.time_range.start) + 1);
 
                             return (
                                 <View key={item.day} style={styles.dayContainer}>
-                                    <View style={{
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        marginBottom: 10
-                                    }}>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
                                         <Text style={styles.dayText}>{item.day}</Text>
                                         <Text style={styles.openText}>{item.status ? "Open" : "Closed"}</Text>
-                                        {/* <Switch
-                                    value={item.isOpen}
-                                    onValueChange={() => toggleOpen(index)}
-                                    thumbColor={item.isOpen ? "#6A0DAD" : "#f4f3f4"}
-                                    trackColor={{ false: "#767577", true: "#D8BFD8" }}
-                                /> */}
                                         <CustomSwitch
                                             isEnabled={item?.status}
                                             toggleSwitch={() => toggleOpen(index)}
                                         />
                                     </View>
                                     <View style={styles.timeContainer}>
-                                        {/* {item.isOpen ? (
-                                        <> */}
-                                        {renderTimePicker(item.time_range.start, (value) => updateTime(index, 'openingTime', value), timeOptions, item?.status)}
+                                        {renderTimePicker(
+                                            item.time_range.start,
+                                            (value) => updateTime(index, 'openingTime', value),
+                                            timeOptions,
+                                            item?.status,
+                                            index,
+                                            'openingTime'
+                                        )}
                                         <Text style={styles.toText}>To</Text>
-                                        {renderTimePicker(item.time_range.start, (value) => updateTime(index, 'closingTime', value), validClosingOptions, item?.status)}
-                                        {/* </>
-                                    ) : (
-                                        <Text style={styles.closedText}>Closed</Text>
-                                    )} */}
+                                        {renderTimePicker(
+                                            item.time_range.end,
+                                            (value) => updateTime(index, 'closingTime', value),
+                                            validClosingOptions,
+                                            item?.status,
+                                            index,
+                                            'closingTime'
+                                        )}
                                     </View>
                                 </View>
                             );
                         })}
                     </View>
                 </ScrollView>
-                <TouchableOpacity
-                    onPress={() => onPressSubmit()}
-                    style={styles.selectLocationButton}>
+                <TouchableOpacity onPress={onPressSubmit} style={styles.selectLocationButton}>
                     <Text style={styles.selectionButtonTxt}>Save Location</Text>
                 </TouchableOpacity>
             </View>
+
+            {/* iOS Modal Picker */}
+            {iosPicker.visible && (
+                <Modal transparent animationType="slide" visible={iosPicker.visible}>
+                    <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.3)' }}>
+                        <View style={{ backgroundColor: '#fff', paddingBottom: 20 }}>
+                            <Picker
+                                selectedValue={
+                                    schedule[iosPicker.index].time_range[iosPicker.type === 'openingTime' ? 'start' : 'end']
+                                }
+                                onValueChange={(val) => updateTime(iosPicker.index, iosPicker.type, val)}
+                            >
+                                {(iosPicker.type === 'openingTime'
+                                    ? timeOptions
+                                    : timeOptions.slice(timeOptions.indexOf(schedule[iosPicker.index].time_range.start) + 1)
+                                ).map((opt) => (
+                                    <Picker.Item key={opt} label={opt} value={opt} />
+                                ))}
+                            </Picker>
+                            <Button title="Done" onPress={() => setIosPicker({ visible: false, index: null, type: null })} />
+                        </View>
+                    </View>
+                </Modal>
+            )}
         </SafeAreaView>
     )
 }
@@ -201,7 +230,6 @@ const styles = StyleSheet.create({
         marginTop: (mobileH * 15) / 100,
         position: 'absolute',
         bottom: (mobileH * 2) / 100,
-
     },
     selectionButtonTxt: {
         fontSize: (mobileW * 4) / 100,
@@ -214,7 +242,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFFFFF',
     },
     dayContainer: {
-        // flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 15,
     },
@@ -245,12 +272,12 @@ const styles = StyleSheet.create({
         marginHorizontal: 5,
         height: mobileW * 0.13,
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
     },
     timePicker: {
         width: '100%',
-        height: mobileH * 0.07, // Adjust height as needed
-        color: '#000', // Customize text color inside picker if needed
+        height: '100%',
+        color: '#000',
     },
     toText: {
         fontSize: 14,
@@ -258,10 +285,5 @@ const styles = StyleSheet.create({
         fontWeight: '400',
         marginHorizontal: 5,
         fontFamily: 'Inter'
-    },
-    closedText: {
-        fontSize: 14,
-        color: '#A0A0A0',
-        fontStyle: 'italic',
     },
 })

@@ -34,11 +34,12 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    paddingVertical: 20,
+    paddingVertical: 10,
+    paddingBottom: 20,
     paddingHorizontal: DimensionsConfig.screenWidth * 0.05,
   },
   title: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     color: Colors.black,
     marginBottom: 15,
@@ -46,10 +47,11 @@ const styles = StyleSheet.create({
     marginTop:10
   },
   summaryTxt: {
-    fontSize: 16,
-    fontWeight: '300',
-    color: Colors.black,
+    fontSize: 14,
+    fontWeight: '400',
+    color: '#554F67',
     marginBottom: 15,
+    lineHeight: 20,
     textAlign: 'center',
   },
   timingRow: {
@@ -66,8 +68,8 @@ const styles = StyleSheet.create({
     color: '#554F67',
   },
   CloserView:{
-    height: DimensionsConfig?.screenHeight * 0.008,
-    width: DimensionsConfig?.screenWidth * 0.14,
+    height: DimensionsConfig?.screenHeight * 0.005,
+    width: DimensionsConfig?.screenWidth * 0.16,
     borderRadius: 10,
     backgroundColor: '#9E98AC',
     alignSelf: 'center',

@@ -9,8 +9,9 @@ import {
 } from "react-native";
 import { Images } from "../assets/images";
 import { mobileW } from "./utils";
+import { Colors } from "../theme/colors";
 
-const ToastMessage = ({ visible, message, onClose, toastStyle }) => {
+const ToastMessage = ({ visible, message, onClose, toastStyle , error }) => {
   const slideAnim = useRef(new Animated.Value(100)).current; // Initial position
   useEffect(() => {
     if (visible) {
@@ -49,8 +50,9 @@ const ToastMessage = ({ visible, message, onClose, toastStyle }) => {
     >
       <TouchableOpacity onPress={handleClose} style={[styles.toast, { ...toastStyle }]}>
         <Image
-          source={Images?.rightCheck}
-          style={{ width: mobileW * 6 / 100, height: mobileW * 6 / 100 }}
+          source={error ? Images.CrossIcon : Images?.rightCheck}
+          tintColor={error && Colors.white}
+          style={{ width: error ? mobileW * 3 / 100 : mobileW * 6 / 100, height: error ? mobileW * 3 / 100 : mobileW * 6 / 100 }}
         />
         <Text style={styles.toastText}>{message}</Text>
       </TouchableOpacity>

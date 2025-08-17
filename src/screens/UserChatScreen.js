@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Image, TouchableOpacity, TextInput, StyleSheet, FlatList, SafeAreaView } from 'react-native';
+import { View, Text, Image, TouchableOpacity, TextInput, StyleSheet, FlatList, SafeAreaView, Platform, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { Colors } from '../theme/colors';
 import { Images } from '../assets/images';
@@ -85,56 +85,66 @@ const UserChatScreen = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={{
-          flexDirection: 'row',
-          alignItems: 'center'
-        }}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Image source={Images?.BackIcon} style={styles.backIcon} />
-          </TouchableOpacity>
+  <SafeAreaView style={styles.container}>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0} // adjust so header doesn't overlap
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={{ flex: 1 }}>
+          {/* HEADER */}
+          <View style={styles.header}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <TouchableOpacity onPress={() => navigation.goBack()}>
+                <Image source={Images?.BackIcon} style={styles.backIcon} />
+              </TouchableOpacity>
 
-          <View style={styles.profilePicture}>
-            <Text style={styles.initialsText}>{initials}</Text>
+              <View style={styles.profilePicture}>
+                <Text style={styles.initialsText}>{initials}</Text>
+              </View>
+              <Text style={styles.headerTitle}>Kynthia P.</Text>
+            </View>
+            <TouchableOpacity>
+              <Image source={Images?.CalendarChat} style={styles.CalenderIcon} />
+            </TouchableOpacity>
           </View>
-          <Text style={styles.headerTitle}>Kynthia P.</Text>
+
+          {/* CHAT LIST */}
+          <View style={{ backgroundColor: '#F6EFF9' }}>
+            <FlatList
+              data={messages}
+              inverted
+              keyExtractor={(item) => item.id}
+              renderItem={renderMessage}
+              contentContainerStyle={styles.messagesList}
+              keyboardShouldPersistTaps="handled"
+            />
+
+            {/* INPUT BAR */}
+            <View style={styles.inputContainer}>
+              <TouchableOpacity onPress={selectImage}>
+                <Image source={Images?.EmojiIcon} style={styles.textInputIcon} />
+              </TouchableOpacity>
+              <TextInput
+                style={styles.input}
+                placeholder="Write a message..."
+                value={inputText}
+                onChangeText={setInputText}
+                returnKeyType="send"
+                onSubmitEditing={sendMessage}
+              />
+              <TouchableOpacity onPress={sendMessage}>
+                <Image source={Images?.AttachmentIcon} style={styles.textInputIcon} />
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
-        <TouchableOpacity  >
-          <Image source={Images?.CalendarChat} style={styles.CalenderIcon} />
-        </TouchableOpacity>
-      </View>
-      <View style={{
-        flex: 1,
-        backgroundColor: '#F6EFF9'
-      }}>
-        <FlatList
-          data={messages}
-          inverted
-          keyExtractor={(item) => item.id}
-          renderItem={renderMessage}
-          contentContainerStyle={styles.messagesList}
-        />
-        <View style={styles.inputContainer}>
-          <TouchableOpacity onPress={selectImage}>
-            <Image source={Images?.EmojiIcon} style={styles?.textInputIcon}/>
-          </TouchableOpacity>
-          <TextInput
-            style={styles.input}
-            placeholder="Write a message..."
-            value={inputText}
-            onChangeText={setInputText}
-          />
-          <TouchableOpacity onPress={sendMessage}>
-          <Image source={Images?.AttachmentIcon} style={styles?.textInputIcon}/>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </View>
-    </SafeAreaView>
-  );
-};
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
+  </SafeAreaView>
+)}
+
 
 const styles = StyleSheet.create({
   container: {
@@ -161,7 +171,7 @@ const styles = StyleSheet.create({
     padding: DimensionsConfig?.screenHeight * 0.012,
     paddingHorizontal: DimensionsConfig?.screenHeight * 0.016,
     marginVertical: DimensionsConfig?.screenHeight * 0.008,
-    borderRadius: DimensionsConfig?.screenHeight * 0.1,
+    borderRadius: Platform.OS == 'ios'  ? DimensionsConfig?.screenHeight * 0.02 : DimensionsConfig?.screenHeight * 0.1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,

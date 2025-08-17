@@ -61,7 +61,7 @@ const TabNavigator = () => {
       tabBar={props => <CustomTabBar {...props} />} // Use custom tab bar here
       screenOptions={{headerShown: false}} // Hide default headers
     >
-      <Tab.Screen name="Booking/Queue" component={BookingsQueueScreen} />
+      <Tab.Screen name="BookingQueue" component={BookingsQueueScreen} />
       <Tab.Screen name="Post" component={PostScreen} />
       <Tab.Screen name="Chat" component={ChatScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />

@@ -157,8 +157,8 @@ const AddUpdateServiceScreen = ({ navigation, ...props }) => {
                   }}>
                     <View style={styles.plusCircle}>
                       <Image source={Images?.PlusWhite} style={{
-                        height: DimensionsConfig.screenHeight * 0.022,
-                        width: DimensionsConfig.screenHeight * 0.022,
+                        height: DimensionsConfig.screenHeight * 0.02,
+                        width: DimensionsConfig.screenHeight * 0.02,
                         resizeMode: 'contain'
                       }} />
                     </View>
@@ -208,8 +208,8 @@ const AddUpdateServiceScreen = ({ navigation, ...props }) => {
                   }}>
                     <View style={styles.plusCircle}>
                       <Image source={Images?.PlusWhite} style={{
-                        height: DimensionsConfig.screenHeight * 0.022,
-                        width: DimensionsConfig.screenHeight * 0.022,
+                        height: DimensionsConfig.screenHeight * 0.02,
+                        width: DimensionsConfig.screenHeight * 0.02,
                         resizeMode: 'contain'
                       }} />
                     </View>
@@ -269,7 +269,8 @@ const styles = StyleSheet.create({
     padding: DimensionsConfig?.screenHeight * 0.014,
     backgroundColor: Colors?.primary,
     borderRadius: DimensionsConfig?.screenHeight * 0.01,
-    flexDirection: 'row'
+    flexDirection: 'row',
+    alignItems : 'center'
   },
   plusCircle: {
     height: DimensionsConfig.screenHeight * 0.025,
@@ -277,7 +278,9 @@ const styles = StyleSheet.create({
     borderRadius: DimensionsConfig.screenHeight * 0.025 / 2,
     borderWidth: 1,
     borderColor: Colors?.white,
-    marginRight: DimensionsConfig.screenHeight * 0.01
+    marginRight: DimensionsConfig.screenHeight * 0.01,
+    alignItems : 'center',
+    justifyContent: 'center'
   },
   AddServidsTxt: {
     color: Colors?.white,

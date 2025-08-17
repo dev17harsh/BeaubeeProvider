@@ -36,11 +36,12 @@ const BookingModal = ({
                 fontSize: 13,
                 fontWeight: '400',
                 color: '#554F67',
+                marginBottom: 15
               }}>
               {midText}
             </Text>
           ) : null}
-          <View style={{ marginTop: 20 }} />
+          {/* <View style={{ marginTop: 5 }} /> */}
 
           {/* Pause Button */}
           <TouchableOpacity
@@ -123,7 +124,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 15,
     width: '90%',
     color: '#301E39',
   },

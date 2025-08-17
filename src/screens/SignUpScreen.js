@@ -25,7 +25,8 @@ const SignUpScreen = ({ navigation }) => {
   const [toastVisible, setToastVisible] = useState(false);
   const [toastData, setToastData] = useState({
     message: '',
-    color: ''
+    color: '',
+    error : false
   });
 
   useEffect(() => {
@@ -49,6 +50,16 @@ const SignUpScreen = ({ navigation }) => {
       dispatch(
         signupUserRemoveAction({})
       )
+    } else if (signUpData?.response?.message == 'unsuccess'){
+       dispatch(
+        signupUserRemoveAction({})
+      )
+      showToast()
+      setToastData({
+        message: signUpData?.response?.result,
+        color: Colors?.red,
+        error: true
+      })
     }
   }, [signUpData])
 
@@ -80,37 +91,43 @@ const SignUpScreen = ({ navigation }) => {
       showToast()
       setToastData({
         message: 'Please Select Business Type',
-        color: Colors?.red
+        color: Colors?.red,
+        error: true
       })
     }else if (businessName == '') {
       showToast()
       setToastData({
         message: 'Enter User Name',
-        color: Colors?.red
+        color: Colors?.red,
+        error: true
       })
     } else if(email == ''){
       showToast()
       setToastData({
         message: 'Please Entered Email',
-        color: Colors?.red
+        color: Colors?.red,
+        error: true
       })
     } else if (email && !emailRegex.test(email)) {
       showToast()
       setToastData({
         message: 'Invalid email address',
-        color: Colors?.red
+        color: Colors?.red,
+        error: true
       })
     }else if(password == ''){
       showToast()
       setToastData({
         message: 'Please Entered Password',
-        color: Colors?.red
+        color: Colors?.red,
+        error: true
       })
     } else if (password && !passwordRegex.test(password)) {
       showToast()
       setToastData({
         message: 'Password must be 8-25 characters, include at least one special character, and no emojis.',
-        color: Colors?.red
+        color: Colors?.red,
+        error: true
       })
     } else {
 
@@ -129,7 +146,7 @@ const SignUpScreen = ({ navigation }) => {
 
   const handleBusinessNameChange = (text) => {
     const filteredText = text
-      .replace(/[^a-zA-Z]/g, ' ')
+      // .replace(/[^a-zA-Z]/g, ' ')
       .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u27BF]/g, ''); // Removes emojis
     setBusinessName(filteredText);
   };
@@ -142,6 +159,9 @@ const SignUpScreen = ({ navigation }) => {
     setPassword(text);
   };
 
+  const isFormFilled = selectedValue != null && businessName !== '' && email !== '' && password !== '';
+const isButtonEnabled = isFormFilled && isChecked;
+
 
   return (
     <View style={styles.container}>
@@ -152,6 +172,7 @@ const SignUpScreen = ({ navigation }) => {
         toastStyle={{
           backgroundColor: toastData.color
         }}
+        error = {toastData.error}
       />
       <ImageBackground source={Images?.ScreenBackground} style={styles.ImageView} />
       <View style={{
@@ -223,15 +244,17 @@ const SignUpScreen = ({ navigation }) => {
             />
             <View style={styles?.spacingBtwInput} />
             <View style={styles.checkboxContainer}>
-              <TouchableOpacity onPress={() => {
+              <TouchableOpacity 
+              disabled={!isFormFilled}
+              onPress={() => {
                 setChecked(!isChecked)
               }}>
-                <Image source={isChecked ? Images?.Checked : Images?.Unchecked} style={styles?.checkedStyl} />
+                <Image source={isChecked && isFormFilled ? Images.Checked : Images.Unchecked}  style={styles?.checkedStyl} />
               </TouchableOpacity>
               <Text style={styles.checkboxText}>I agree to <Text style={styles.link}>Terms and Conditions</Text></Text>
             </View>
 
-            <TouchableOpacity  disabled={!isChecked} onPress={handleSignUp} style={[styles.signUpButton, !isChecked && { backgroundColor: Colors?.OrGray }]}>
+            <TouchableOpacity   disabled={!isButtonEnabled} onPress={handleSignUp} style={[styles.signUpButton, !isButtonEnabled && { backgroundColor: Colors.OrGray }]}>
               <Text style={styles.signUpButtonText}>Sign Up</Text>
             </TouchableOpacity>
 

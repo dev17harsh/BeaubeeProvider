@@ -43,7 +43,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
                 };
 
                 const iconSource =
-                    label === 'Booking/Queue'
+                    label === 'BookingQueue'
                         ? isFocused
                             ? Images?.BookingsActive
                             : Images?.Bookings
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: Colors?.activeTabBackground,
-        paddingHorizontal: DimensionsConfig?.screenHeight * 0.015,
+        paddingHorizontal: DimensionsConfig?.screenHeight * 0.02,
         paddingVertical: DimensionsConfig?.screenHeight * 0.008,
         borderRadius: 18,
         shadowColor: '#000',
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
             width: 0,
             height: 5,
         },
-        shadowOpacity: 0.34,
+        shadowOpacity: 0.1,
         shadowRadius: 6.27,
         elevation: 10,
     },

@@ -21,6 +21,8 @@ import Storage from '../components/Storage';
 import { useDispatch, useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CreatePostAction, CreatePostRemoveAction } from '../redux/action/CreatePostAction';
+import { GetSelectedServicesAction } from '../redux/action/GetSelectedServicesAction';
+import { GetStaffAction } from '../redux/action/GetStaffAction';
 
 const tabs = ['Hair', 'Makeup', 'Skincare', 'Nails'];
 const services = [
@@ -108,7 +110,9 @@ const services = [
 
 const PostLook = ({ navigation }) => {
   const dispatch = useDispatch();
-    const createPostData = useSelector((state) => state.createPostData);
+  const createPostData = useSelector((state) => state.createPostData);
+  const getSelectedServiceData = useSelector((state) => state.getSelectedServiceData);
+  const getStaffData = useSelector((state) => state.getStaffData);
   const [selectedImageUri, setSelectedImageUri] = useState(null);
   const [isModalProfessionalVisible, setModalProfessionalVisible] =
     useState(false);
@@ -119,15 +123,60 @@ const PostLook = ({ navigation }) => {
   const [isServiceSelectorVisible, setServiceSelectorVisible] = useState(false);
   const [chosenService, setChosenService] = useState(null);
   const [chosenCategories, setChosenCatgories] = useState(null);
-   const [selectedImageRes, setSelectedResImage] = useState({});
+  const [selectedImageRes, setSelectedResImage] = useState({});
+  const [services, setServices] = useState([]);
+  const [professionalArray, setProfessionalArray] = useState([]);
+
 
 
   useEffect(() => {
-      if (createPostData?.response?.message == 'success') {
-        navigation.goBack()
-        dispatch(CreatePostRemoveAction())
+    if (createPostData?.response?.message == 'success') {
+      navigation.goBack()
+      dispatch(CreatePostRemoveAction())
+    }
+  }, [createPostData]);
+
+  useEffect(() => {
+    // console.log('getSelectedServiceData?.response?.result', getSelectedServiceData?.response?.result)
+    if (getSelectedServiceData?.response?.result?.length > 0) {
+      //  console.log('getSelectedServiceData?.response?.result', getSelectedServiceData?.response?.result)
+      setServices(getSelectedServiceData?.response?.result)
+    }
+  }, [getSelectedServiceData])
+
+  useEffect(() => {
+    if (Array.isArray(getStaffData?.response?.result)) {
+      if (getStaffData?.response?.result.length > 0) {
+        // console.log('getStaffData?.response?.result' , getStaffData?.response?.result)
+        setProfessionalArray(getStaffData?.response?.result)
+      } else {
+        setProfessionalArray([])
       }
-    }, [createPostData]);
+    }
+  }, [getStaffData])
+
+
+
+  useEffect(() => {
+    GetSelectedServices()
+    getStaffDetail()
+  }, [])
+
+  const getStaffDetail = async () => {
+    const userId = await AsyncStorage.getItem('token')
+    dispatch(GetStaffAction({
+      business_id: userId
+    }))
+  }
+
+
+  const GetSelectedServices = async () => {
+    const userId = await AsyncStorage.getItem('token')
+    const params = {
+      business_id: userId
+    }
+    dispatch(GetSelectedServicesAction(params))
+  }
 
   const handleSelectImage = async () => {
     try {
@@ -170,30 +219,30 @@ const PostLook = ({ navigation }) => {
     });
   };
 
- 
+
 
   const createFileFromPickerData = (imagePickerResponse) => {
     if (imagePickerResponse && imagePickerResponse.length > 0) {
       const fileData = imagePickerResponse[0]; // Assuming single file selection
       const { uri, fileName, type } = fileData;
-  
+
       // Check if it's an image or a video
       const isVideo = type && type.startsWith('video/');
-  
+
       // Creating a file object for FormData
       const file = {
         uri: Platform.OS === 'android' ? uri : uri.replace('file://', ''), // Remove 'file://' on iOS
         name: fileName || (isVideo ? 'video.mp4' : 'image.jpg'), // Default names
         type: type || (isVideo ? 'video/mp4' : 'image/jpeg'), // Default MIME types
       };
-  
+
       return file;
     }
     return null;
   };
-  
-console.log("selectedImageRes ======>" , selectedImageRes)
-  const addNewPost = async () =>{
+
+  // console.log("selectedImageRes ======>" , selectedImageRes)
+  const addNewPost = async () => {
     const userId = await AsyncStorage.getItem('token')
     const formData = new FormData();
     const imageFile = await createFileFromPickerData(selectedImageRes)
@@ -204,6 +253,8 @@ console.log("selectedImageRes ======>" , selectedImageRes)
     formData.append('files', imageFile);
     dispatch(CreatePostAction(formData))
   }
+
+  const postBtnEnable = chosenService?.service_id && ProfessionalData?.staff_id && selectedImageRes != {}
 
   return (
     <SafeAreaView style={styles.container}>
@@ -244,7 +295,8 @@ console.log("selectedImageRes ======>" , selectedImageRes)
             <TouchableOpacity
               onPress={() => handleOpenModal()}
               activeOpacity={0.8}
-              style={styles.itemContainer}>
+              disabled={professionalArray.length == 0}
+              style={[styles.itemContainer, professionalArray.length == 0 && { opacity: 0.5 }]}>
               <Image
                 source={Images?.AddProfissional}
                 resizeMode="contain"
@@ -277,7 +329,8 @@ console.log("selectedImageRes ======>" , selectedImageRes)
             <TouchableOpacity
               onPress={() => setServiceSelectorVisible(true)}
               activeOpacity={0.8}
-              style={styles.itemContainer}>
+              disabled={services.length == 0}
+              style={[styles.itemContainer, services.length == 0 && { opacity: 0.5 }]}>
               <Image
                 source={Images?.selectService}
                 resizeMode="contain"
@@ -304,7 +357,7 @@ console.log("selectedImageRes ======>" , selectedImageRes)
                   borderColor: Colors.borderColor,
                 }}>
                 <Image
-                  source={{uri : chosenCategories?.category_image}}
+                  source={{ uri: chosenCategories?.category_image }}
                   resizeMode="contain"
                   style={styles.serviceImage}
                 />
@@ -325,9 +378,11 @@ console.log("selectedImageRes ======>" , selectedImageRes)
           <View style={{ height: 20 }} />
           {/* Post Button */}
           <CommonButton
+            isDisable={!postBtnEnable}
             onPress={() => {
               addNewPost()
             }}
+            buttonStyle={{backgroundColor : postBtnEnable ? Colors?.primary : Colors?.OrGray}}
             title={'Post'}
           />
           <View style={{ height: 50 }} />

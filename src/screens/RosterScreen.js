@@ -49,7 +49,7 @@ const RosterScreen = ({ navigation }) => {
 
     useEffect(() => {
         // console.log('getRosterDetailsData?.response?.result', getRosterDetailsData?.response?.result)
-        if (getRosterDetailsData?.response?.result) {
+        if (Array.isArray(getRosterDetailsData?.response?.result)) {
             setRosterData(getRosterDetailsData?.response?.result)
         }
     }, [getRosterDetailsData])
@@ -121,8 +121,8 @@ const RosterScreen = ({ navigation }) => {
 
     const renderSchedule = ({ item }) => (
         <View style={styles.row}>
-            <Text style={styles.name}>{item.first_name} {item?.last_name.split('')[0]}.</Text>
-            <FlatList
+            <Text style={styles.name}>{item.first_name} {item?.last_name?.split('')[0]}.</Text>
+          {days ? ( <FlatList
                 horizontal
                 ref={scrollRef}
                 showsHorizontalScrollIndicator={false}
@@ -132,7 +132,7 @@ const RosterScreen = ({ navigation }) => {
                 }}
                 keyExtractor={(day, index) => index.toString()}
                 renderItem={({ item: day, index }) => {
-                    const slot = item.shift_index[index]?.timeslot || [];
+                    const slot = item?.shift_index[index]?.timeslot || [];
                     return (
                         <TouchableOpacity disabled={slot.length > 0} onPress={() => {
                             // console.log('hittting ' , item.shift_index[index])
@@ -179,7 +179,7 @@ const RosterScreen = ({ navigation }) => {
                 }}
                 onScroll={(e) => syncScroll(e, scrollRefHeader)}
                 scrollEventThrottle={30}
-            />
+            />) : null} 
         </View>
     );
     const onPressRosterRemove = () => {

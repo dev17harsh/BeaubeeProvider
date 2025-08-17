@@ -26,6 +26,7 @@ const AddProfilePictureScreen = ({navigation}) => {
                   routes: [
                     {
                       name: 'AddressMapScreen',
+                      params: { type: 'Add' },
                     },
                   ],
                 })

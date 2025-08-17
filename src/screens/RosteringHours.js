@@ -51,6 +51,9 @@ const RosteringHours = ({ navigation, ...props }) => {
 
   const dispatch = useDispatch();
   const addToRosterData = useSelector((state) => state.addToRosterData);
+  const [openStart, setOpenStart] = useState(false);
+  const [openEnd, setOpenEnd] = useState(false);
+  const [items, setItems] = useState(timeOptions.map(t => ({ label: t, value: t })));
 
   const [schedule, setSchedule] = useState([
     { start_time: '12:00 PM', end_time: '12:30 PM' },
@@ -253,7 +256,7 @@ const RosteringHours = ({ navigation, ...props }) => {
                           value,
                         )
                       }
-                      mode="dropdown">
+                      mode='dialog'>
                       {validClosingOptions.map(timeOption => (
                         <Picker.Item
                           label={timeOption}
@@ -262,6 +265,7 @@ const RosteringHours = ({ navigation, ...props }) => {
                         />
                       ))}
                     </Picker>
+
                   </View>
                 </View>
               );

@@ -10,7 +10,7 @@ import {
   Image,
 } from 'react-native';
 import { Images } from '../../assets/images';
-import { mobileW } from '../utils';
+import { mobileH, mobileW } from '../utils';
 import { Colors } from '../../theme/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GetSelectedServicesAction } from '../../redux/action/GetSelectedServicesAction';
@@ -177,10 +177,11 @@ export default ServiceSelector;
 
 const styles = StyleSheet.create({
   modalContainer: {
-    flex: 1,
+    // flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'flex-end',
     alignItems: 'center',
+    height: mobileH * 2
   },
   overlay: {
     position: 'absolute',

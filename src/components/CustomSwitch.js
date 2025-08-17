@@ -1,6 +1,6 @@
 // CustomSwitch.js
 import React, { useState, useEffect, useRef } from 'react';
-import { View, TouchableOpacity, StyleSheet, Animated, Dimensions } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Animated, Dimensions, Platform } from 'react-native';
 
 const mobileH = Math.round(Dimensions.get('window').height);
 const mobileW = Math.round(Dimensions.get('window').width);
@@ -21,7 +21,7 @@ const CustomSwitch = ({ isEnabled, toggleSwitch }) => {
   // Interpolating the animated value to translate the circle
   const translateX = circlePosition.interpolate({
     inputRange: [-(mobileW * 0.05) / 100, 1],
-    outputRange: [0, (mobileW * 5.8) / 100], // Adjust this to control the distance of movement
+    outputRange: [0, Platform.OS == 'ios' ? (mobileW * 5.2) / 100 : (mobileW * 5.8) / 100], // Adjust this to control the distance of movement
   });
 
   return (

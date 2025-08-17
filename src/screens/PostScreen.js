@@ -14,7 +14,7 @@ import { DimensionsConfig } from '../theme/dimensions';
 import { Images } from '../assets/images';
 import { Colors } from '../theme/colors';
 import AppHeader from '../components/AppHeader';
-import { mobileW } from '../components/utils';
+import { mobileH, mobileW } from '../components/utils';
 import Storage from '../components/Storage';
 import { useIsFocused } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -91,7 +91,7 @@ const Posts = ({ navigation }) => {
 
   const getData = async (id) => {
     const userId = await AsyncStorage.getItem('token')
-    console.log('userId' , userId , id)
+    console.log('userId', userId, id)
     const params = {
       business_id: userId,
       category_id: id.toStrings()
@@ -175,9 +175,22 @@ const Posts = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       {/* Header Section */}
-      <AppHeader title={'Posts'} />
+      {/* <AppHeader title={'Posts'} /> */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Image source={Images?.BackIcon} style={styles.backIcon} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Posts</Text>
+        <TouchableOpacity>
+          <Image style={styles.backIcon} />
+        </TouchableOpacity>
+      </View>
       {/* Vertical FlatList for categories */}
-      <View>
+      <View style={{
+        borderBottomColor: '#ebedf4',
+        borderBottomWidth: (mobileW * 0.5) / 100,
+        // paddingBottom: (mobileW * 0.4) / 100,
+      }}>
         <FlatList
           data={categories}
           horizontal
@@ -322,6 +335,33 @@ const styles = StyleSheet.create({
     width: (mobileW * 6) / 100,
     height: (mobileW * 6) / 100,
     resizeMode: 'contain',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: (mobileW * 5) / 100,
+    paddingVertical: (mobileW * 5) / 100,
+    // borderBottomColor: '#ebedf4',
+    // borderBottomWidth: (mobileW * 0.5) / 100,
+  },
+  headerBackIconView: {
+    backgroundColor: '#FFFFFF',
+    width: (mobileW * 10) / 100,
+    height: (mobileW * 10) / 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: (mobileH * 5) / 100,
+  },
+  backIcon: {
+    width: (mobileW * 4.5) / 100,
+    height: (mobileW * 4.5) / 100,
+  },
+  headerTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    marginLeft: 15,
+    color: '#000',
   },
 });
 

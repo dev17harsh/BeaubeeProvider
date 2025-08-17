@@ -70,29 +70,34 @@ const ChatScreen = ({navigation}) => {
     return groupedData;
   };
 
-  const renderSectionHeader = ({ section: { date } }) => (
-    <Text style={styles.date}>{date}</Text>
+  const renderSectionHeader = ({ section: { date }}) => (
+    <Text style={[styles.date , {marginTop: DimensionsConfig?.screenHeight * 0.01 }]}>{date}</Text>
   );
 
   const renderItem = ({ item }) => (
     <TouchableOpacity onPress={()=>{
       navigation.navigate('UserChatScreen')
     }} style={styles.card}>
+      <View style={{
+         flexDirection: 'row',
+         alignItems: 'center'
+      }}>
       <Image source={item.image} style={styles.image} />
       <View style={styles.details}>
         <Text style={styles.customerName}>{item.customerName}</Text>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' , marginTop : DimensionsConfig.screenHeight * 0.003}}>
           <Image source={Images?.Hair} style={styles?.serviceIcon} />
           <Text style={styles.service}>{item.service}</Text>
         </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' ,  marginTop : DimensionsConfig.screenHeight * 0.003}}>
           <Image source={Images?.calenderIcon} style={styles?.serviceIcon} />
           <Text style={styles.time}>{item.time}</Text>
         </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' ,  marginTop : DimensionsConfig.screenHeight * 0.003}}>
           <Image source={Images?.locationIcon} style={styles?.serviceIcon} />
           <Text style={styles.location}>{item.location}</Text>
         </View>
+      </View>
       </View>
       {item.unread && (
           <ImageBackground tintColor={Colors?.primary} source={Images?.ChatActive} style={{
@@ -145,7 +150,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors?.white,
-    paddingHorizontal: DimensionsConfig?.screenHeight * 0.01,
+    paddingHorizontal: DimensionsConfig?.screenHeight * 0.015,
     paddingTop: DimensionsConfig?.screenHeight * 0.02,
   },
   tabContainer: {
@@ -153,7 +158,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: '#F6EFF9',
     borderRadius: DimensionsConfig?.screenHeight * 0.015,
-    padding: DimensionsConfig?.screenHeight * 0.008,
+    padding: DimensionsConfig?.screenHeight * 0.006,
   },
   tabButton: {
     flex: 1,
@@ -174,10 +179,10 @@ const styles = StyleSheet.create({
   },
   filterContainer: {
     flexDirection: 'row',
-    marginTop: 16,
+    marginTop: DimensionsConfig?.screenHeight * 0.018,
   },
   filterButton: {
-    marginRight: 10,
+    marginRight: DimensionsConfig?.screenHeight * 0.012,
     borderWidth: 1,
     padding: DimensionsConfig?.screenHeight * 0.008,
     paddingHorizontal: DimensionsConfig?.screenHeight * 0.01,
@@ -185,7 +190,7 @@ const styles = StyleSheet.create({
     borderColor: '#DCDEE6'
   },
   ActiveFilterBtn: {
-    marginRight: 10,
+    marginRight: DimensionsConfig?.screenHeight * 0.012,
     borderWidth: 1,
     padding: DimensionsConfig?.screenHeight * 0.008,
     paddingHorizontal: DimensionsConfig?.screenHeight * 0.01,
@@ -204,7 +209,7 @@ const styles = StyleSheet.create({
     color: '#8D10B5',
   },
   listContent: {
-    paddingVertical: 16,
+    paddingVertical: DimensionsConfig?.screenHeight * 0.018,
   },
   itemContainer: {
     marginBottom: 16,
@@ -213,14 +218,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
     color: '#301E39',
-    marginBottom: DimensionsConfig?.screenHeight * 0.01,
+    // marginBottom: DimensionsConfig?.screenHeight * 0.01,
   },
   card: {
     flexDirection: 'row',
     backgroundColor: '#fff',
+    justifyContent: 'space-between',
     paddingVertical: DimensionsConfig?.screenHeight * 0.02,
     borderRadius: DimensionsConfig?.screenHeight * 0.01,
-    alignItems: 'center',
+    // alignItems: 'center',
     borderBottomWidth: 1,
     borderColor: '#E7E7E7'
     
@@ -231,7 +237,7 @@ const styles = StyleSheet.create({
     borderRadius: DimensionsConfig?.screenHeight * 0.01,
   },
   details: {
-    flex: 1,
+    // flex: 1,
     marginLeft: 12,
   },
   customerName: {
