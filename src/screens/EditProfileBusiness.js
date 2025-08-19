@@ -224,25 +224,46 @@ const EditProfileBusiness = ({ navigation }) => {
     formData.append('email_status', isEnableEmail.toString());
     formData.append('mobile', phoneNumber.toString());
     formData.append('mobile_status', isEnablePhone.toString());
-    if (profileFile.name) {
+    if (profileFile && profileFile.uri) {
       formData.append('profile', profileFile);
     }
     console.log('coverFile' ,coverFile)
-    if (coverFile.name) {
+    if (coverFile && coverFile.uri) {
       formData.append('cover_profile', coverFile);
     }
-    if (businessPicFile.name) {
+    if (businessPicFile && businessPicFile.uri) {
       formData.append('business_pictures', businessPicFile);
     }
+    if(facebookUrl != ''){
     formData.append('facebook', facebookUrl.toString());
+    } else {
+      formData.append('facebook', '');
+    }
     formData.append('facebook_status', isEnableFacebook.toString());
+    if(InstagramUrl != ''){
     formData.append('insta', InstagramUrl.toString());
+    }else {
+      formData.append('insta', '');
+    }
     formData.append('insta_status', isEnableInstagram.toString());
+    if(youtubeUrl != ''){
     formData.append('youtube', youtubeUrl.toString());
+    }else {
+      formData.append('youtube', '');
+    }
     formData.append('youtube_status', isEnableYoutube.toString());
+    if(twitterUrl != ''){
     formData.append('twitter', twitterUrl.toString());
+    }else {
+      formData.append('twitter', '');
+    }
+
     formData.append('twitter_status', isEnableTwitter.toString());
+    if(whatsappUrl != ''){
     formData.append('whatsapp', whatsappUrl.toString());
+    }else {
+      formData.append('whatsapp', '');
+    }
     formData.append('whatsapp_status', isEnableWhatsapp.toString());
 
     console.log('formData', formData)
